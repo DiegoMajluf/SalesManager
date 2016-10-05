@@ -16,12 +16,14 @@
     "cookie-parser": "~1.4.3",
     "debug": "~2.2.0",
     "express": "~4.13.4",
+    "jsonix": "^2.4.1",
     "mongodb": "^2.2.10",
     "morgan": "~1.7.0",
     "serve-favicon": "~2.3.0"
   },
   "devDependencies": {
     "typescript": "^2.0.3",
+    "jsonix-schema-compiler": "^2.3.9",
     "typings": "^1.4.0"
   }
 }
