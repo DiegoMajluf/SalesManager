@@ -10,7 +10,8 @@
     "morgan": "registry:dt/morgan#1.7.0+20160524142355",
     "node": "registry:dt/node#6.0.0+20160928143418",
     "serve-favicon": "registry:dt/serve-favicon#0.0.0+20160316155526",
-    "serve-static": "registry:dt/serve-static#0.0.0+20160606155157"
+    "serve-static": "registry:dt/serve-static#0.0.0+20160606155157",
+    "xmldom": "registry:dt/xmldom#0.1.22+20160319053438"
   },
   "dependencies": {
     "debug": "registry:npm/debug#2.0.0+20160723033700"
