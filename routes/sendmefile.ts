@@ -17,9 +17,8 @@ router.post('/', function (req, res) {
         req.setEncoding('utf8')
         let str = <string>req.read();
         let rd = new DOMParser()
-        let doc = rd.parseFromString(str, 'text/xml')
-        let set = new DTE.SetDTE();
-        set.ParseFromXMLElement(doc.getElementsByTagName('SetDTE')[0])
+        let doc = rd.parseFromString(str)
+        console.log(doc.childNodes.item(0).nodeName)
     });
 });
 
