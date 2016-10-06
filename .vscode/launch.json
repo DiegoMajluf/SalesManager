@@ -5,7 +5,7 @@
             "name": "Iniciar",
             "type": "node",
             "request": "launch",
-            "program": "${workspaceRoot}/app",
+            "program": "${workspaceRoot}/app.ts",
             "stopOnEntry": false,
             "args": [],
             "cwd": "${workspaceRoot}",
@@ -25,7 +25,7 @@
             "name": "Asociar",
             "type": "node",
             "request": "attach",
-            "port": 5858,
+            "port": 3001,
             "address": "localhost",
             "restart": false,
             "sourceMaps": false,
@@ -38,7 +38,7 @@
             "type": "node",
             "request": "attach",
             "processId": "${command.PickProcess}",
-            "port": 5858,
+            "port": 3001,
             "sourceMaps": false,
             "outDir": null
         }

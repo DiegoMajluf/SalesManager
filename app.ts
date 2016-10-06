@@ -22,11 +22,12 @@ app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(cookieParser());
 app.use('/cliente', express.static(path.join(__dirname, 'cliente')));
+app.use('/node_modules', express.static(path.join(__dirname, 'node_modules')));
 
 app.use('/sendmefile', getFile)
 
 app.get('/', (req, res) => {
-  res.send({app:'hola'})
+  res.send({ app: 'hola' })
 })
 
 
@@ -43,6 +44,7 @@ app.use(function (req, res, next) {
 // will print stacktrace
 if (app.get('env') === 'development') {
   app.use(<express.ErrorRequestHandler>function (err, req, res, next) {
+    console.log('error')
     res.status(err.status || 500);
     res.send({
       message: err.message,
@@ -54,6 +56,7 @@ if (app.get('env') === 'development') {
   // production error handler
   // no stacktraces leaked to user
   app.use(<express.ErrorRequestHandler>function (err, req, res, next) {
+    console.log('error')
     res.status(err.status || 500);
     res.send({
       message: err.message,

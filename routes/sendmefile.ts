@@ -1,25 +1,27 @@
 import * as express  from 'express';
 import * as fs from 'fs';
-import * as DTE from './dtes'
+import * as DTE from '../cliente/dtes'
 import {DOMParser} from 'xmldom'
 
 
 export let router = express.Router();
 
-
-fs.readFile('../schemas/LibrosCV/LibroCV_v10.xsd', { encoding: 'utf-8' }, (err1, data) => {
-
-});
-
-
 router.post('/', function (req, res) {
     req.on('readable', function () {
         req.setEncoding('utf8')
         let str = <string>req.read();
-        let rd = new DOMParser()
-        let doc = rd.parseFromString(str)
-        console.log(doc.childNodes.item(0).nodeName)
+        // let rd = new DOMParser({
+        //     locator: {},
+        //     errorHandler: {
+        //         warning: (w) => console.warn(w),
+        //         error: (e) => console.error(e),
+        //         fatalError: (e) => console.error(e)
+        //     }
+        // })
+        // let doc = rd.parseFromString(str, "application/xml")
+        res.send(str)
     });
+        
 });
 
 router.get('/', (req, res) => {

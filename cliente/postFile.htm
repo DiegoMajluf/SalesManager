@@ -1,12 +1,24 @@
 <html>
+
 <head>
     <meta charset="UTF-8">
     <title>Document</title>
-    <script src="cliente/script.js"></script>
+    <script src="node_modules/systemjs/dist/system.src.js"></script>
+
+    <script>
+        /**
+         * System configuration for Angular 2 samples
+         * Adjust as necessary for your application needs.
+         */
+        System.defaultJSExtensions = true;
+        System.import('cliente/script.js').catch(function(err){ console.error(err); });
+    </script>
 
 </head>
+
 <body>
     <input type="file" id='inpFile' />
     <pre id='pre'></pre>
 </body>
+
 </html>

@@ -1,5 +1,6 @@
+import * as DTE from './dtes'
 
-window.addEventListener('load', () => {
+(() => {
 
 
 
@@ -15,10 +16,15 @@ window.addEventListener('load', () => {
         }
         let fr = new FileReader();
         fr.onload = function () {
+            let dp = new DOMParser();
+            let doc = dp.parseFromString(fr.result, "application/xml");
+            let dt = new DTE.SetDTE();
+            dt.ParseFromXMLElement(doc.documentElement)
+            console.log(dt)
             xml.send(fr.result)
-            console.log('Se ha leaido el documento. Se envió')
         }
         fr.readAsArrayBuffer(inp.files[0])
 
     })
-})
+})()
+

@@ -1,4 +1,4 @@
-import * as FirmaDigital from './firma_digital';
+import * as FirmaDigital from '../cliente/firma_digital';
 
 
 /**Documento Tributario Electronico. */

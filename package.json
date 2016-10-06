@@ -19,6 +19,7 @@
     "mongodb": "^2.2.10",
     "morgan": "~1.7.0",
     "serve-favicon": "~2.3.0",
+    "systemjs": "^0.19.39",
     "xmldom": "^0.1.22"
   },
   "devDependencies": {
