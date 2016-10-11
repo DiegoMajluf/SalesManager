@@ -5,31 +5,16 @@ import { DOMParser } from 'xmldom'
 
 
 export let router = express.Router();
-
+let str: string = '';
 router.post('/', function (req, res, next) {
-    req.on('readable', function () {
-        req.setEncoding('utf8')
-        let str = <string>req.read();
-        try {
-            let doc = new DOMParser({
-                locator: {},
-                errorHandler: {
-                    warning: (w) => console.warn('Advertencia: ' + w),
-                    error: (e) => console.error('Error: ' + e),
-                    fatalError: (e) => console.error('Error Fatal: ' + e)
-                }
-            }).parseFromString(str, "text/xml")
-
-        } catch (e) {
-            console.log(e)
-        }
-
-        // let dd = new DTE.SetDTE();
-        // dd.ParseFromXMLElement(doc.documentElement)
-        res.write(str)
-        res.send();
-    });
-
+    req.setEncoding('utf8')
+    req.on('readable',  () => str += <string>req.read());
+    req.on('end', () => {
+        let doc = new DOMParser().parseFromString(str, "text/xml")
+        let dd = new DTE.SetDTE();
+        dd.ParseFromXMLElement(doc.documentElement)
+        res.send(JSON.stringify(dd));
+    })
 });
 
 router.get('/', (req, res) => {
