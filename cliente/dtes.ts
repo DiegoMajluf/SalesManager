@@ -1,4 +1,4 @@
-import * as FirmaDigital from '../cliente/firma_digital';
+import * as firma from './firma_electronica';
 
 
 /**Documento Tributario Electronico. */
@@ -12,33 +12,41 @@ export class DTE {
 	/**Opcional. Informacion Tributaria de exportaciones. */
 	Exportaciones: Exportaciones
 	/**Firma Digital sobre Documento. */
-	Signature: FirmaDigital.Signature
+	Signature: firma.Signature
 	ParseFromXMLElement = (Node: Element) => {
 		let nd: NodeListOf<Element>
 		if (Node.hasAttribute('version')) this.version = Node.getAttribute('version');
 		nd = Node.getElementsByTagName('Documento');
-		if (nd.length > 0) {
-			this.Documento = new Documento();
-			this.Documento.ParseFromXMLElement(nd[0]);
-		}
+		for (let i = 0; i < nd.length; ++i)
+			if (nd[i].parentNode == Node) {
+				this.Documento = new Documento();
+				this.Documento.ParseFromXMLElement(nd[i]);
+				break;
+			}
 
 		nd = Node.getElementsByTagName('Liquidacion');
-		if (nd.length > 0) {
-			this.Liquidacion = new Liquidacion();
-			this.Liquidacion.ParseFromXMLElement(nd[0]);
-		}
+		for (let i = 0; i < nd.length; ++i)
+			if (nd[i].parentNode == Node) {
+				this.Liquidacion = new Liquidacion();
+				this.Liquidacion.ParseFromXMLElement(nd[i]);
+				break;
+			}
 
 		nd = Node.getElementsByTagName('Exportaciones');
-		if (nd.length > 0) {
-			this.Exportaciones = new Exportaciones();
-			this.Exportaciones.ParseFromXMLElement(nd[0]);
-		}
+		for (let i = 0; i < nd.length; ++i)
+			if (nd[i].parentNode == Node) {
+				this.Exportaciones = new Exportaciones();
+				this.Exportaciones.ParseFromXMLElement(nd[i]);
+				break;
+			}
 
 		nd = Node.getElementsByTagName('Signature');
-		if (nd.length > 0) {
-			this.Signature = new FirmaDigital.Signature();
-			this.Signature.ParseFromXMLElement(nd[0]);
-		}
+		for (let i = 0; i < nd.length; ++i)
+			if (nd[i].parentNode == Node) {
+				this.Signature = new firma.Signature();
+				this.Signature.ParseFromXMLElement(nd[i]);
+				break;
+			}
 
 	}
 
@@ -68,64 +76,77 @@ export class Documento {
 		let nd: NodeListOf<Element>
 		if (Node.hasAttribute('ID')) this.ID = <string>Node.getAttribute('ID');
 		nd = Node.getElementsByTagName('Encabezado');
-		if (nd.length > 0) {
-			this.Encabezado = new Encabezado();
-			this.Encabezado.ParseFromXMLElement(nd[0]);
-		}
+		for (let i = 0; i < nd.length; ++i)
+			if (nd[i].parentNode == Node) {
+				this.Encabezado = new Encabezado();
+				this.Encabezado.ParseFromXMLElement(nd[i]);
+				break;
+			}
 
 		nd = Node.getElementsByTagName('Detalle');
 		if (nd.length > 0) {
 			this.Detalle = <[Detalle]>[];
-			for (let i = 0; i < nd.length; ++i) {
-				this.Detalle.push(new Detalle());
-				this.Detalle[i].ParseFromXMLElement(nd[i]);
-			}
+			for (let i = 0; i < nd.length; ++i)
+				if (nd[i].parentNode == Node) {
+					this.Detalle.push(new Detalle());
+					this.Detalle[i].ParseFromXMLElement(nd[i]);
+				}
 		}
 
 		nd = Node.getElementsByTagName('SubTotInfo');
 		if (nd.length > 0) {
 			this.SubTotInfo = <[SubTotInfo]>[];
-			for (let i = 0; i < nd.length; ++i) {
-				this.SubTotInfo.push(new SubTotInfo());
-				this.SubTotInfo[i].ParseFromXMLElement(nd[i]);
-			}
+			for (let i = 0; i < nd.length; ++i)
+				if (nd[i].parentNode == Node) {
+					this.SubTotInfo.push(new SubTotInfo());
+					this.SubTotInfo[i].ParseFromXMLElement(nd[i]);
+				}
 		}
 
 		nd = Node.getElementsByTagName('DscRcgGlobal');
 		if (nd.length > 0) {
 			this.DscRcgGlobal = <[DscRcgGlobal]>[];
-			for (let i = 0; i < nd.length; ++i) {
-				this.DscRcgGlobal.push(new DscRcgGlobal());
-				this.DscRcgGlobal[i].ParseFromXMLElement(nd[i]);
-			}
+			for (let i = 0; i < nd.length; ++i)
+				if (nd[i].parentNode == Node) {
+					this.DscRcgGlobal.push(new DscRcgGlobal());
+					this.DscRcgGlobal[i].ParseFromXMLElement(nd[i]);
+				}
 		}
 
 		nd = Node.getElementsByTagName('Referencia');
 		if (nd.length > 0) {
 			this.Referencia = <[Referencia]>[];
-			for (let i = 0; i < nd.length; ++i) {
-				this.Referencia.push(new Referencia());
-				this.Referencia[i].ParseFromXMLElement(nd[i]);
-			}
+			for (let i = 0; i < nd.length; ++i)
+				if (nd[i].parentNode == Node) {
+					this.Referencia.push(new Referencia());
+					this.Referencia[i].ParseFromXMLElement(nd[i]);
+				}
 		}
 
 		nd = Node.getElementsByTagName('Comisiones');
 		if (nd.length > 0) {
 			this.Comisiones = <[Comisiones]>[];
-			for (let i = 0; i < nd.length; ++i) {
-				this.Comisiones.push(new Comisiones());
-				this.Comisiones[i].ParseFromXMLElement(nd[i]);
-			}
+			for (let i = 0; i < nd.length; ++i)
+				if (nd[i].parentNode == Node) {
+					this.Comisiones.push(new Comisiones());
+					this.Comisiones[i].ParseFromXMLElement(nd[i]);
+				}
 		}
 
 		nd = Node.getElementsByTagName('TED');
-		if (nd.length > 0) {
-			this.TED = new TED();
-			this.TED.ParseFromXMLElement(nd[0]);
-		}
+		for (let i = 0; i < nd.length; ++i)
+			if (nd[i].parentNode == Node) {
+				this.TED = new TED();
+				this.TED.ParseFromXMLElement(nd[i]);
+				break;
+			}
 
 		nd = Node.getElementsByTagName('TmstFirma')
-		if (nd.length > 0) this.TmstFirma = new Date(nd[0].textContent);
+		for (let i = 0; i < nd.length; ++i)
+			if (nd[i].parentNode == Node) {
+				this.TmstFirma = new Date(nd[i].textContent);
+				break;
+			}
 	}
 
 }
@@ -151,44 +172,64 @@ export class Encabezado {
 	ParseFromXMLElement = (Node: Element) => {
 		let nd: NodeListOf<Element>
 		nd = Node.getElementsByTagName('IdDoc');
-		if (nd.length > 0) {
-			this.IdDoc = new IdDoc();
-			this.IdDoc.ParseFromXMLElement(nd[0]);
-		}
+		for (let i = 0; i < nd.length; ++i)
+			if (nd[i].parentNode == Node) {
+				this.IdDoc = new IdDoc();
+				this.IdDoc.ParseFromXMLElement(nd[i]);
+				break;
+			}
 
 		nd = Node.getElementsByTagName('Emisor');
-		if (nd.length > 0) {
-			this.Emisor = new Emisor();
-			this.Emisor.ParseFromXMLElement(nd[0]);
-		}
+		for (let i = 0; i < nd.length; ++i)
+			if (nd[i].parentNode == Node) {
+				this.Emisor = new Emisor();
+				this.Emisor.ParseFromXMLElement(nd[i]);
+				break;
+			}
 
 		nd = Node.getElementsByTagName('RUTMandante')
-		if (nd.length > 0) this.RUTMandante = nd[0].textContent;
+		for (let i = 0; i < nd.length; ++i)
+			if (nd[i].parentNode == Node) {
+				this.RUTMandante = nd[i].textContent;
+				break;
+			}
 		nd = Node.getElementsByTagName('Receptor');
-		if (nd.length > 0) {
-			this.Receptor = new Receptor();
-			this.Receptor.ParseFromXMLElement(nd[0]);
-		}
+		for (let i = 0; i < nd.length; ++i)
+			if (nd[i].parentNode == Node) {
+				this.Receptor = new Receptor();
+				this.Receptor.ParseFromXMLElement(nd[i]);
+				break;
+			}
 
 		nd = Node.getElementsByTagName('RUTSolicita')
-		if (nd.length > 0) this.RUTSolicita = nd[0].textContent;
+		for (let i = 0; i < nd.length; ++i)
+			if (nd[i].parentNode == Node) {
+				this.RUTSolicita = nd[i].textContent;
+				break;
+			}
 		nd = Node.getElementsByTagName('Transporte');
-		if (nd.length > 0) {
-			this.Transporte = new Transporte();
-			this.Transporte.ParseFromXMLElement(nd[0]);
-		}
+		for (let i = 0; i < nd.length; ++i)
+			if (nd[i].parentNode == Node) {
+				this.Transporte = new Transporte();
+				this.Transporte.ParseFromXMLElement(nd[i]);
+				break;
+			}
 
 		nd = Node.getElementsByTagName('Totales');
-		if (nd.length > 0) {
-			this.Totales = new Totales();
-			this.Totales.ParseFromXMLElement(nd[0]);
-		}
+		for (let i = 0; i < nd.length; ++i)
+			if (nd[i].parentNode == Node) {
+				this.Totales = new Totales();
+				this.Totales.ParseFromXMLElement(nd[i]);
+				break;
+			}
 
 		nd = Node.getElementsByTagName('OtraMoneda');
-		if (nd.length > 0) {
-			this.OtraMoneda = new OtraMoneda();
-			this.OtraMoneda.ParseFromXMLElement(nd[0]);
-		}
+		for (let i = 0; i < nd.length; ++i)
+			if (nd[i].parentNode == Node) {
+				this.OtraMoneda = new OtraMoneda();
+				this.OtraMoneda.ParseFromXMLElement(nd[i]);
+				break;
+			}
 
 	}
 
@@ -249,62 +290,159 @@ export class IdDoc {
 	ParseFromXMLElement = (Node: Element) => {
 		let nd: NodeListOf<Element>
 		nd = Node.getElementsByTagName('IndNoRebaja')
-		if (nd.length > 0) this.IndNoRebaja = parseInt(nd[0].textContent);
+		for (let i = 0; i < nd.length; ++i)
+			if (nd[i].parentNode == Node) {
+				this.IndNoRebaja = parseInt(nd[i].textContent);
+				break;
+			}
 		nd = Node.getElementsByTagName('TipoDespacho')
-		if (nd.length > 0) this.TipoDespacho = parseInt(nd[0].textContent);
+		for (let i = 0; i < nd.length; ++i)
+			if (nd[i].parentNode == Node) {
+				this.TipoDespacho = parseInt(nd[i].textContent);
+				break;
+			}
 		nd = Node.getElementsByTagName('IndTraslado')
-		if (nd.length > 0) this.IndTraslado = parseInt(nd[0].textContent);
+		for (let i = 0; i < nd.length; ++i)
+			if (nd[i].parentNode == Node) {
+				this.IndTraslado = parseInt(nd[i].textContent);
+				break;
+			}
 		nd = Node.getElementsByTagName('TpoImpresion')
-		if (nd.length > 0) this.TpoImpresion = <TpoImpresion>nd[0].textContent;
+		for (let i = 0; i < nd.length; ++i)
+			if (nd[i].parentNode == Node) {
+				this.TpoImpresion = <TpoImpresion>nd[i].textContent;
+				break;
+			}
 		nd = Node.getElementsByTagName('IndServicio')
-		if (nd.length > 0) this.IndServicio = parseInt(nd[0].textContent);
+		for (let i = 0; i < nd.length; ++i)
+			if (nd[i].parentNode == Node) {
+				this.IndServicio = parseInt(nd[i].textContent);
+				break;
+			}
 		nd = Node.getElementsByTagName('MntBruto')
-		if (nd.length > 0) this.MntBruto = parseInt(nd[0].textContent);
+		for (let i = 0; i < nd.length; ++i)
+			if (nd[i].parentNode == Node) {
+				this.MntBruto = parseInt(nd[i].textContent);
+				break;
+			}
 		nd = Node.getElementsByTagName('FmaPago')
-		if (nd.length > 0) this.FmaPago = parseInt(nd[0].textContent);
+		for (let i = 0; i < nd.length; ++i)
+			if (nd[i].parentNode == Node) {
+				this.FmaPago = parseInt(nd[i].textContent);
+				break;
+			}
 		nd = Node.getElementsByTagName('FmaPagExp')
-		if (nd.length > 0) this.FmaPagExp = parseFloat(nd[0].textContent);
+		for (let i = 0; i < nd.length; ++i)
+			if (nd[i].parentNode == Node) {
+				this.FmaPagExp = parseFloat(nd[i].textContent);
+				break;
+			}
 		nd = Node.getElementsByTagName('TpoCtaPago')
-		if (nd.length > 0) this.TpoCtaPago = <TpoCtaPago>nd[0].textContent;
+		for (let i = 0; i < nd.length; ++i)
+			if (nd[i].parentNode == Node) {
+				this.TpoCtaPago = <TpoCtaPago>nd[i].textContent;
+				break;
+			}
 		nd = Node.getElementsByTagName('NumCtaPago')
-		if (nd.length > 0) this.NumCtaPago = nd[0].textContent;
+		for (let i = 0; i < nd.length; ++i)
+			if (nd[i].parentNode == Node) {
+				this.NumCtaPago = nd[i].textContent;
+				break;
+			}
 		nd = Node.getElementsByTagName('BcoPago')
-		if (nd.length > 0) this.BcoPago = nd[0].textContent;
+		for (let i = 0; i < nd.length; ++i)
+			if (nd[i].parentNode == Node) {
+				this.BcoPago = nd[i].textContent;
+				break;
+			}
 		nd = Node.getElementsByTagName('TermPagoCdg')
-		if (nd.length > 0) this.TermPagoCdg = nd[0].textContent;
+		for (let i = 0; i < nd.length; ++i)
+			if (nd[i].parentNode == Node) {
+				this.TermPagoCdg = nd[i].textContent;
+				break;
+			}
 		nd = Node.getElementsByTagName('TermPagoGlosa')
-		if (nd.length > 0) this.TermPagoGlosa = nd[0].textContent;
+		for (let i = 0; i < nd.length; ++i)
+			if (nd[i].parentNode == Node) {
+				this.TermPagoGlosa = nd[i].textContent;
+				break;
+			}
 		nd = Node.getElementsByTagName('TermPagoDias')
-		if (nd.length > 0) this.TermPagoDias = parseFloat(nd[0].textContent);
+		for (let i = 0; i < nd.length; ++i)
+			if (nd[i].parentNode == Node) {
+				this.TermPagoDias = parseFloat(nd[i].textContent);
+				break;
+			}
 		nd = Node.getElementsByTagName('TipoDTE')
-		if (nd.length > 0) this.TipoDTE = parseInt(nd[0].textContent);
+		for (let i = 0; i < nd.length; ++i)
+			if (nd[i].parentNode == Node) {
+				this.TipoDTE = parseInt(nd[i].textContent);
+				break;
+			}
 		nd = Node.getElementsByTagName('Folio')
-		if (nd.length > 0) this.Folio = parseFloat(nd[0].textContent);
+		for (let i = 0; i < nd.length; ++i)
+			if (nd[i].parentNode == Node) {
+				this.Folio = parseFloat(nd[i].textContent);
+				break;
+			}
 		nd = Node.getElementsByTagName('FchEmis')
-		if (nd.length > 0) this.FchEmis = new Date(nd[0].textContent);
+		for (let i = 0; i < nd.length; ++i)
+			if (nd[i].parentNode == Node) {
+				this.FchEmis = new Date(nd[i].textContent);
+				break;
+			}
 		nd = Node.getElementsByTagName('FchCancel')
-		if (nd.length > 0) this.FchCancel = new Date(nd[0].textContent);
+		for (let i = 0; i < nd.length; ++i)
+			if (nd[i].parentNode == Node) {
+				this.FchCancel = new Date(nd[i].textContent);
+				break;
+			}
 		nd = Node.getElementsByTagName('MntCancel')
-		if (nd.length > 0) this.MntCancel = parseFloat(nd[0].textContent);
+		for (let i = 0; i < nd.length; ++i)
+			if (nd[i].parentNode == Node) {
+				this.MntCancel = parseFloat(nd[i].textContent);
+				break;
+			}
 		nd = Node.getElementsByTagName('SaldoInsol')
-		if (nd.length > 0) this.SaldoInsol = parseFloat(nd[0].textContent);
+		for (let i = 0; i < nd.length; ++i)
+			if (nd[i].parentNode == Node) {
+				this.SaldoInsol = parseFloat(nd[i].textContent);
+				break;
+			}
 		nd = Node.getElementsByTagName('MntPagos');
 		if (nd.length > 0) {
 			this.MntPagos = <[MntPagos]>[];
-			for (let i = 0; i < nd.length; ++i) {
-				this.MntPagos.push(new MntPagos());
-				this.MntPagos[i].ParseFromXMLElement(nd[i]);
-			}
+			for (let i = 0; i < nd.length; ++i)
+				if (nd[i].parentNode == Node) {
+					this.MntPagos.push(new MntPagos());
+					this.MntPagos[i].ParseFromXMLElement(nd[i]);
+				}
 		}
 
 		nd = Node.getElementsByTagName('PeriodoDesde')
-		if (nd.length > 0) this.PeriodoDesde = new Date(nd[0].textContent);
+		for (let i = 0; i < nd.length; ++i)
+			if (nd[i].parentNode == Node) {
+				this.PeriodoDesde = new Date(nd[i].textContent);
+				break;
+			}
 		nd = Node.getElementsByTagName('PeriodoHasta')
-		if (nd.length > 0) this.PeriodoHasta = new Date(nd[0].textContent);
+		for (let i = 0; i < nd.length; ++i)
+			if (nd[i].parentNode == Node) {
+				this.PeriodoHasta = new Date(nd[i].textContent);
+				break;
+			}
 		nd = Node.getElementsByTagName('MedioPago')
-		if (nd.length > 0) this.MedioPago = <MedioPagoType>nd[0].textContent;
+		for (let i = 0; i < nd.length; ++i)
+			if (nd[i].parentNode == Node) {
+				this.MedioPago = <MedioPagoType>nd[i].textContent;
+				break;
+			}
 		nd = Node.getElementsByTagName('FchVenc')
-		if (nd.length > 0) this.FchVenc = new Date(nd[0].textContent);
+		for (let i = 0; i < nd.length; ++i)
+			if (nd[i].parentNode == Node) {
+				this.FchVenc = new Date(nd[i].textContent);
+				break;
+			}
 	}
 
 }
@@ -371,11 +509,23 @@ export class MntPagos {
 	ParseFromXMLElement = (Node: Element) => {
 		let nd: NodeListOf<Element>
 		nd = Node.getElementsByTagName('GlosaPagos')
-		if (nd.length > 0) this.GlosaPagos = nd[0].textContent;
+		for (let i = 0; i < nd.length; ++i)
+			if (nd[i].parentNode == Node) {
+				this.GlosaPagos = nd[i].textContent;
+				break;
+			}
 		nd = Node.getElementsByTagName('FchPago')
-		if (nd.length > 0) this.FchPago = new Date(nd[0].textContent);
+		for (let i = 0; i < nd.length; ++i)
+			if (nd[i].parentNode == Node) {
+				this.FchPago = new Date(nd[i].textContent);
+				break;
+			}
 		nd = Node.getElementsByTagName('MntPago')
-		if (nd.length > 0) this.MntPago = parseFloat(nd[0].textContent);
+		for (let i = 0; i < nd.length; ++i)
+			if (nd[i].parentNode == Node) {
+				this.MntPago = parseFloat(nd[i].textContent);
+				break;
+			}
 	}
 
 }
@@ -417,49 +567,99 @@ export class Emisor {
 	ParseFromXMLElement = (Node: Element) => {
 		let nd: NodeListOf<Element>
 		nd = Node.getElementsByTagName('RznSoc')
-		if (nd.length > 0) this.RznSoc = nd[0].textContent;
+		for (let i = 0; i < nd.length; ++i)
+			if (nd[i].parentNode == Node) {
+				this.RznSoc = nd[i].textContent;
+				break;
+			}
 		nd = Node.getElementsByTagName('GiroEmis')
-		if (nd.length > 0) this.GiroEmis = nd[0].textContent;
+		for (let i = 0; i < nd.length; ++i)
+			if (nd[i].parentNode == Node) {
+				this.GiroEmis = nd[i].textContent;
+				break;
+			}
 		nd = Node.getElementsByTagName('Telefono')
 		if (nd.length > 0) {
 			this.Telefono = <[string]>[];
-			let itms = nd;
-			for (let i = 0; i < itms.length; ++i) this.Telefono.push(itms[i].textContent);
+			for (let i = 0; i < nd.length; ++i)
+				if (nd[i].parentNode == Node) this.Telefono.push(nd[i].textContent);
 		}
 
 		nd = Node.getElementsByTagName('Acteco')
 		if (nd.length > 0) {
 			this.Acteco = <[number]>[];
-			let itms = nd;
-			for (let i = 0; i < itms.length; ++i) this.Acteco.push(parseFloat(itms[i].textContent));
+			for (let i = 0; i < nd.length; ++i)
+				if (nd[i].parentNode == Node) this.Acteco.push(parseFloat(nd[i].textContent));
 		}
 
 		nd = Node.getElementsByTagName('Sucursal')
-		if (nd.length > 0) this.Sucursal = nd[0].textContent;
+		for (let i = 0; i < nd.length; ++i)
+			if (nd[i].parentNode == Node) {
+				this.Sucursal = nd[i].textContent;
+				break;
+			}
 		nd = Node.getElementsByTagName('CdgSIISucur')
-		if (nd.length > 0) this.CdgSIISucur = parseFloat(nd[0].textContent);
+		for (let i = 0; i < nd.length; ++i)
+			if (nd[i].parentNode == Node) {
+				this.CdgSIISucur = parseFloat(nd[i].textContent);
+				break;
+			}
 		nd = Node.getElementsByTagName('CodAdicSucur')
-		if (nd.length > 0) this.CodAdicSucur = nd[0].textContent;
+		for (let i = 0; i < nd.length; ++i)
+			if (nd[i].parentNode == Node) {
+				this.CodAdicSucur = nd[i].textContent;
+				break;
+			}
 		nd = Node.getElementsByTagName('DirOrigen')
-		if (nd.length > 0) this.DirOrigen = nd[0].textContent;
+		for (let i = 0; i < nd.length; ++i)
+			if (nd[i].parentNode == Node) {
+				this.DirOrigen = nd[i].textContent;
+				break;
+			}
 		nd = Node.getElementsByTagName('CdgVendedor')
-		if (nd.length > 0) this.CdgVendedor = nd[0].textContent;
+		for (let i = 0; i < nd.length; ++i)
+			if (nd[i].parentNode == Node) {
+				this.CdgVendedor = nd[i].textContent;
+				break;
+			}
 		nd = Node.getElementsByTagName('IdAdicEmisor')
-		if (nd.length > 0) this.IdAdicEmisor = nd[0].textContent;
+		for (let i = 0; i < nd.length; ++i)
+			if (nd[i].parentNode == Node) {
+				this.IdAdicEmisor = nd[i].textContent;
+				break;
+			}
 		nd = Node.getElementsByTagName('RUTEmisor')
-		if (nd.length > 0) this.RUTEmisor = nd[0].textContent;
+		for (let i = 0; i < nd.length; ++i)
+			if (nd[i].parentNode == Node) {
+				this.RUTEmisor = nd[i].textContent;
+				break;
+			}
 		nd = Node.getElementsByTagName('CorreoEmisor')
-		if (nd.length > 0) this.CorreoEmisor = nd[0].textContent;
+		for (let i = 0; i < nd.length; ++i)
+			if (nd[i].parentNode == Node) {
+				this.CorreoEmisor = nd[i].textContent;
+				break;
+			}
 		nd = Node.getElementsByTagName('GuiaExport');
-		if (nd.length > 0) {
-			this.GuiaExport = new GuiaExport();
-			this.GuiaExport.ParseFromXMLElement(nd[0]);
-		}
+		for (let i = 0; i < nd.length; ++i)
+			if (nd[i].parentNode == Node) {
+				this.GuiaExport = new GuiaExport();
+				this.GuiaExport.ParseFromXMLElement(nd[i]);
+				break;
+			}
 
 		nd = Node.getElementsByTagName('CmnaOrigen')
-		if (nd.length > 0) this.CmnaOrigen = nd[0].textContent;
+		for (let i = 0; i < nd.length; ++i)
+			if (nd[i].parentNode == Node) {
+				this.CmnaOrigen = nd[i].textContent;
+				break;
+			}
 		nd = Node.getElementsByTagName('CiudadOrigen')
-		if (nd.length > 0) this.CiudadOrigen = nd[0].textContent;
+		for (let i = 0; i < nd.length; ++i)
+			if (nd[i].parentNode == Node) {
+				this.CiudadOrigen = nd[i].textContent;
+				break;
+			}
 	}
 
 }
@@ -475,11 +675,23 @@ export class GuiaExport {
 	ParseFromXMLElement = (Node: Element) => {
 		let nd: NodeListOf<Element>
 		nd = Node.getElementsByTagName('CdgTraslado')
-		if (nd.length > 0) this.CdgTraslado = parseInt(nd[0].textContent);
+		for (let i = 0; i < nd.length; ++i)
+			if (nd[i].parentNode == Node) {
+				this.CdgTraslado = parseInt(nd[i].textContent);
+				break;
+			}
 		nd = Node.getElementsByTagName('FolioAut')
-		if (nd.length > 0) this.FolioAut = parseFloat(nd[0].textContent);
+		for (let i = 0; i < nd.length; ++i)
+			if (nd[i].parentNode == Node) {
+				this.FolioAut = parseFloat(nd[i].textContent);
+				break;
+			}
 		nd = Node.getElementsByTagName('FchAut')
-		if (nd.length > 0) this.FchAut = new Date(nd[0].textContent);
+		for (let i = 0; i < nd.length; ++i)
+			if (nd[i].parentNode == Node) {
+				this.FchAut = new Date(nd[i].textContent);
+				break;
+			}
 	}
 
 }
@@ -522,35 +734,85 @@ export class Receptor {
 	ParseFromXMLElement = (Node: Element) => {
 		let nd: NodeListOf<Element>
 		nd = Node.getElementsByTagName('CdgIntRecep')
-		if (nd.length > 0) this.CdgIntRecep = nd[0].textContent;
+		for (let i = 0; i < nd.length; ++i)
+			if (nd[i].parentNode == Node) {
+				this.CdgIntRecep = nd[i].textContent;
+				break;
+			}
 		nd = Node.getElementsByTagName('GiroRecep')
-		if (nd.length > 0) this.GiroRecep = nd[0].textContent;
+		for (let i = 0; i < nd.length; ++i)
+			if (nd[i].parentNode == Node) {
+				this.GiroRecep = nd[i].textContent;
+				break;
+			}
 		nd = Node.getElementsByTagName('Contacto')
-		if (nd.length > 0) this.Contacto = nd[0].textContent;
+		for (let i = 0; i < nd.length; ++i)
+			if (nd[i].parentNode == Node) {
+				this.Contacto = nd[i].textContent;
+				break;
+			}
 		nd = Node.getElementsByTagName('DirRecep')
-		if (nd.length > 0) this.DirRecep = nd[0].textContent;
+		for (let i = 0; i < nd.length; ++i)
+			if (nd[i].parentNode == Node) {
+				this.DirRecep = nd[i].textContent;
+				break;
+			}
 		nd = Node.getElementsByTagName('DirPostal')
-		if (nd.length > 0) this.DirPostal = nd[0].textContent;
+		for (let i = 0; i < nd.length; ++i)
+			if (nd[i].parentNode == Node) {
+				this.DirPostal = nd[i].textContent;
+				break;
+			}
 		nd = Node.getElementsByTagName('RUTRecep')
-		if (nd.length > 0) this.RUTRecep = nd[0].textContent;
+		for (let i = 0; i < nd.length; ++i)
+			if (nd[i].parentNode == Node) {
+				this.RUTRecep = nd[i].textContent;
+				break;
+			}
 		nd = Node.getElementsByTagName('RznSocRecep')
-		if (nd.length > 0) this.RznSocRecep = nd[0].textContent;
+		for (let i = 0; i < nd.length; ++i)
+			if (nd[i].parentNode == Node) {
+				this.RznSocRecep = nd[i].textContent;
+				break;
+			}
 		nd = Node.getElementsByTagName('Extranjero');
-		if (nd.length > 0) {
-			this.Extranjero = new Extranjero();
-			this.Extranjero.ParseFromXMLElement(nd[0]);
-		}
+		for (let i = 0; i < nd.length; ++i)
+			if (nd[i].parentNode == Node) {
+				this.Extranjero = new Extranjero();
+				this.Extranjero.ParseFromXMLElement(nd[i]);
+				break;
+			}
 
 		nd = Node.getElementsByTagName('CorreoRecep')
-		if (nd.length > 0) this.CorreoRecep = nd[0].textContent;
+		for (let i = 0; i < nd.length; ++i)
+			if (nd[i].parentNode == Node) {
+				this.CorreoRecep = nd[i].textContent;
+				break;
+			}
 		nd = Node.getElementsByTagName('CmnaRecep')
-		if (nd.length > 0) this.CmnaRecep = nd[0].textContent;
+		for (let i = 0; i < nd.length; ++i)
+			if (nd[i].parentNode == Node) {
+				this.CmnaRecep = nd[i].textContent;
+				break;
+			}
 		nd = Node.getElementsByTagName('CiudadRecep')
-		if (nd.length > 0) this.CiudadRecep = nd[0].textContent;
+		for (let i = 0; i < nd.length; ++i)
+			if (nd[i].parentNode == Node) {
+				this.CiudadRecep = nd[i].textContent;
+				break;
+			}
 		nd = Node.getElementsByTagName('CmnaPostal')
-		if (nd.length > 0) this.CmnaPostal = nd[0].textContent;
+		for (let i = 0; i < nd.length; ++i)
+			if (nd[i].parentNode == Node) {
+				this.CmnaPostal = nd[i].textContent;
+				break;
+			}
 		nd = Node.getElementsByTagName('CiudadPostal')
-		if (nd.length > 0) this.CiudadPostal = nd[0].textContent;
+		for (let i = 0; i < nd.length; ++i)
+			if (nd[i].parentNode == Node) {
+				this.CiudadPostal = nd[i].textContent;
+				break;
+			}
 	}
 
 }
@@ -566,11 +828,23 @@ export class Extranjero {
 	ParseFromXMLElement = (Node: Element) => {
 		let nd: NodeListOf<Element>
 		nd = Node.getElementsByTagName('NumId')
-		if (nd.length > 0) this.NumId = nd[0].textContent;
+		for (let i = 0; i < nd.length; ++i)
+			if (nd[i].parentNode == Node) {
+				this.NumId = nd[i].textContent;
+				break;
+			}
 		nd = Node.getElementsByTagName('Nacionalidad')
-		if (nd.length > 0) this.Nacionalidad = nd[0].textContent;
+		for (let i = 0; i < nd.length; ++i)
+			if (nd[i].parentNode == Node) {
+				this.Nacionalidad = nd[i].textContent;
+				break;
+			}
 		nd = Node.getElementsByTagName('IdAdicRecep')
-		if (nd.length > 0) this.IdAdicRecep = nd[0].textContent;
+		for (let i = 0; i < nd.length; ++i)
+			if (nd[i].parentNode == Node) {
+				this.IdAdicRecep = nd[i].textContent;
+				break;
+			}
 	}
 
 }
@@ -594,26 +868,50 @@ export class Transporte {
 	ParseFromXMLElement = (Node: Element) => {
 		let nd: NodeListOf<Element>
 		nd = Node.getElementsByTagName('Patente')
-		if (nd.length > 0) this.Patente = nd[0].textContent;
+		for (let i = 0; i < nd.length; ++i)
+			if (nd[i].parentNode == Node) {
+				this.Patente = nd[i].textContent;
+				break;
+			}
 		nd = Node.getElementsByTagName('DirDest')
-		if (nd.length > 0) this.DirDest = nd[0].textContent;
+		for (let i = 0; i < nd.length; ++i)
+			if (nd[i].parentNode == Node) {
+				this.DirDest = nd[i].textContent;
+				break;
+			}
 		nd = Node.getElementsByTagName('RUTTrans')
-		if (nd.length > 0) this.RUTTrans = nd[0].textContent;
+		for (let i = 0; i < nd.length; ++i)
+			if (nd[i].parentNode == Node) {
+				this.RUTTrans = nd[i].textContent;
+				break;
+			}
 		nd = Node.getElementsByTagName('Chofer');
-		if (nd.length > 0) {
-			this.Chofer = new Chofer();
-			this.Chofer.ParseFromXMLElement(nd[0]);
-		}
+		for (let i = 0; i < nd.length; ++i)
+			if (nd[i].parentNode == Node) {
+				this.Chofer = new Chofer();
+				this.Chofer.ParseFromXMLElement(nd[i]);
+				break;
+			}
 
 		nd = Node.getElementsByTagName('CmnaDest')
-		if (nd.length > 0) this.CmnaDest = nd[0].textContent;
+		for (let i = 0; i < nd.length; ++i)
+			if (nd[i].parentNode == Node) {
+				this.CmnaDest = nd[i].textContent;
+				break;
+			}
 		nd = Node.getElementsByTagName('CiudadDest')
-		if (nd.length > 0) this.CiudadDest = nd[0].textContent;
+		for (let i = 0; i < nd.length; ++i)
+			if (nd[i].parentNode == Node) {
+				this.CiudadDest = nd[i].textContent;
+				break;
+			}
 		nd = Node.getElementsByTagName('Aduana');
-		if (nd.length > 0) {
-			this.Aduana = new Aduana();
-			this.Aduana.ParseFromXMLElement(nd[0]);
-		}
+		for (let i = 0; i < nd.length; ++i)
+			if (nd[i].parentNode == Node) {
+				this.Aduana = new Aduana();
+				this.Aduana.ParseFromXMLElement(nd[i]);
+				break;
+			}
 
 	}
 
@@ -628,9 +926,17 @@ export class Chofer {
 	ParseFromXMLElement = (Node: Element) => {
 		let nd: NodeListOf<Element>
 		nd = Node.getElementsByTagName('NombreChofer')
-		if (nd.length > 0) this.NombreChofer = nd[0].textContent;
+		for (let i = 0; i < nd.length; ++i)
+			if (nd[i].parentNode == Node) {
+				this.NombreChofer = nd[i].textContent;
+				break;
+			}
 		nd = Node.getElementsByTagName('RUTChofer')
-		if (nd.length > 0) this.RUTChofer = nd[0].textContent;
+		for (let i = 0; i < nd.length; ++i)
+			if (nd[i].parentNode == Node) {
+				this.RUTChofer = nd[i].textContent;
+				break;
+			}
 	}
 
 }
@@ -694,66 +1000,171 @@ export class Aduana {
 	ParseFromXMLElement = (Node: Element) => {
 		let nd: NodeListOf<Element>
 		nd = Node.getElementsByTagName('CodModVenta')
-		if (nd.length > 0) this.CodModVenta = parseFloat(nd[0].textContent);
+		for (let i = 0; i < nd.length; ++i)
+			if (nd[i].parentNode == Node) {
+				this.CodModVenta = parseFloat(nd[i].textContent);
+				break;
+			}
 		nd = Node.getElementsByTagName('CodClauVenta')
-		if (nd.length > 0) this.CodClauVenta = parseFloat(nd[0].textContent);
+		for (let i = 0; i < nd.length; ++i)
+			if (nd[i].parentNode == Node) {
+				this.CodClauVenta = parseFloat(nd[i].textContent);
+				break;
+			}
 		nd = Node.getElementsByTagName('CodViaTransp')
-		if (nd.length > 0) this.CodViaTransp = parseFloat(nd[0].textContent);
+		for (let i = 0; i < nd.length; ++i)
+			if (nd[i].parentNode == Node) {
+				this.CodViaTransp = parseFloat(nd[i].textContent);
+				break;
+			}
 		nd = Node.getElementsByTagName('NombreTransp')
-		if (nd.length > 0) this.NombreTransp = nd[0].textContent;
+		for (let i = 0; i < nd.length; ++i)
+			if (nd[i].parentNode == Node) {
+				this.NombreTransp = nd[i].textContent;
+				break;
+			}
 		nd = Node.getElementsByTagName('NomCiaTransp')
-		if (nd.length > 0) this.NomCiaTransp = nd[0].textContent;
+		for (let i = 0; i < nd.length; ++i)
+			if (nd[i].parentNode == Node) {
+				this.NomCiaTransp = nd[i].textContent;
+				break;
+			}
 		nd = Node.getElementsByTagName('IdAdicTransp')
-		if (nd.length > 0) this.IdAdicTransp = nd[0].textContent;
+		for (let i = 0; i < nd.length; ++i)
+			if (nd[i].parentNode == Node) {
+				this.IdAdicTransp = nd[i].textContent;
+				break;
+			}
 		nd = Node.getElementsByTagName('Booking')
-		if (nd.length > 0) this.Booking = nd[0].textContent;
+		for (let i = 0; i < nd.length; ++i)
+			if (nd[i].parentNode == Node) {
+				this.Booking = nd[i].textContent;
+				break;
+			}
 		nd = Node.getElementsByTagName('Operador')
-		if (nd.length > 0) this.Operador = nd[0].textContent;
+		for (let i = 0; i < nd.length; ++i)
+			if (nd[i].parentNode == Node) {
+				this.Operador = nd[i].textContent;
+				break;
+			}
 		nd = Node.getElementsByTagName('CodPtoEmbarque')
-		if (nd.length > 0) this.CodPtoEmbarque = parseFloat(nd[0].textContent);
+		for (let i = 0; i < nd.length; ++i)
+			if (nd[i].parentNode == Node) {
+				this.CodPtoEmbarque = parseFloat(nd[i].textContent);
+				break;
+			}
 		nd = Node.getElementsByTagName('IdAdicPtoEmb')
-		if (nd.length > 0) this.IdAdicPtoEmb = nd[0].textContent;
+		for (let i = 0; i < nd.length; ++i)
+			if (nd[i].parentNode == Node) {
+				this.IdAdicPtoEmb = nd[i].textContent;
+				break;
+			}
 		nd = Node.getElementsByTagName('CodPtoDesemb')
-		if (nd.length > 0) this.CodPtoDesemb = parseFloat(nd[0].textContent);
+		for (let i = 0; i < nd.length; ++i)
+			if (nd[i].parentNode == Node) {
+				this.CodPtoDesemb = parseFloat(nd[i].textContent);
+				break;
+			}
 		nd = Node.getElementsByTagName('IdAdicPtoDesemb')
-		if (nd.length > 0) this.IdAdicPtoDesemb = nd[0].textContent;
+		for (let i = 0; i < nd.length; ++i)
+			if (nd[i].parentNode == Node) {
+				this.IdAdicPtoDesemb = nd[i].textContent;
+				break;
+			}
 		nd = Node.getElementsByTagName('Tara')
-		if (nd.length > 0) this.Tara = parseFloat(nd[0].textContent);
+		for (let i = 0; i < nd.length; ++i)
+			if (nd[i].parentNode == Node) {
+				this.Tara = parseFloat(nd[i].textContent);
+				break;
+			}
 		nd = Node.getElementsByTagName('CodUnidMedTara')
-		if (nd.length > 0) this.CodUnidMedTara = parseFloat(nd[0].textContent);
+		for (let i = 0; i < nd.length; ++i)
+			if (nd[i].parentNode == Node) {
+				this.CodUnidMedTara = parseFloat(nd[i].textContent);
+				break;
+			}
 		nd = Node.getElementsByTagName('PesoBruto')
-		if (nd.length > 0) this.PesoBruto = parseFloat(nd[0].textContent);
+		for (let i = 0; i < nd.length; ++i)
+			if (nd[i].parentNode == Node) {
+				this.PesoBruto = parseFloat(nd[i].textContent);
+				break;
+			}
 		nd = Node.getElementsByTagName('CodUnidPesoBruto')
-		if (nd.length > 0) this.CodUnidPesoBruto = parseFloat(nd[0].textContent);
+		for (let i = 0; i < nd.length; ++i)
+			if (nd[i].parentNode == Node) {
+				this.CodUnidPesoBruto = parseFloat(nd[i].textContent);
+				break;
+			}
 		nd = Node.getElementsByTagName('PesoNeto')
-		if (nd.length > 0) this.PesoNeto = parseFloat(nd[0].textContent);
+		for (let i = 0; i < nd.length; ++i)
+			if (nd[i].parentNode == Node) {
+				this.PesoNeto = parseFloat(nd[i].textContent);
+				break;
+			}
 		nd = Node.getElementsByTagName('CodUnidPesoNeto')
-		if (nd.length > 0) this.CodUnidPesoNeto = parseFloat(nd[0].textContent);
+		for (let i = 0; i < nd.length; ++i)
+			if (nd[i].parentNode == Node) {
+				this.CodUnidPesoNeto = parseFloat(nd[i].textContent);
+				break;
+			}
 		nd = Node.getElementsByTagName('TotItems')
-		if (nd.length > 0) this.TotItems = parseFloat(nd[0].textContent);
+		for (let i = 0; i < nd.length; ++i)
+			if (nd[i].parentNode == Node) {
+				this.TotItems = parseFloat(nd[i].textContent);
+				break;
+			}
 		nd = Node.getElementsByTagName('TotBultos')
-		if (nd.length > 0) this.TotBultos = parseFloat(nd[0].textContent);
+		for (let i = 0; i < nd.length; ++i)
+			if (nd[i].parentNode == Node) {
+				this.TotBultos = parseFloat(nd[i].textContent);
+				break;
+			}
 		nd = Node.getElementsByTagName('CodPaisRecep')
-		if (nd.length > 0) this.CodPaisRecep = parseFloat(nd[0].textContent);
+		for (let i = 0; i < nd.length; ++i)
+			if (nd[i].parentNode == Node) {
+				this.CodPaisRecep = parseFloat(nd[i].textContent);
+				break;
+			}
 		nd = Node.getElementsByTagName('CodPaisDestin')
-		if (nd.length > 0) this.CodPaisDestin = parseFloat(nd[0].textContent);
+		for (let i = 0; i < nd.length; ++i)
+			if (nd[i].parentNode == Node) {
+				this.CodPaisDestin = parseFloat(nd[i].textContent);
+				break;
+			}
 		nd = Node.getElementsByTagName('TotClauVenta')
-		if (nd.length > 0) this.TotClauVenta = parseFloat(nd[0].textContent);
+		for (let i = 0; i < nd.length; ++i)
+			if (nd[i].parentNode == Node) {
+				this.TotClauVenta = parseFloat(nd[i].textContent);
+				break;
+			}
 		nd = Node.getElementsByTagName('RUTCiaTransp')
-		if (nd.length > 0) this.RUTCiaTransp = nd[0].textContent;
+		for (let i = 0; i < nd.length; ++i)
+			if (nd[i].parentNode == Node) {
+				this.RUTCiaTransp = nd[i].textContent;
+				break;
+			}
 		nd = Node.getElementsByTagName('TipoBultos');
 		if (nd.length > 0) {
 			this.TipoBultos = <[TipoBultos]>[];
-			for (let i = 0; i < nd.length; ++i) {
-				this.TipoBultos.push(new TipoBultos());
-				this.TipoBultos[i].ParseFromXMLElement(nd[i]);
-			}
+			for (let i = 0; i < nd.length; ++i)
+				if (nd[i].parentNode == Node) {
+					this.TipoBultos.push(new TipoBultos());
+					this.TipoBultos[i].ParseFromXMLElement(nd[i]);
+				}
 		}
 
 		nd = Node.getElementsByTagName('MntFlete')
-		if (nd.length > 0) this.MntFlete = parseFloat(nd[0].textContent);
+		for (let i = 0; i < nd.length; ++i)
+			if (nd[i].parentNode == Node) {
+				this.MntFlete = parseFloat(nd[i].textContent);
+				break;
+			}
 		nd = Node.getElementsByTagName('MntSeguro')
-		if (nd.length > 0) this.MntSeguro = parseFloat(nd[0].textContent);
+		for (let i = 0; i < nd.length; ++i)
+			if (nd[i].parentNode == Node) {
+				this.MntSeguro = parseFloat(nd[i].textContent);
+				break;
+			}
 	}
 
 }
@@ -775,17 +1186,41 @@ export class TipoBultos {
 	ParseFromXMLElement = (Node: Element) => {
 		let nd: NodeListOf<Element>
 		nd = Node.getElementsByTagName('CodTpoBultos')
-		if (nd.length > 0) this.CodTpoBultos = parseFloat(nd[0].textContent);
+		for (let i = 0; i < nd.length; ++i)
+			if (nd[i].parentNode == Node) {
+				this.CodTpoBultos = parseFloat(nd[i].textContent);
+				break;
+			}
 		nd = Node.getElementsByTagName('CantBultos')
-		if (nd.length > 0) this.CantBultos = parseFloat(nd[0].textContent);
+		for (let i = 0; i < nd.length; ++i)
+			if (nd[i].parentNode == Node) {
+				this.CantBultos = parseFloat(nd[i].textContent);
+				break;
+			}
 		nd = Node.getElementsByTagName('Marcas')
-		if (nd.length > 0) this.Marcas = nd[0].textContent;
+		for (let i = 0; i < nd.length; ++i)
+			if (nd[i].parentNode == Node) {
+				this.Marcas = nd[i].textContent;
+				break;
+			}
 		nd = Node.getElementsByTagName('IdContainer')
-		if (nd.length > 0) this.IdContainer = nd[0].textContent;
+		for (let i = 0; i < nd.length; ++i)
+			if (nd[i].parentNode == Node) {
+				this.IdContainer = nd[i].textContent;
+				break;
+			}
 		nd = Node.getElementsByTagName('Sello')
-		if (nd.length > 0) this.Sello = nd[0].textContent;
+		for (let i = 0; i < nd.length; ++i)
+			if (nd[i].parentNode == Node) {
+				this.Sello = nd[i].textContent;
+				break;
+			}
 		nd = Node.getElementsByTagName('EmisorSello')
-		if (nd.length > 0) this.EmisorSello = nd[0].textContent;
+		for (let i = 0; i < nd.length; ++i)
+			if (nd[i].parentNode == Node) {
+				this.EmisorSello = nd[i].textContent;
+				break;
+			}
 	}
 
 }
@@ -833,54 +1268,125 @@ export class Totales {
 	ParseFromXMLElement = (Node: Element) => {
 		let nd: NodeListOf<Element>
 		nd = Node.getElementsByTagName('TpoMoneda')
-		if (nd.length > 0) this.TpoMoneda = <TipMonType>nd[0].textContent;
+		for (let i = 0; i < nd.length; ++i)
+			if (nd[i].parentNode == Node) {
+				this.TpoMoneda = <TipMonType>nd[i].textContent;
+				break;
+			}
 		nd = Node.getElementsByTagName('MntNeto')
-		if (nd.length > 0) this.MntNeto = parseFloat(nd[0].textContent);
+		for (let i = 0; i < nd.length; ++i)
+			if (nd[i].parentNode == Node) {
+				this.MntNeto = parseFloat(nd[i].textContent);
+				break;
+			}
 		nd = Node.getElementsByTagName('MntExe')
-		if (nd.length > 0) this.MntExe = parseFloat(nd[0].textContent);
+		for (let i = 0; i < nd.length; ++i)
+			if (nd[i].parentNode == Node) {
+				this.MntExe = parseFloat(nd[i].textContent);
+				break;
+			}
 		nd = Node.getElementsByTagName('MntBase')
-		if (nd.length > 0) this.MntBase = parseFloat(nd[0].textContent);
+		for (let i = 0; i < nd.length; ++i)
+			if (nd[i].parentNode == Node) {
+				this.MntBase = parseFloat(nd[i].textContent);
+				break;
+			}
 		nd = Node.getElementsByTagName('MntMargenCom')
-		if (nd.length > 0) this.MntMargenCom = parseFloat(nd[0].textContent);
+		for (let i = 0; i < nd.length; ++i)
+			if (nd[i].parentNode == Node) {
+				this.MntMargenCom = parseFloat(nd[i].textContent);
+				break;
+			}
 		nd = Node.getElementsByTagName('TasaIVA')
-		if (nd.length > 0) this.TasaIVA = parseFloat(nd[0].textContent);
+		for (let i = 0; i < nd.length; ++i)
+			if (nd[i].parentNode == Node) {
+				this.TasaIVA = parseFloat(nd[i].textContent);
+				break;
+			}
 		nd = Node.getElementsByTagName('IVA')
-		if (nd.length > 0) this.IVA = parseFloat(nd[0].textContent);
+		for (let i = 0; i < nd.length; ++i)
+			if (nd[i].parentNode == Node) {
+				this.IVA = parseFloat(nd[i].textContent);
+				break;
+			}
 		nd = Node.getElementsByTagName('IVAProp')
-		if (nd.length > 0) this.IVAProp = parseFloat(nd[0].textContent);
+		for (let i = 0; i < nd.length; ++i)
+			if (nd[i].parentNode == Node) {
+				this.IVAProp = parseFloat(nd[i].textContent);
+				break;
+			}
 		nd = Node.getElementsByTagName('IVATerc')
-		if (nd.length > 0) this.IVATerc = parseFloat(nd[0].textContent);
+		for (let i = 0; i < nd.length; ++i)
+			if (nd[i].parentNode == Node) {
+				this.IVATerc = parseFloat(nd[i].textContent);
+				break;
+			}
 		nd = Node.getElementsByTagName('ImptoReten');
 		if (nd.length > 0) {
 			this.ImptoReten = <[ImptoReten]>[];
-			for (let i = 0; i < nd.length; ++i) {
-				this.ImptoReten.push(new ImptoReten());
-				this.ImptoReten[i].ParseFromXMLElement(nd[i]);
-			}
+			for (let i = 0; i < nd.length; ++i)
+				if (nd[i].parentNode == Node) {
+					this.ImptoReten.push(new ImptoReten());
+					this.ImptoReten[i].ParseFromXMLElement(nd[i]);
+				}
 		}
 
 		nd = Node.getElementsByTagName('IVANoRet')
-		if (nd.length > 0) this.IVANoRet = parseFloat(nd[0].textContent);
+		for (let i = 0; i < nd.length; ++i)
+			if (nd[i].parentNode == Node) {
+				this.IVANoRet = parseFloat(nd[i].textContent);
+				break;
+			}
 		nd = Node.getElementsByTagName('CredEC')
-		if (nd.length > 0) this.CredEC = parseFloat(nd[0].textContent);
+		for (let i = 0; i < nd.length; ++i)
+			if (nd[i].parentNode == Node) {
+				this.CredEC = parseFloat(nd[i].textContent);
+				break;
+			}
 		nd = Node.getElementsByTagName('GrntDep')
-		if (nd.length > 0) this.GrntDep = parseFloat(nd[0].textContent);
+		for (let i = 0; i < nd.length; ++i)
+			if (nd[i].parentNode == Node) {
+				this.GrntDep = parseFloat(nd[i].textContent);
+				break;
+			}
 		nd = Node.getElementsByTagName('Comisiones');
-		if (nd.length > 0) {
-			this.Comisiones = new Comisiones();
-			this.Comisiones.ParseFromXMLElement(nd[0]);
-		}
+		for (let i = 0; i < nd.length; ++i)
+			if (nd[i].parentNode == Node) {
+				this.Comisiones = new Comisiones();
+				this.Comisiones.ParseFromXMLElement(nd[i]);
+				break;
+			}
 
 		nd = Node.getElementsByTagName('MntTotal')
-		if (nd.length > 0) this.MntTotal = parseFloat(nd[0].textContent);
+		for (let i = 0; i < nd.length; ++i)
+			if (nd[i].parentNode == Node) {
+				this.MntTotal = parseFloat(nd[i].textContent);
+				break;
+			}
 		nd = Node.getElementsByTagName('MontoNF')
-		if (nd.length > 0) this.MontoNF = parseFloat(nd[0].textContent);
+		for (let i = 0; i < nd.length; ++i)
+			if (nd[i].parentNode == Node) {
+				this.MontoNF = parseFloat(nd[i].textContent);
+				break;
+			}
 		nd = Node.getElementsByTagName('MontoPeriodo')
-		if (nd.length > 0) this.MontoPeriodo = parseFloat(nd[0].textContent);
+		for (let i = 0; i < nd.length; ++i)
+			if (nd[i].parentNode == Node) {
+				this.MontoPeriodo = parseFloat(nd[i].textContent);
+				break;
+			}
 		nd = Node.getElementsByTagName('SaldoAnterior')
-		if (nd.length > 0) this.SaldoAnterior = parseFloat(nd[0].textContent);
+		for (let i = 0; i < nd.length; ++i)
+			if (nd[i].parentNode == Node) {
+				this.SaldoAnterior = parseFloat(nd[i].textContent);
+				break;
+			}
 		nd = Node.getElementsByTagName('VlrPagar')
-		if (nd.length > 0) this.VlrPagar = parseFloat(nd[0].textContent);
+		for (let i = 0; i < nd.length; ++i)
+			if (nd[i].parentNode == Node) {
+				this.VlrPagar = parseFloat(nd[i].textContent);
+				break;
+			}
 	}
 
 }
@@ -898,11 +1404,23 @@ export class ImptoReten {
 	ParseFromXMLElement = (Node: Element) => {
 		let nd: NodeListOf<Element>
 		nd = Node.getElementsByTagName('TasaImp')
-		if (nd.length > 0) this.TasaImp = parseFloat(nd[0].textContent);
+		for (let i = 0; i < nd.length; ++i)
+			if (nd[i].parentNode == Node) {
+				this.TasaImp = parseFloat(nd[i].textContent);
+				break;
+			}
 		nd = Node.getElementsByTagName('TipoImp')
-		if (nd.length > 0) this.TipoImp = parseInt(nd[0].textContent);
+		for (let i = 0; i < nd.length; ++i)
+			if (nd[i].parentNode == Node) {
+				this.TipoImp = parseInt(nd[i].textContent);
+				break;
+			}
 		nd = Node.getElementsByTagName('MontoImp')
-		if (nd.length > 0) this.MontoImp = parseFloat(nd[0].textContent);
+		for (let i = 0; i < nd.length; ++i)
+			if (nd[i].parentNode == Node) {
+				this.MontoImp = parseFloat(nd[i].textContent);
+				break;
+			}
 	}
 
 }
@@ -970,19 +1488,47 @@ export class Comisiones {
 	ParseFromXMLElement = (Node: Element) => {
 		let nd: NodeListOf<Element>
 		nd = Node.getElementsByTagName('NroLinCom')
-		if (nd.length > 0) this.NroLinCom = parseFloat(nd[0].textContent);
+		for (let i = 0; i < nd.length; ++i)
+			if (nd[i].parentNode == Node) {
+				this.NroLinCom = parseFloat(nd[i].textContent);
+				break;
+			}
 		nd = Node.getElementsByTagName('TipoMovim')
-		if (nd.length > 0) this.TipoMovim = <TipoMovim>nd[0].textContent;
+		for (let i = 0; i < nd.length; ++i)
+			if (nd[i].parentNode == Node) {
+				this.TipoMovim = <TipoMovim>nd[i].textContent;
+				break;
+			}
 		nd = Node.getElementsByTagName('Glosa')
-		if (nd.length > 0) this.Glosa = nd[0].textContent;
+		for (let i = 0; i < nd.length; ++i)
+			if (nd[i].parentNode == Node) {
+				this.Glosa = nd[i].textContent;
+				break;
+			}
 		nd = Node.getElementsByTagName('TasaComision')
-		if (nd.length > 0) this.TasaComision = parseFloat(nd[0].textContent);
+		for (let i = 0; i < nd.length; ++i)
+			if (nd[i].parentNode == Node) {
+				this.TasaComision = parseFloat(nd[i].textContent);
+				break;
+			}
 		nd = Node.getElementsByTagName('ValComNeto')
-		if (nd.length > 0) this.ValComNeto = parseFloat(nd[0].textContent);
+		for (let i = 0; i < nd.length; ++i)
+			if (nd[i].parentNode == Node) {
+				this.ValComNeto = parseFloat(nd[i].textContent);
+				break;
+			}
 		nd = Node.getElementsByTagName('ValComExe')
-		if (nd.length > 0) this.ValComExe = parseFloat(nd[0].textContent);
+		for (let i = 0; i < nd.length; ++i)
+			if (nd[i].parentNode == Node) {
+				this.ValComExe = parseFloat(nd[i].textContent);
+				break;
+			}
 		nd = Node.getElementsByTagName('ValComIVA')
-		if (nd.length > 0) this.ValComIVA = parseFloat(nd[0].textContent);
+		for (let i = 0; i < nd.length; ++i)
+			if (nd[i].parentNode == Node) {
+				this.ValComIVA = parseFloat(nd[i].textContent);
+				break;
+			}
 	}
 
 }
@@ -1014,32 +1560,69 @@ export class OtraMoneda {
 	ParseFromXMLElement = (Node: Element) => {
 		let nd: NodeListOf<Element>
 		nd = Node.getElementsByTagName('TpoMoneda')
-		if (nd.length > 0) this.TpoMoneda = <TipMonType>nd[0].textContent;
+		for (let i = 0; i < nd.length; ++i)
+			if (nd[i].parentNode == Node) {
+				this.TpoMoneda = <TipMonType>nd[i].textContent;
+				break;
+			}
 		nd = Node.getElementsByTagName('TpoCambio')
-		if (nd.length > 0) this.TpoCambio = parseFloat(nd[0].textContent);
+		for (let i = 0; i < nd.length; ++i)
+			if (nd[i].parentNode == Node) {
+				this.TpoCambio = parseFloat(nd[i].textContent);
+				break;
+			}
 		nd = Node.getElementsByTagName('MntNetoOtrMnda')
-		if (nd.length > 0) this.MntNetoOtrMnda = parseFloat(nd[0].textContent);
+		for (let i = 0; i < nd.length; ++i)
+			if (nd[i].parentNode == Node) {
+				this.MntNetoOtrMnda = parseFloat(nd[i].textContent);
+				break;
+			}
 		nd = Node.getElementsByTagName('MntExeOtrMnda')
-		if (nd.length > 0) this.MntExeOtrMnda = parseFloat(nd[0].textContent);
+		for (let i = 0; i < nd.length; ++i)
+			if (nd[i].parentNode == Node) {
+				this.MntExeOtrMnda = parseFloat(nd[i].textContent);
+				break;
+			}
 		nd = Node.getElementsByTagName('MntFaeCarneOtrMnda')
-		if (nd.length > 0) this.MntFaeCarneOtrMnda = parseFloat(nd[0].textContent);
+		for (let i = 0; i < nd.length; ++i)
+			if (nd[i].parentNode == Node) {
+				this.MntFaeCarneOtrMnda = parseFloat(nd[i].textContent);
+				break;
+			}
 		nd = Node.getElementsByTagName('MntMargComOtrMnda')
-		if (nd.length > 0) this.MntMargComOtrMnda = parseFloat(nd[0].textContent);
+		for (let i = 0; i < nd.length; ++i)
+			if (nd[i].parentNode == Node) {
+				this.MntMargComOtrMnda = parseFloat(nd[i].textContent);
+				break;
+			}
 		nd = Node.getElementsByTagName('IVAOtrMnda')
-		if (nd.length > 0) this.IVAOtrMnda = parseFloat(nd[0].textContent);
+		for (let i = 0; i < nd.length; ++i)
+			if (nd[i].parentNode == Node) {
+				this.IVAOtrMnda = parseFloat(nd[i].textContent);
+				break;
+			}
 		nd = Node.getElementsByTagName('ImpRetOtrMnda');
 		if (nd.length > 0) {
 			this.ImpRetOtrMnda = <[ImpRetOtrMnda]>[];
-			for (let i = 0; i < nd.length; ++i) {
-				this.ImpRetOtrMnda.push(new ImpRetOtrMnda());
-				this.ImpRetOtrMnda[i].ParseFromXMLElement(nd[i]);
-			}
+			for (let i = 0; i < nd.length; ++i)
+				if (nd[i].parentNode == Node) {
+					this.ImpRetOtrMnda.push(new ImpRetOtrMnda());
+					this.ImpRetOtrMnda[i].ParseFromXMLElement(nd[i]);
+				}
 		}
 
 		nd = Node.getElementsByTagName('IVANoRetOtrMnda')
-		if (nd.length > 0) this.IVANoRetOtrMnda = parseFloat(nd[0].textContent);
+		for (let i = 0; i < nd.length; ++i)
+			if (nd[i].parentNode == Node) {
+				this.IVANoRetOtrMnda = parseFloat(nd[i].textContent);
+				break;
+			}
 		nd = Node.getElementsByTagName('MntTotOtrMnda')
-		if (nd.length > 0) this.MntTotOtrMnda = parseFloat(nd[0].textContent);
+		for (let i = 0; i < nd.length; ++i)
+			if (nd[i].parentNode == Node) {
+				this.MntTotOtrMnda = parseFloat(nd[i].textContent);
+				break;
+			}
 	}
 
 }
@@ -1055,11 +1638,23 @@ export class ImpRetOtrMnda {
 	ParseFromXMLElement = (Node: Element) => {
 		let nd: NodeListOf<Element>
 		nd = Node.getElementsByTagName('TipoImpOtrMnda')
-		if (nd.length > 0) this.TipoImpOtrMnda = parseInt(nd[0].textContent);
+		for (let i = 0; i < nd.length; ++i)
+			if (nd[i].parentNode == Node) {
+				this.TipoImpOtrMnda = parseInt(nd[i].textContent);
+				break;
+			}
 		nd = Node.getElementsByTagName('TasaImpOtrMnda')
-		if (nd.length > 0) this.TasaImpOtrMnda = parseFloat(nd[0].textContent);
+		for (let i = 0; i < nd.length; ++i)
+			if (nd[i].parentNode == Node) {
+				this.TasaImpOtrMnda = parseFloat(nd[i].textContent);
+				break;
+			}
 		nd = Node.getElementsByTagName('VlrImpOtrMnda')
-		if (nd.length > 0) this.VlrImpOtrMnda = parseFloat(nd[0].textContent);
+		for (let i = 0; i < nd.length; ++i)
+			if (nd[i].parentNode == Node) {
+				this.VlrImpOtrMnda = parseFloat(nd[i].textContent);
+				break;
+			}
 	}
 
 }
@@ -1119,96 +1714,176 @@ export class Detalle {
 	ParseFromXMLElement = (Node: Element) => {
 		let nd: NodeListOf<Element>
 		nd = Node.getElementsByTagName('NroLinDet')
-		if (nd.length > 0) this.NroLinDet = parseFloat(nd[0].textContent);
+		for (let i = 0; i < nd.length; ++i)
+			if (nd[i].parentNode == Node) {
+				this.NroLinDet = parseFloat(nd[i].textContent);
+				break;
+			}
 		nd = Node.getElementsByTagName('TpoDocLiq')
-		if (nd.length > 0) this.TpoDocLiq = nd[0].textContent;
+		for (let i = 0; i < nd.length; ++i)
+			if (nd[i].parentNode == Node) {
+				this.TpoDocLiq = nd[i].textContent;
+				break;
+			}
 		nd = Node.getElementsByTagName('IndExe')
-		if (nd.length > 0) this.IndExe = parseInt(nd[0].textContent);
+		for (let i = 0; i < nd.length; ++i)
+			if (nd[i].parentNode == Node) {
+				this.IndExe = parseInt(nd[i].textContent);
+				break;
+			}
 		nd = Node.getElementsByTagName('NmbItem')
-		if (nd.length > 0) this.NmbItem = nd[0].textContent;
+		for (let i = 0; i < nd.length; ++i)
+			if (nd[i].parentNode == Node) {
+				this.NmbItem = nd[i].textContent;
+				break;
+			}
 		nd = Node.getElementsByTagName('DscItem')
-		if (nd.length > 0) this.DscItem = nd[0].textContent;
+		for (let i = 0; i < nd.length; ++i)
+			if (nd[i].parentNode == Node) {
+				this.DscItem = nd[i].textContent;
+				break;
+			}
 		nd = Node.getElementsByTagName('UnmdRef')
-		if (nd.length > 0) this.UnmdRef = nd[0].textContent;
+		for (let i = 0; i < nd.length; ++i)
+			if (nd[i].parentNode == Node) {
+				this.UnmdRef = nd[i].textContent;
+				break;
+			}
 		nd = Node.getElementsByTagName('UnmdItem')
-		if (nd.length > 0) this.UnmdItem = nd[0].textContent;
+		for (let i = 0; i < nd.length; ++i)
+			if (nd[i].parentNode == Node) {
+				this.UnmdItem = nd[i].textContent;
+				break;
+			}
 		nd = Node.getElementsByTagName('RecargoPct')
-		if (nd.length > 0) this.RecargoPct = parseFloat(nd[0].textContent);
+		for (let i = 0; i < nd.length; ++i)
+			if (nd[i].parentNode == Node) {
+				this.RecargoPct = parseFloat(nd[i].textContent);
+				break;
+			}
 		nd = Node.getElementsByTagName('CdgItem');
 		if (nd.length > 0) {
 			this.CdgItem = <[CdgItem]>[];
-			for (let i = 0; i < nd.length; ++i) {
-				this.CdgItem.push(new CdgItem());
-				this.CdgItem[i].ParseFromXMLElement(nd[i]);
-			}
+			for (let i = 0; i < nd.length; ++i)
+				if (nd[i].parentNode == Node) {
+					this.CdgItem.push(new CdgItem());
+					this.CdgItem[i].ParseFromXMLElement(nd[i]);
+				}
 		}
 
 		nd = Node.getElementsByTagName('Retenedor');
-		if (nd.length > 0) {
-			this.Retenedor = new Retenedor();
-			this.Retenedor.ParseFromXMLElement(nd[0]);
-		}
+		for (let i = 0; i < nd.length; ++i)
+			if (nd[i].parentNode == Node) {
+				this.Retenedor = new Retenedor();
+				this.Retenedor.ParseFromXMLElement(nd[i]);
+				break;
+			}
 
 		nd = Node.getElementsByTagName('QtyRef')
-		if (nd.length > 0) this.QtyRef = parseFloat(nd[0].textContent);
+		for (let i = 0; i < nd.length; ++i)
+			if (nd[i].parentNode == Node) {
+				this.QtyRef = parseFloat(nd[i].textContent);
+				break;
+			}
 		nd = Node.getElementsByTagName('PrcRef')
-		if (nd.length > 0) this.PrcRef = parseFloat(nd[0].textContent);
+		for (let i = 0; i < nd.length; ++i)
+			if (nd[i].parentNode == Node) {
+				this.PrcRef = parseFloat(nd[i].textContent);
+				break;
+			}
 		nd = Node.getElementsByTagName('QtyItem')
-		if (nd.length > 0) this.QtyItem = parseFloat(nd[0].textContent);
+		for (let i = 0; i < nd.length; ++i)
+			if (nd[i].parentNode == Node) {
+				this.QtyItem = parseFloat(nd[i].textContent);
+				break;
+			}
 		nd = Node.getElementsByTagName('Subcantidad');
 		if (nd.length > 0) {
 			this.Subcantidad = <[Subcantidad]>[];
-			for (let i = 0; i < nd.length; ++i) {
-				this.Subcantidad.push(new Subcantidad());
-				this.Subcantidad[i].ParseFromXMLElement(nd[i]);
-			}
+			for (let i = 0; i < nd.length; ++i)
+				if (nd[i].parentNode == Node) {
+					this.Subcantidad.push(new Subcantidad());
+					this.Subcantidad[i].ParseFromXMLElement(nd[i]);
+				}
 		}
 
 		nd = Node.getElementsByTagName('FchElabor')
-		if (nd.length > 0) this.FchElabor = new Date(nd[0].textContent);
+		for (let i = 0; i < nd.length; ++i)
+			if (nd[i].parentNode == Node) {
+				this.FchElabor = new Date(nd[i].textContent);
+				break;
+			}
 		nd = Node.getElementsByTagName('FchVencim')
-		if (nd.length > 0) this.FchVencim = new Date(nd[0].textContent);
+		for (let i = 0; i < nd.length; ++i)
+			if (nd[i].parentNode == Node) {
+				this.FchVencim = new Date(nd[i].textContent);
+				break;
+			}
 		nd = Node.getElementsByTagName('PrcItem')
-		if (nd.length > 0) this.PrcItem = parseFloat(nd[0].textContent);
+		for (let i = 0; i < nd.length; ++i)
+			if (nd[i].parentNode == Node) {
+				this.PrcItem = parseFloat(nd[i].textContent);
+				break;
+			}
 		nd = Node.getElementsByTagName('OtrMnda');
-		if (nd.length > 0) {
-			this.OtrMnda = new OtrMnda();
-			this.OtrMnda.ParseFromXMLElement(nd[0]);
-		}
+		for (let i = 0; i < nd.length; ++i)
+			if (nd[i].parentNode == Node) {
+				this.OtrMnda = new OtrMnda();
+				this.OtrMnda.ParseFromXMLElement(nd[i]);
+				break;
+			}
 
 		nd = Node.getElementsByTagName('DescuentoPct')
-		if (nd.length > 0) this.DescuentoPct = parseFloat(nd[0].textContent);
+		for (let i = 0; i < nd.length; ++i)
+			if (nd[i].parentNode == Node) {
+				this.DescuentoPct = parseFloat(nd[i].textContent);
+				break;
+			}
 		nd = Node.getElementsByTagName('DescuentoMonto')
-		if (nd.length > 0) this.DescuentoMonto = parseFloat(nd[0].textContent);
+		for (let i = 0; i < nd.length; ++i)
+			if (nd[i].parentNode == Node) {
+				this.DescuentoMonto = parseFloat(nd[i].textContent);
+				break;
+			}
 		nd = Node.getElementsByTagName('SubDscto');
 		if (nd.length > 0) {
 			this.SubDscto = <[SubDscto]>[];
-			for (let i = 0; i < nd.length; ++i) {
-				this.SubDscto.push(new SubDscto());
-				this.SubDscto[i].ParseFromXMLElement(nd[i]);
-			}
+			for (let i = 0; i < nd.length; ++i)
+				if (nd[i].parentNode == Node) {
+					this.SubDscto.push(new SubDscto());
+					this.SubDscto[i].ParseFromXMLElement(nd[i]);
+				}
 		}
 
 		nd = Node.getElementsByTagName('RecargoMonto')
-		if (nd.length > 0) this.RecargoMonto = parseFloat(nd[0].textContent);
+		for (let i = 0; i < nd.length; ++i)
+			if (nd[i].parentNode == Node) {
+				this.RecargoMonto = parseFloat(nd[i].textContent);
+				break;
+			}
 		nd = Node.getElementsByTagName('SubRecargo');
 		if (nd.length > 0) {
 			this.SubRecargo = <[SubRecargo]>[];
-			for (let i = 0; i < nd.length; ++i) {
-				this.SubRecargo.push(new SubRecargo());
-				this.SubRecargo[i].ParseFromXMLElement(nd[i]);
-			}
+			for (let i = 0; i < nd.length; ++i)
+				if (nd[i].parentNode == Node) {
+					this.SubRecargo.push(new SubRecargo());
+					this.SubRecargo[i].ParseFromXMLElement(nd[i]);
+				}
 		}
 
 		nd = Node.getElementsByTagName('CodImpAdic')
 		if (nd.length > 0) {
 			this.CodImpAdic = <[ImpAdicDTEType]>[];
-			let itms = nd;
-			for (let i = 0; i < itms.length; ++i) this.CodImpAdic.push(parseInt(itms[i].textContent));
+			for (let i = 0; i < nd.length; ++i)
+				if (nd[i].parentNode == Node) this.CodImpAdic.push(parseInt(nd[i].textContent));
 		}
 
 		nd = Node.getElementsByTagName('MontoItem')
-		if (nd.length > 0) this.MontoItem = parseFloat(nd[0].textContent);
+		for (let i = 0; i < nd.length; ++i)
+			if (nd[i].parentNode == Node) {
+				this.MontoItem = parseFloat(nd[i].textContent);
+				break;
+			}
 	}
 
 }
@@ -1231,9 +1906,17 @@ export class CdgItem {
 	ParseFromXMLElement = (Node: Element) => {
 		let nd: NodeListOf<Element>
 		nd = Node.getElementsByTagName('TpoCodigo')
-		if (nd.length > 0) this.TpoCodigo = nd[0].textContent;
+		for (let i = 0; i < nd.length; ++i)
+			if (nd[i].parentNode == Node) {
+				this.TpoCodigo = nd[i].textContent;
+				break;
+			}
 		nd = Node.getElementsByTagName('VlrCodigo')
-		if (nd.length > 0) this.VlrCodigo = nd[0].textContent;
+		for (let i = 0; i < nd.length; ++i)
+			if (nd[i].parentNode == Node) {
+				this.VlrCodigo = nd[i].textContent;
+				break;
+			}
 	}
 
 }
@@ -1251,13 +1934,29 @@ export class Retenedor {
 	ParseFromXMLElement = (Node: Element) => {
 		let nd: NodeListOf<Element>
 		nd = Node.getElementsByTagName('IndAgente')
-		if (nd.length > 0) this.IndAgente = <IndAgente>nd[0].textContent;
+		for (let i = 0; i < nd.length; ++i)
+			if (nd[i].parentNode == Node) {
+				this.IndAgente = <IndAgente>nd[i].textContent;
+				break;
+			}
 		nd = Node.getElementsByTagName('MntBaseFaena')
-		if (nd.length > 0) this.MntBaseFaena = parseFloat(nd[0].textContent);
+		for (let i = 0; i < nd.length; ++i)
+			if (nd[i].parentNode == Node) {
+				this.MntBaseFaena = parseFloat(nd[i].textContent);
+				break;
+			}
 		nd = Node.getElementsByTagName('MntMargComer')
-		if (nd.length > 0) this.MntMargComer = parseFloat(nd[0].textContent);
+		for (let i = 0; i < nd.length; ++i)
+			if (nd[i].parentNode == Node) {
+				this.MntMargComer = parseFloat(nd[i].textContent);
+				break;
+			}
 		nd = Node.getElementsByTagName('PrcConsFinal')
-		if (nd.length > 0) this.PrcConsFinal = parseFloat(nd[0].textContent);
+		for (let i = 0; i < nd.length; ++i)
+			if (nd[i].parentNode == Node) {
+				this.PrcConsFinal = parseFloat(nd[i].textContent);
+				break;
+			}
 	}
 
 }
@@ -1275,11 +1974,23 @@ export class Subcantidad {
 	ParseFromXMLElement = (Node: Element) => {
 		let nd: NodeListOf<Element>
 		nd = Node.getElementsByTagName('SubCod')
-		if (nd.length > 0) this.SubCod = nd[0].textContent;
+		for (let i = 0; i < nd.length; ++i)
+			if (nd[i].parentNode == Node) {
+				this.SubCod = nd[i].textContent;
+				break;
+			}
 		nd = Node.getElementsByTagName('TipCodSubQty')
-		if (nd.length > 0) this.TipCodSubQty = nd[0].textContent;
+		for (let i = 0; i < nd.length; ++i)
+			if (nd[i].parentNode == Node) {
+				this.TipCodSubQty = nd[i].textContent;
+				break;
+			}
 		nd = Node.getElementsByTagName('SubQty')
-		if (nd.length > 0) this.SubQty = parseFloat(nd[0].textContent);
+		for (let i = 0; i < nd.length; ++i)
+			if (nd[i].parentNode == Node) {
+				this.SubQty = parseFloat(nd[i].textContent);
+				break;
+			}
 	}
 
 }
@@ -1301,17 +2012,41 @@ export class OtrMnda {
 	ParseFromXMLElement = (Node: Element) => {
 		let nd: NodeListOf<Element>
 		nd = Node.getElementsByTagName('Moneda')
-		if (nd.length > 0) this.Moneda = nd[0].textContent;
+		for (let i = 0; i < nd.length; ++i)
+			if (nd[i].parentNode == Node) {
+				this.Moneda = nd[i].textContent;
+				break;
+			}
 		nd = Node.getElementsByTagName('PrcOtrMon')
-		if (nd.length > 0) this.PrcOtrMon = parseFloat(nd[0].textContent);
+		for (let i = 0; i < nd.length; ++i)
+			if (nd[i].parentNode == Node) {
+				this.PrcOtrMon = parseFloat(nd[i].textContent);
+				break;
+			}
 		nd = Node.getElementsByTagName('FctConv')
-		if (nd.length > 0) this.FctConv = parseFloat(nd[0].textContent);
+		for (let i = 0; i < nd.length; ++i)
+			if (nd[i].parentNode == Node) {
+				this.FctConv = parseFloat(nd[i].textContent);
+				break;
+			}
 		nd = Node.getElementsByTagName('DctoOtrMnda')
-		if (nd.length > 0) this.DctoOtrMnda = parseFloat(nd[0].textContent);
+		for (let i = 0; i < nd.length; ++i)
+			if (nd[i].parentNode == Node) {
+				this.DctoOtrMnda = parseFloat(nd[i].textContent);
+				break;
+			}
 		nd = Node.getElementsByTagName('RecargoOtrMnda')
-		if (nd.length > 0) this.RecargoOtrMnda = parseFloat(nd[0].textContent);
+		for (let i = 0; i < nd.length; ++i)
+			if (nd[i].parentNode == Node) {
+				this.RecargoOtrMnda = parseFloat(nd[i].textContent);
+				break;
+			}
 		nd = Node.getElementsByTagName('MontoItemOtrMnda')
-		if (nd.length > 0) this.MontoItemOtrMnda = parseFloat(nd[0].textContent);
+		for (let i = 0; i < nd.length; ++i)
+			if (nd[i].parentNode == Node) {
+				this.MontoItemOtrMnda = parseFloat(nd[i].textContent);
+				break;
+			}
 	}
 
 }
@@ -1325,9 +2060,17 @@ export class SubDscto {
 	ParseFromXMLElement = (Node: Element) => {
 		let nd: NodeListOf<Element>
 		nd = Node.getElementsByTagName('TipoDscto')
-		if (nd.length > 0) this.TipoDscto = <DineroPorcentajeType>nd[0].textContent;
+		for (let i = 0; i < nd.length; ++i)
+			if (nd[i].parentNode == Node) {
+				this.TipoDscto = <DineroPorcentajeType>nd[i].textContent;
+				break;
+			}
 		nd = Node.getElementsByTagName('ValorDscto')
-		if (nd.length > 0) this.ValorDscto = parseFloat(nd[0].textContent);
+		for (let i = 0; i < nd.length; ++i)
+			if (nd[i].parentNode == Node) {
+				this.ValorDscto = parseFloat(nd[i].textContent);
+				break;
+			}
 	}
 
 }
@@ -1343,9 +2086,17 @@ export class SubRecargo {
 	ParseFromXMLElement = (Node: Element) => {
 		let nd: NodeListOf<Element>
 		nd = Node.getElementsByTagName('TipoRecargo')
-		if (nd.length > 0) this.TipoRecargo = <DineroPorcentajeType>nd[0].textContent;
+		for (let i = 0; i < nd.length; ++i)
+			if (nd[i].parentNode == Node) {
+				this.TipoRecargo = <DineroPorcentajeType>nd[i].textContent;
+				break;
+			}
 		nd = Node.getElementsByTagName('ValorRecargo')
-		if (nd.length > 0) this.ValorRecargo = parseFloat(nd[0].textContent);
+		for (let i = 0; i < nd.length; ++i)
+			if (nd[i].parentNode == Node) {
+				this.ValorRecargo = parseFloat(nd[i].textContent);
+				break;
+			}
 	}
 
 }
@@ -1373,28 +2124,60 @@ export class SubTotInfo {
 	ParseFromXMLElement = (Node: Element) => {
 		let nd: NodeListOf<Element>
 		nd = Node.getElementsByTagName('NroSTI')
-		if (nd.length > 0) this.NroSTI = parseFloat(nd[0].textContent);
+		for (let i = 0; i < nd.length; ++i)
+			if (nd[i].parentNode == Node) {
+				this.NroSTI = parseFloat(nd[i].textContent);
+				break;
+			}
 		nd = Node.getElementsByTagName('GlosaSTI')
-		if (nd.length > 0) this.GlosaSTI = nd[0].textContent;
+		for (let i = 0; i < nd.length; ++i)
+			if (nd[i].parentNode == Node) {
+				this.GlosaSTI = nd[i].textContent;
+				break;
+			}
 		nd = Node.getElementsByTagName('OrdenSTI')
-		if (nd.length > 0) this.OrdenSTI = parseFloat(nd[0].textContent);
+		for (let i = 0; i < nd.length; ++i)
+			if (nd[i].parentNode == Node) {
+				this.OrdenSTI = parseFloat(nd[i].textContent);
+				break;
+			}
 		nd = Node.getElementsByTagName('LineasDeta')
 		if (nd.length > 0) {
 			this.LineasDeta = <[number]>[];
-			let itms = nd;
-			for (let i = 0; i < itms.length; ++i) this.LineasDeta.push(parseFloat(itms[i].textContent));
+			for (let i = 0; i < nd.length; ++i)
+				if (nd[i].parentNode == Node) this.LineasDeta.push(parseFloat(nd[i].textContent));
 		}
 
 		nd = Node.getElementsByTagName('SubTotNetoSTI')
-		if (nd.length > 0) this.SubTotNetoSTI = parseFloat(nd[0].textContent);
+		for (let i = 0; i < nd.length; ++i)
+			if (nd[i].parentNode == Node) {
+				this.SubTotNetoSTI = parseFloat(nd[i].textContent);
+				break;
+			}
 		nd = Node.getElementsByTagName('SubTotIVASTI')
-		if (nd.length > 0) this.SubTotIVASTI = parseFloat(nd[0].textContent);
+		for (let i = 0; i < nd.length; ++i)
+			if (nd[i].parentNode == Node) {
+				this.SubTotIVASTI = parseFloat(nd[i].textContent);
+				break;
+			}
 		nd = Node.getElementsByTagName('SubTotAdicSTI')
-		if (nd.length > 0) this.SubTotAdicSTI = parseFloat(nd[0].textContent);
+		for (let i = 0; i < nd.length; ++i)
+			if (nd[i].parentNode == Node) {
+				this.SubTotAdicSTI = parseFloat(nd[i].textContent);
+				break;
+			}
 		nd = Node.getElementsByTagName('SubTotExeSTI')
-		if (nd.length > 0) this.SubTotExeSTI = parseFloat(nd[0].textContent);
+		for (let i = 0; i < nd.length; ++i)
+			if (nd[i].parentNode == Node) {
+				this.SubTotExeSTI = parseFloat(nd[i].textContent);
+				break;
+			}
 		nd = Node.getElementsByTagName('ValSubtotSTI')
-		if (nd.length > 0) this.ValSubtotSTI = parseFloat(nd[0].textContent);
+		for (let i = 0; i < nd.length; ++i)
+			if (nd[i].parentNode == Node) {
+				this.ValSubtotSTI = parseFloat(nd[i].textContent);
+				break;
+			}
 	}
 
 }
@@ -1418,19 +2201,47 @@ export class DscRcgGlobal {
 	ParseFromXMLElement = (Node: Element) => {
 		let nd: NodeListOf<Element>
 		nd = Node.getElementsByTagName('NroLinDR')
-		if (nd.length > 0) this.NroLinDR = parseFloat(nd[0].textContent);
+		for (let i = 0; i < nd.length; ++i)
+			if (nd[i].parentNode == Node) {
+				this.NroLinDR = parseFloat(nd[i].textContent);
+				break;
+			}
 		nd = Node.getElementsByTagName('TpoMov')
-		if (nd.length > 0) this.TpoMov = <TpoMov>nd[0].textContent;
+		for (let i = 0; i < nd.length; ++i)
+			if (nd[i].parentNode == Node) {
+				this.TpoMov = <TpoMov>nd[i].textContent;
+				break;
+			}
 		nd = Node.getElementsByTagName('GlosaDR')
-		if (nd.length > 0) this.GlosaDR = nd[0].textContent;
+		for (let i = 0; i < nd.length; ++i)
+			if (nd[i].parentNode == Node) {
+				this.GlosaDR = nd[i].textContent;
+				break;
+			}
 		nd = Node.getElementsByTagName('IndExeDR')
-		if (nd.length > 0) this.IndExeDR = parseInt(nd[0].textContent);
+		for (let i = 0; i < nd.length; ++i)
+			if (nd[i].parentNode == Node) {
+				this.IndExeDR = parseInt(nd[i].textContent);
+				break;
+			}
 		nd = Node.getElementsByTagName('TpoValor')
-		if (nd.length > 0) this.TpoValor = <DineroPorcentajeType>nd[0].textContent;
+		for (let i = 0; i < nd.length; ++i)
+			if (nd[i].parentNode == Node) {
+				this.TpoValor = <DineroPorcentajeType>nd[i].textContent;
+				break;
+			}
 		nd = Node.getElementsByTagName('ValorDR')
-		if (nd.length > 0) this.ValorDR = parseFloat(nd[0].textContent);
+		for (let i = 0; i < nd.length; ++i)
+			if (nd[i].parentNode == Node) {
+				this.ValorDR = parseFloat(nd[i].textContent);
+				break;
+			}
 		nd = Node.getElementsByTagName('ValorDROtrMnda')
-		if (nd.length > 0) this.ValorDROtrMnda = parseFloat(nd[0].textContent);
+		for (let i = 0; i < nd.length; ++i)
+			if (nd[i].parentNode == Node) {
+				this.ValorDROtrMnda = parseFloat(nd[i].textContent);
+				break;
+			}
 	}
 
 }
@@ -1465,23 +2276,59 @@ export class Referencia {
 	ParseFromXMLElement = (Node: Element) => {
 		let nd: NodeListOf<Element>
 		nd = Node.getElementsByTagName('NroLinRef')
-		if (nd.length > 0) this.NroLinRef = parseFloat(nd[0].textContent);
+		for (let i = 0; i < nd.length; ++i)
+			if (nd[i].parentNode == Node) {
+				this.NroLinRef = parseFloat(nd[i].textContent);
+				break;
+			}
 		nd = Node.getElementsByTagName('TpoDocRef')
-		if (nd.length > 0) this.TpoDocRef = nd[0].textContent;
+		for (let i = 0; i < nd.length; ++i)
+			if (nd[i].parentNode == Node) {
+				this.TpoDocRef = nd[i].textContent;
+				break;
+			}
 		nd = Node.getElementsByTagName('IndGlobal')
-		if (nd.length > 0) this.IndGlobal = parseInt(nd[0].textContent);
+		for (let i = 0; i < nd.length; ++i)
+			if (nd[i].parentNode == Node) {
+				this.IndGlobal = parseInt(nd[i].textContent);
+				break;
+			}
 		nd = Node.getElementsByTagName('IdAdicOtr')
-		if (nd.length > 0) this.IdAdicOtr = nd[0].textContent;
+		for (let i = 0; i < nd.length; ++i)
+			if (nd[i].parentNode == Node) {
+				this.IdAdicOtr = nd[i].textContent;
+				break;
+			}
 		nd = Node.getElementsByTagName('FchRef')
-		if (nd.length > 0) this.FchRef = new Date(nd[0].textContent);
+		for (let i = 0; i < nd.length; ++i)
+			if (nd[i].parentNode == Node) {
+				this.FchRef = new Date(nd[i].textContent);
+				break;
+			}
 		nd = Node.getElementsByTagName('CodRef')
-		if (nd.length > 0) this.CodRef = parseInt(nd[0].textContent);
+		for (let i = 0; i < nd.length; ++i)
+			if (nd[i].parentNode == Node) {
+				this.CodRef = parseInt(nd[i].textContent);
+				break;
+			}
 		nd = Node.getElementsByTagName('RazonRef')
-		if (nd.length > 0) this.RazonRef = nd[0].textContent;
+		for (let i = 0; i < nd.length; ++i)
+			if (nd[i].parentNode == Node) {
+				this.RazonRef = nd[i].textContent;
+				break;
+			}
 		nd = Node.getElementsByTagName('FolioRef')
-		if (nd.length > 0) this.FolioRef = nd[0].textContent;
+		for (let i = 0; i < nd.length; ++i)
+			if (nd[i].parentNode == Node) {
+				this.FolioRef = nd[i].textContent;
+				break;
+			}
 		nd = Node.getElementsByTagName('RUTOtr')
-		if (nd.length > 0) this.RUTOtr = nd[0].textContent;
+		for (let i = 0; i < nd.length; ++i)
+			if (nd[i].parentNode == Node) {
+				this.RUTOtr = nd[i].textContent;
+				break;
+			}
 	}
 
 }
@@ -1508,16 +2355,20 @@ export class TED {
 		let nd: NodeListOf<Element>
 		if (Node.hasAttribute('version')) this.version = Node.getAttribute('version');
 		nd = Node.getElementsByTagName('DD');
-		if (nd.length > 0) {
-			this.DD = new DD();
-			this.DD.ParseFromXMLElement(nd[0]);
-		}
+		for (let i = 0; i < nd.length; ++i)
+			if (nd[i].parentNode == Node) {
+				this.DD = new DD();
+				this.DD.ParseFromXMLElement(nd[i]);
+				break;
+			}
 
 		nd = Node.getElementsByTagName('FRMT');
-		if (nd.length > 0) {
-			this.FRMT = new FRMT();
-			this.FRMT.ParseFromXMLElement(nd[0]);
-		}
+		for (let i = 0; i < nd.length; ++i)
+			if (nd[i].parentNode == Node) {
+				this.FRMT = new FRMT();
+				this.FRMT.ParseFromXMLElement(nd[i]);
+				break;
+			}
 
 	}
 
@@ -1548,29 +2399,67 @@ export class DD {
 	ParseFromXMLElement = (Node: Element) => {
 		let nd: NodeListOf<Element>
 		nd = Node.getElementsByTagName('RSR')
-		if (nd.length > 0) this.RSR = nd[0].textContent;
+		for (let i = 0; i < nd.length; ++i)
+			if (nd[i].parentNode == Node) {
+				this.RSR = nd[i].textContent;
+				break;
+			}
 		nd = Node.getElementsByTagName('MNT')
-		if (nd.length > 0) this.MNT = parseFloat(nd[0].textContent);
+		for (let i = 0; i < nd.length; ++i)
+			if (nd[i].parentNode == Node) {
+				this.MNT = parseFloat(nd[i].textContent);
+				break;
+			}
 		nd = Node.getElementsByTagName('IT1')
-		if (nd.length > 0) this.IT1 = nd[0].textContent;
+		for (let i = 0; i < nd.length; ++i)
+			if (nd[i].parentNode == Node) {
+				this.IT1 = nd[i].textContent;
+				break;
+			}
 		nd = Node.getElementsByTagName('RE')
-		if (nd.length > 0) this.RE = nd[0].textContent;
+		for (let i = 0; i < nd.length; ++i)
+			if (nd[i].parentNode == Node) {
+				this.RE = nd[i].textContent;
+				break;
+			}
 		nd = Node.getElementsByTagName('TD')
-		if (nd.length > 0) this.TD = parseInt(nd[0].textContent);
+		for (let i = 0; i < nd.length; ++i)
+			if (nd[i].parentNode == Node) {
+				this.TD = parseInt(nd[i].textContent);
+				break;
+			}
 		nd = Node.getElementsByTagName('F')
-		if (nd.length > 0) this.F = parseFloat(nd[0].textContent);
+		for (let i = 0; i < nd.length; ++i)
+			if (nd[i].parentNode == Node) {
+				this.F = parseFloat(nd[i].textContent);
+				break;
+			}
 		nd = Node.getElementsByTagName('FE')
-		if (nd.length > 0) this.FE = new Date(nd[0].textContent);
+		for (let i = 0; i < nd.length; ++i)
+			if (nd[i].parentNode == Node) {
+				this.FE = new Date(nd[i].textContent);
+				break;
+			}
 		nd = Node.getElementsByTagName('RR')
-		if (nd.length > 0) this.RR = nd[0].textContent;
+		for (let i = 0; i < nd.length; ++i)
+			if (nd[i].parentNode == Node) {
+				this.RR = nd[i].textContent;
+				break;
+			}
 		nd = Node.getElementsByTagName('CAF');
-		if (nd.length > 0) {
-			this.CAF = new CAF();
-			this.CAF.ParseFromXMLElement(nd[0]);
-		}
+		for (let i = 0; i < nd.length; ++i)
+			if (nd[i].parentNode == Node) {
+				this.CAF = new CAF();
+				this.CAF.ParseFromXMLElement(nd[i]);
+				break;
+			}
 
 		nd = Node.getElementsByTagName('TSTED')
-		if (nd.length > 0) this.TSTED = new Date(nd[0].textContent);
+		for (let i = 0; i < nd.length; ++i)
+			if (nd[i].parentNode == Node) {
+				this.TSTED = new Date(nd[i].textContent);
+				break;
+			}
 	}
 
 }
@@ -1587,16 +2476,20 @@ export class CAF {
 		let nd: NodeListOf<Element>
 		if (Node.hasAttribute('version')) this.version = Node.getAttribute('version');
 		nd = Node.getElementsByTagName('DA');
-		if (nd.length > 0) {
-			this.DA = new DA();
-			this.DA.ParseFromXMLElement(nd[0]);
-		}
+		for (let i = 0; i < nd.length; ++i)
+			if (nd[i].parentNode == Node) {
+				this.DA = new DA();
+				this.DA.ParseFromXMLElement(nd[i]);
+				break;
+			}
 
 		nd = Node.getElementsByTagName('FRMA');
-		if (nd.length > 0) {
-			this.FRMA = new FRMA();
-			this.FRMA.ParseFromXMLElement(nd[0]);
-		}
+		for (let i = 0; i < nd.length; ++i)
+			if (nd[i].parentNode == Node) {
+				this.FRMA = new FRMA();
+				this.FRMA.ParseFromXMLElement(nd[i]);
+				break;
+			}
 
 	}
 
@@ -1623,32 +2516,58 @@ export class DA {
 	ParseFromXMLElement = (Node: Element) => {
 		let nd: NodeListOf<Element>
 		nd = Node.getElementsByTagName('RS')
-		if (nd.length > 0) this.RS = nd[0].textContent;
+		for (let i = 0; i < nd.length; ++i)
+			if (nd[i].parentNode == Node) {
+				this.RS = nd[i].textContent;
+				break;
+			}
 		nd = Node.getElementsByTagName('IDK')
-		if (nd.length > 0) this.IDK = parseFloat(nd[0].textContent);
+		for (let i = 0; i < nd.length; ++i)
+			if (nd[i].parentNode == Node) {
+				this.IDK = parseFloat(nd[i].textContent);
+				break;
+			}
 		nd = Node.getElementsByTagName('RE')
-		if (nd.length > 0) this.RE = nd[0].textContent;
+		for (let i = 0; i < nd.length; ++i)
+			if (nd[i].parentNode == Node) {
+				this.RE = nd[i].textContent;
+				break;
+			}
 		nd = Node.getElementsByTagName('TD')
-		if (nd.length > 0) this.TD = parseInt(nd[0].textContent);
+		for (let i = 0; i < nd.length; ++i)
+			if (nd[i].parentNode == Node) {
+				this.TD = parseInt(nd[i].textContent);
+				break;
+			}
 		nd = Node.getElementsByTagName('RNG');
-		if (nd.length > 0) {
-			this.RNG = new RNG();
-			this.RNG.ParseFromXMLElement(nd[0]);
-		}
+		for (let i = 0; i < nd.length; ++i)
+			if (nd[i].parentNode == Node) {
+				this.RNG = new RNG();
+				this.RNG.ParseFromXMLElement(nd[i]);
+				break;
+			}
 
 		nd = Node.getElementsByTagName('FA')
-		if (nd.length > 0) this.FA = new Date(nd[0].textContent);
+		for (let i = 0; i < nd.length; ++i)
+			if (nd[i].parentNode == Node) {
+				this.FA = new Date(nd[i].textContent);
+				break;
+			}
 		nd = Node.getElementsByTagName('RSAPK');
-		if (nd.length > 0) {
-			this.RSAPK = new RSAPK();
-			this.RSAPK.ParseFromXMLElement(nd[0]);
-		}
+		for (let i = 0; i < nd.length; ++i)
+			if (nd[i].parentNode == Node) {
+				this.RSAPK = new RSAPK();
+				this.RSAPK.ParseFromXMLElement(nd[i]);
+				break;
+			}
 
 		nd = Node.getElementsByTagName('DSAPK');
-		if (nd.length > 0) {
-			this.DSAPK = new DSAPK();
-			this.DSAPK.ParseFromXMLElement(nd[0]);
-		}
+		for (let i = 0; i < nd.length; ++i)
+			if (nd[i].parentNode == Node) {
+				this.DSAPK = new DSAPK();
+				this.DSAPK.ParseFromXMLElement(nd[i]);
+				break;
+			}
 
 	}
 
@@ -1663,9 +2582,17 @@ export class RNG {
 	ParseFromXMLElement = (Node: Element) => {
 		let nd: NodeListOf<Element>
 		nd = Node.getElementsByTagName('D')
-		if (nd.length > 0) this.D = parseFloat(nd[0].textContent);
+		for (let i = 0; i < nd.length; ++i)
+			if (nd[i].parentNode == Node) {
+				this.D = parseFloat(nd[i].textContent);
+				break;
+			}
 		nd = Node.getElementsByTagName('H')
-		if (nd.length > 0) this.H = parseFloat(nd[0].textContent);
+		for (let i = 0; i < nd.length; ++i)
+			if (nd[i].parentNode == Node) {
+				this.H = parseFloat(nd[i].textContent);
+				break;
+			}
 	}
 
 }
@@ -1679,9 +2606,17 @@ export class RSAPK {
 	ParseFromXMLElement = (Node: Element) => {
 		let nd: NodeListOf<Element>
 		nd = Node.getElementsByTagName('M')
-		if (nd.length > 0) this.M = nd[0].textContent;
+		for (let i = 0; i < nd.length; ++i)
+			if (nd[i].parentNode == Node) {
+				this.M = nd[i].textContent;
+				break;
+			}
 		nd = Node.getElementsByTagName('E')
-		if (nd.length > 0) this.E = nd[0].textContent;
+		for (let i = 0; i < nd.length; ++i)
+			if (nd[i].parentNode == Node) {
+				this.E = nd[i].textContent;
+				break;
+			}
 	}
 
 }
@@ -1699,13 +2634,29 @@ export class DSAPK {
 	ParseFromXMLElement = (Node: Element) => {
 		let nd: NodeListOf<Element>
 		nd = Node.getElementsByTagName('P')
-		if (nd.length > 0) this.P = nd[0].textContent;
+		for (let i = 0; i < nd.length; ++i)
+			if (nd[i].parentNode == Node) {
+				this.P = nd[i].textContent;
+				break;
+			}
 		nd = Node.getElementsByTagName('Q')
-		if (nd.length > 0) this.Q = nd[0].textContent;
+		for (let i = 0; i < nd.length; ++i)
+			if (nd[i].parentNode == Node) {
+				this.Q = nd[i].textContent;
+				break;
+			}
 		nd = Node.getElementsByTagName('G')
-		if (nd.length > 0) this.G = nd[0].textContent;
+		for (let i = 0; i < nd.length; ++i)
+			if (nd[i].parentNode == Node) {
+				this.G = nd[i].textContent;
+				break;
+			}
 		nd = Node.getElementsByTagName('Y')
-		if (nd.length > 0) this.Y = nd[0].textContent;
+		for (let i = 0; i < nd.length; ++i)
+			if (nd[i].parentNode == Node) {
+				this.Y = nd[i].textContent;
+				break;
+			}
 	}
 
 }
@@ -1762,55 +2713,67 @@ export class Liquidacion {
 		let nd: NodeListOf<Element>
 		if (Node.hasAttribute('ID')) this.ID = <string>Node.getAttribute('ID');
 		nd = Node.getElementsByTagName('Encabezado');
-		if (nd.length > 0) {
-			this.Encabezado = new Encabezado();
-			this.Encabezado.ParseFromXMLElement(nd[0]);
-		}
+		for (let i = 0; i < nd.length; ++i)
+			if (nd[i].parentNode == Node) {
+				this.Encabezado = new Encabezado();
+				this.Encabezado.ParseFromXMLElement(nd[i]);
+				break;
+			}
 
 		nd = Node.getElementsByTagName('Detalle');
 		if (nd.length > 0) {
 			this.Detalle = <[Detalle]>[];
-			for (let i = 0; i < nd.length; ++i) {
-				this.Detalle.push(new Detalle());
-				this.Detalle[i].ParseFromXMLElement(nd[i]);
-			}
+			for (let i = 0; i < nd.length; ++i)
+				if (nd[i].parentNode == Node) {
+					this.Detalle.push(new Detalle());
+					this.Detalle[i].ParseFromXMLElement(nd[i]);
+				}
 		}
 
 		nd = Node.getElementsByTagName('SubTotInfo');
 		if (nd.length > 0) {
 			this.SubTotInfo = <[SubTotInfo]>[];
-			for (let i = 0; i < nd.length; ++i) {
-				this.SubTotInfo.push(new SubTotInfo());
-				this.SubTotInfo[i].ParseFromXMLElement(nd[i]);
-			}
+			for (let i = 0; i < nd.length; ++i)
+				if (nd[i].parentNode == Node) {
+					this.SubTotInfo.push(new SubTotInfo());
+					this.SubTotInfo[i].ParseFromXMLElement(nd[i]);
+				}
 		}
 
 		nd = Node.getElementsByTagName('Referencia');
 		if (nd.length > 0) {
 			this.Referencia = <[Referencia]>[];
-			for (let i = 0; i < nd.length; ++i) {
-				this.Referencia.push(new Referencia());
-				this.Referencia[i].ParseFromXMLElement(nd[i]);
-			}
+			for (let i = 0; i < nd.length; ++i)
+				if (nd[i].parentNode == Node) {
+					this.Referencia.push(new Referencia());
+					this.Referencia[i].ParseFromXMLElement(nd[i]);
+				}
 		}
 
 		nd = Node.getElementsByTagName('Comisiones');
 		if (nd.length > 0) {
 			this.Comisiones = <[Comisiones]>[];
-			for (let i = 0; i < nd.length; ++i) {
-				this.Comisiones.push(new Comisiones());
-				this.Comisiones[i].ParseFromXMLElement(nd[i]);
-			}
+			for (let i = 0; i < nd.length; ++i)
+				if (nd[i].parentNode == Node) {
+					this.Comisiones.push(new Comisiones());
+					this.Comisiones[i].ParseFromXMLElement(nd[i]);
+				}
 		}
 
 		nd = Node.getElementsByTagName('TED');
-		if (nd.length > 0) {
-			this.TED = new TED();
-			this.TED.ParseFromXMLElement(nd[0]);
-		}
+		for (let i = 0; i < nd.length; ++i)
+			if (nd[i].parentNode == Node) {
+				this.TED = new TED();
+				this.TED.ParseFromXMLElement(nd[i]);
+				break;
+			}
 
 		nd = Node.getElementsByTagName('TmstFirma')
-		if (nd.length > 0) this.TmstFirma = new Date(nd[0].textContent);
+		for (let i = 0; i < nd.length; ++i)
+			if (nd[i].parentNode == Node) {
+				this.TmstFirma = new Date(nd[i].textContent);
+				break;
+			}
 	}
 
 }
@@ -1837,55 +2800,67 @@ export class Exportaciones {
 		let nd: NodeListOf<Element>
 		if (Node.hasAttribute('ID')) this.ID = <string>Node.getAttribute('ID');
 		nd = Node.getElementsByTagName('Encabezado');
-		if (nd.length > 0) {
-			this.Encabezado = new Encabezado();
-			this.Encabezado.ParseFromXMLElement(nd[0]);
-		}
+		for (let i = 0; i < nd.length; ++i)
+			if (nd[i].parentNode == Node) {
+				this.Encabezado = new Encabezado();
+				this.Encabezado.ParseFromXMLElement(nd[i]);
+				break;
+			}
 
 		nd = Node.getElementsByTagName('Detalle');
 		if (nd.length > 0) {
 			this.Detalle = <[Detalle]>[];
-			for (let i = 0; i < nd.length; ++i) {
-				this.Detalle.push(new Detalle());
-				this.Detalle[i].ParseFromXMLElement(nd[i]);
-			}
+			for (let i = 0; i < nd.length; ++i)
+				if (nd[i].parentNode == Node) {
+					this.Detalle.push(new Detalle());
+					this.Detalle[i].ParseFromXMLElement(nd[i]);
+				}
 		}
 
 		nd = Node.getElementsByTagName('SubTotInfo');
 		if (nd.length > 0) {
 			this.SubTotInfo = <[SubTotInfo]>[];
-			for (let i = 0; i < nd.length; ++i) {
-				this.SubTotInfo.push(new SubTotInfo());
-				this.SubTotInfo[i].ParseFromXMLElement(nd[i]);
-			}
+			for (let i = 0; i < nd.length; ++i)
+				if (nd[i].parentNode == Node) {
+					this.SubTotInfo.push(new SubTotInfo());
+					this.SubTotInfo[i].ParseFromXMLElement(nd[i]);
+				}
 		}
 
 		nd = Node.getElementsByTagName('DscRcgGlobal');
 		if (nd.length > 0) {
 			this.DscRcgGlobal = <[DscRcgGlobal]>[];
-			for (let i = 0; i < nd.length; ++i) {
-				this.DscRcgGlobal.push(new DscRcgGlobal());
-				this.DscRcgGlobal[i].ParseFromXMLElement(nd[i]);
-			}
+			for (let i = 0; i < nd.length; ++i)
+				if (nd[i].parentNode == Node) {
+					this.DscRcgGlobal.push(new DscRcgGlobal());
+					this.DscRcgGlobal[i].ParseFromXMLElement(nd[i]);
+				}
 		}
 
 		nd = Node.getElementsByTagName('Referencia');
 		if (nd.length > 0) {
 			this.Referencia = <[Referencia]>[];
-			for (let i = 0; i < nd.length; ++i) {
-				this.Referencia.push(new Referencia());
-				this.Referencia[i].ParseFromXMLElement(nd[i]);
-			}
+			for (let i = 0; i < nd.length; ++i)
+				if (nd[i].parentNode == Node) {
+					this.Referencia.push(new Referencia());
+					this.Referencia[i].ParseFromXMLElement(nd[i]);
+				}
 		}
 
 		nd = Node.getElementsByTagName('TED');
-		if (nd.length > 0) {
-			this.TED = new TED();
-			this.TED.ParseFromXMLElement(nd[0]);
-		}
+		for (let i = 0; i < nd.length; ++i)
+			if (nd[i].parentNode == Node) {
+				this.TED = new TED();
+				this.TED.ParseFromXMLElement(nd[i]);
+				break;
+			}
 
 		nd = Node.getElementsByTagName('TmstFirma')
-		if (nd.length > 0) this.TmstFirma = new Date(nd[0].textContent);
+		for (let i = 0; i < nd.length; ++i)
+			if (nd[i].parentNode == Node) {
+				this.TmstFirma = new Date(nd[i].textContent);
+				break;
+			}
 	}
 
 }
@@ -1897,21 +2872,25 @@ export class EnvioDTE {
 	/**Conjunto de DTE enviados. */
 	SetDTE: SetDTE
 	/**Firma Digital sobre SetDTE. */
-	Signature: FirmaDigital.Signature
+	Signature: firma.Signature
 	ParseFromXMLElement = (Node: Element) => {
 		let nd: NodeListOf<Element>
 		if (Node.hasAttribute('version')) this.version = Node.getAttribute('version');
 		nd = Node.getElementsByTagName('SetDTE');
-		if (nd.length > 0) {
-			this.SetDTE = new SetDTE();
-			this.SetDTE.ParseFromXMLElement(nd[0]);
-		}
+		for (let i = 0; i < nd.length; ++i)
+			if (nd[i].parentNode == Node) {
+				this.SetDTE = new SetDTE();
+				this.SetDTE.ParseFromXMLElement(nd[i]);
+				break;
+			}
 
 		nd = Node.getElementsByTagName('Signature');
-		if (nd.length > 0) {
-			this.Signature = new FirmaDigital.Signature();
-			this.Signature.ParseFromXMLElement(nd[0]);
-		}
+		for (let i = 0; i < nd.length; ++i)
+			if (nd[i].parentNode == Node) {
+				this.Signature = new firma.Signature();
+				this.Signature.ParseFromXMLElement(nd[i]);
+				break;
+			}
 
 	}
 
@@ -1929,18 +2908,21 @@ export class SetDTE {
 		let nd: NodeListOf<Element>
 		if (Node.hasAttribute('ID')) this.ID = <string>Node.getAttribute('ID');
 		nd = Node.getElementsByTagName('Caratula');
-		if (nd.length > 0) {
-			this.Caratula = new Caratula();
-			this.Caratula.ParseFromXMLElement(nd[0]);
-		}
+		for (let i = 0; i < nd.length; ++i)
+			if (nd[i].parentNode == Node) {
+				this.Caratula = new Caratula();
+				this.Caratula.ParseFromXMLElement(nd[i]);
+				break;
+			}
 
 		nd = Node.getElementsByTagName('DTE');
 		if (nd.length > 0) {
 			this.DTE = <[DTE]>[];
-			for (let i = 0; i < nd.length; ++i) {
-				this.DTE.push(new DTE());
-				this.DTE[i].ParseFromXMLElement(nd[i]);
-			}
+			for (let i = 0; i < nd.length; ++i)
+				if (nd[i].parentNode == Node) {
+					this.DTE.push(new DTE());
+					this.DTE[i].ParseFromXMLElement(nd[i]);
+				}
 		}
 
 	}
@@ -1969,24 +2951,49 @@ export class Caratula {
 		let nd: NodeListOf<Element>
 		if (Node.hasAttribute('version')) this.version = Node.getAttribute('version');
 		nd = Node.getElementsByTagName('RutEmisor')
-		if (nd.length > 0) this.RutEmisor = nd[0].textContent;
+		for (let i = 0; i < nd.length; ++i)
+			if (nd[i].parentNode == Node) {
+				this.RutEmisor = nd[i].textContent;
+				break;
+			}
 		nd = Node.getElementsByTagName('RutEnvia')
-		if (nd.length > 0) this.RutEnvia = nd[0].textContent;
+		for (let i = 0; i < nd.length; ++i)
+			if (nd[i].parentNode == Node) {
+				this.RutEnvia = nd[i].textContent;
+				break;
+			}
 		nd = Node.getElementsByTagName('RutReceptor')
-		if (nd.length > 0) this.RutReceptor = nd[0].textContent;
+		for (let i = 0; i < nd.length; ++i)
+			if (nd[i].parentNode == Node) {
+				this.RutReceptor = nd[i].textContent;
+				break;
+			}
 		nd = Node.getElementsByTagName('FchResol')
-		if (nd.length > 0) this.FchResol = new Date(nd[0].textContent);
+		for (let i = 0; i < nd.length; ++i)
+			if (nd[i].parentNode == Node) {
+				this.FchResol = new Date(nd[i].textContent);
+				break;
+			}
 		nd = Node.getElementsByTagName('NroResol')
-		if (nd.length > 0) this.NroResol = parseFloat(nd[0].textContent);
+		for (let i = 0; i < nd.length; ++i)
+			if (nd[i].parentNode == Node) {
+				this.NroResol = parseFloat(nd[i].textContent);
+				break;
+			}
 		nd = Node.getElementsByTagName('TmstFirmaEnv')
-		if (nd.length > 0) this.TmstFirmaEnv = new Date(nd[0].textContent);
+		for (let i = 0; i < nd.length; ++i)
+			if (nd[i].parentNode == Node) {
+				this.TmstFirmaEnv = new Date(nd[i].textContent);
+				break;
+			}
 		nd = Node.getElementsByTagName('SubTotDTE');
 		if (nd.length > 0) {
 			this.SubTotDTE = <[SubTotDTE]>[];
-			for (let i = 0; i < nd.length; ++i) {
-				this.SubTotDTE.push(new SubTotDTE());
-				this.SubTotDTE[i].ParseFromXMLElement(nd[i]);
-			}
+			for (let i = 0; i < nd.length; ++i)
+				if (nd[i].parentNode == Node) {
+					this.SubTotDTE.push(new SubTotDTE());
+					this.SubTotDTE[i].ParseFromXMLElement(nd[i]);
+				}
 		}
 
 	}
@@ -2002,9 +3009,17 @@ export class SubTotDTE {
 	ParseFromXMLElement = (Node: Element) => {
 		let nd: NodeListOf<Element>
 		nd = Node.getElementsByTagName('NroDTE')
-		if (nd.length > 0) this.NroDTE = parseFloat(nd[0].textContent);
+		for (let i = 0; i < nd.length; ++i)
+			if (nd[i].parentNode == Node) {
+				this.NroDTE = parseFloat(nd[i].textContent);
+				break;
+			}
 		nd = Node.getElementsByTagName('TpoDTE')
-		if (nd.length > 0) this.TpoDTE = parseInt(nd[0].textContent);
+		for (let i = 0; i < nd.length; ++i)
+			if (nd[i].parentNode == Node) {
+				this.TpoDTE = parseInt(nd[i].textContent);
+				break;
+			}
 	}
 
 }

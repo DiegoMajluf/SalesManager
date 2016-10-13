@@ -1,4 +1,5 @@
 
+
 /**Firma Digital sobre Documento. */
 export class Signature {
 	/**Descripcion de la Informacion Firmada y del Metodo de Firma. */
@@ -10,18 +11,26 @@ export class Signature {
 	ParseFromXMLElement = (Node: Element) => {
 		let nd : NodeListOf<Element>
 		nd = Node.getElementsByTagName('SignatureValue')
-		if(nd.length > 0) this.SignatureValue = nd[0].textContent;
+		for (let i = 0; i < nd.length; ++i)
+			if(nd[i].parentNode == Node) {
+				this.SignatureValue= nd[i].textContent;
+				break;
+			}
 		nd = Node.getElementsByTagName('SignedInfo');
-		if(nd.length > 0) {
-			this.SignedInfo = new SignedInfo();
-			this.SignedInfo.ParseFromXMLElement(nd[0]);
-		}
+		for (let i = 0; i < nd.length; ++i)
+			if(nd[i].parentNode == Node) {
+				this.SignedInfo = new SignedInfo();
+				this.SignedInfo.ParseFromXMLElement(nd[i]);
+				break;
+			}
 
 		nd = Node.getElementsByTagName('KeyInfo');
-		if(nd.length > 0) {
-			this.KeyInfo = new KeyInfo();
-			this.KeyInfo.ParseFromXMLElement(nd[0]);
-		}
+		for (let i = 0; i < nd.length; ++i)
+			if(nd[i].parentNode == Node) {
+				this.KeyInfo = new KeyInfo();
+				this.KeyInfo.ParseFromXMLElement(nd[i]);
+				break;
+			}
 
 	}
 
@@ -38,22 +47,28 @@ export class SignedInfo {
 	ParseFromXMLElement = (Node: Element) => {
 		let nd : NodeListOf<Element>
 		nd = Node.getElementsByTagName('CanonicalizationMethod');
-		if(nd.length > 0) {
-			this.CanonicalizationMethod = new CanonicalizationMethod();
-			this.CanonicalizationMethod.ParseFromXMLElement(nd[0]);
-		}
+		for (let i = 0; i < nd.length; ++i)
+			if(nd[i].parentNode == Node) {
+				this.CanonicalizationMethod = new CanonicalizationMethod();
+				this.CanonicalizationMethod.ParseFromXMLElement(nd[i]);
+				break;
+			}
 
 		nd = Node.getElementsByTagName('SignatureMethod');
-		if(nd.length > 0) {
-			this.SignatureMethod = new SignatureMethod();
-			this.SignatureMethod.ParseFromXMLElement(nd[0]);
-		}
+		for (let i = 0; i < nd.length; ++i)
+			if(nd[i].parentNode == Node) {
+				this.SignatureMethod = new SignatureMethod();
+				this.SignatureMethod.ParseFromXMLElement(nd[i]);
+				break;
+			}
 
 		nd = Node.getElementsByTagName('Reference');
-		if(nd.length > 0) {
-			this.Reference = new Reference();
-			this.Reference.ParseFromXMLElement(nd[0]);
-		}
+		for (let i = 0; i < nd.length; ++i)
+			if(nd[i].parentNode == Node) {
+				this.Reference = new Reference();
+				this.Reference.ParseFromXMLElement(nd[i]);
+				break;
+			}
 
 	}
 
@@ -97,18 +112,26 @@ export class Reference {
 		let nd : NodeListOf<Element>
 		if(Node.hasAttribute('URI')) this.URI = <string>Node.getAttribute('URI');
 		nd = Node.getElementsByTagName('DigestValue')
-		if(nd.length > 0) this.DigestValue = nd[0].textContent;
+		for (let i = 0; i < nd.length; ++i)
+			if(nd[i].parentNode == Node) {
+				this.DigestValue= nd[i].textContent;
+				break;
+			}
 		nd = Node.getElementsByTagName('Transforms');
-		if(nd.length > 0) {
-			this.Transforms = new Transforms();
-			this.Transforms.ParseFromXMLElement(nd[0]);
-		}
+		for (let i = 0; i < nd.length; ++i)
+			if(nd[i].parentNode == Node) {
+				this.Transforms = new Transforms();
+				this.Transforms.ParseFromXMLElement(nd[i]);
+				break;
+			}
 
 		nd = Node.getElementsByTagName('DigestMethod');
-		if(nd.length > 0) {
-			this.DigestMethod = new DigestMethod();
-			this.DigestMethod.ParseFromXMLElement(nd[0]);
-		}
+		for (let i = 0; i < nd.length; ++i)
+			if(nd[i].parentNode == Node) {
+				this.DigestMethod = new DigestMethod();
+				this.DigestMethod.ParseFromXMLElement(nd[i]);
+				break;
+			}
 
 	}
 
@@ -121,10 +144,12 @@ export class Transforms {
 	ParseFromXMLElement = (Node: Element) => {
 		let nd : NodeListOf<Element>
 		nd = Node.getElementsByTagName('Transform');
-		if(nd.length > 0) {
-			this.Transform = new Transform();
-			this.Transform.ParseFromXMLElement(nd[0]);
-		}
+		for (let i = 0; i < nd.length; ++i)
+			if(nd[i].parentNode == Node) {
+				this.Transform = new Transform();
+				this.Transform.ParseFromXMLElement(nd[i]);
+				break;
+			}
 
 	}
 
@@ -161,16 +186,20 @@ export class KeyInfo {
 	ParseFromXMLElement = (Node: Element) => {
 		let nd : NodeListOf<Element>
 		nd = Node.getElementsByTagName('KeyValue');
-		if(nd.length > 0) {
-			this.KeyValue = new KeyValue();
-			this.KeyValue.ParseFromXMLElement(nd[0]);
-		}
+		for (let i = 0; i < nd.length; ++i)
+			if(nd[i].parentNode == Node) {
+				this.KeyValue = new KeyValue();
+				this.KeyValue.ParseFromXMLElement(nd[i]);
+				break;
+			}
 
 		nd = Node.getElementsByTagName('X509Data');
-		if(nd.length > 0) {
-			this.X509Data = new X509Data();
-			this.X509Data.ParseFromXMLElement(nd[0]);
-		}
+		for (let i = 0; i < nd.length; ++i)
+			if(nd[i].parentNode == Node) {
+				this.X509Data = new X509Data();
+				this.X509Data.ParseFromXMLElement(nd[i]);
+				break;
+			}
 
 	}
 
@@ -185,16 +214,20 @@ export class KeyValue {
 	ParseFromXMLElement = (Node: Element) => {
 		let nd : NodeListOf<Element>
 		nd = Node.getElementsByTagName('RSAKeyValue');
-		if(nd.length > 0) {
-			this.RSAKeyValue = new RSAKeyValue();
-			this.RSAKeyValue.ParseFromXMLElement(nd[0]);
-		}
+		for (let i = 0; i < nd.length; ++i)
+			if(nd[i].parentNode == Node) {
+				this.RSAKeyValue = new RSAKeyValue();
+				this.RSAKeyValue.ParseFromXMLElement(nd[i]);
+				break;
+			}
 
 		nd = Node.getElementsByTagName('DSAKeyValue');
-		if(nd.length > 0) {
-			this.DSAKeyValue = new DSAKeyValue();
-			this.DSAKeyValue.ParseFromXMLElement(nd[0]);
-		}
+		for (let i = 0; i < nd.length; ++i)
+			if(nd[i].parentNode == Node) {
+				this.DSAKeyValue = new DSAKeyValue();
+				this.DSAKeyValue.ParseFromXMLElement(nd[i]);
+				break;
+			}
 
 	}
 
@@ -209,9 +242,17 @@ export class RSAKeyValue {
 	ParseFromXMLElement = (Node: Element) => {
 		let nd : NodeListOf<Element>
 		nd = Node.getElementsByTagName('Modulus')
-		if(nd.length > 0) this.Modulus = nd[0].textContent;
+		for (let i = 0; i < nd.length; ++i)
+			if(nd[i].parentNode == Node) {
+				this.Modulus= nd[i].textContent;
+				break;
+			}
 		nd = Node.getElementsByTagName('Exponent')
-		if(nd.length > 0) this.Exponent = nd[0].textContent;
+		for (let i = 0; i < nd.length; ++i)
+			if(nd[i].parentNode == Node) {
+				this.Exponent= nd[i].textContent;
+				break;
+			}
 	}
 
 }
@@ -229,13 +270,29 @@ export class DSAKeyValue {
 	ParseFromXMLElement = (Node: Element) => {
 		let nd : NodeListOf<Element>
 		nd = Node.getElementsByTagName('P')
-		if(nd.length > 0) this.P = nd[0].textContent;
+		for (let i = 0; i < nd.length; ++i)
+			if(nd[i].parentNode == Node) {
+				this.P= nd[i].textContent;
+				break;
+			}
 		nd = Node.getElementsByTagName('Q')
-		if(nd.length > 0) this.Q = nd[0].textContent;
+		for (let i = 0; i < nd.length; ++i)
+			if(nd[i].parentNode == Node) {
+				this.Q= nd[i].textContent;
+				break;
+			}
 		nd = Node.getElementsByTagName('G')
-		if(nd.length > 0) this.G = nd[0].textContent;
+		for (let i = 0; i < nd.length; ++i)
+			if(nd[i].parentNode == Node) {
+				this.G= nd[i].textContent;
+				break;
+			}
 		nd = Node.getElementsByTagName('Y')
-		if(nd.length > 0) this.Y = nd[0].textContent;
+		for (let i = 0; i < nd.length; ++i)
+			if(nd[i].parentNode == Node) {
+				this.Y= nd[i].textContent;
+				break;
+			}
 	}
 
 }
@@ -247,7 +304,11 @@ export class X509Data {
 	ParseFromXMLElement = (Node: Element) => {
 		let nd : NodeListOf<Element>
 		nd = Node.getElementsByTagName('X509Certificate')
-		if(nd.length > 0) this.X509Certificate = nd[0].textContent;
+		for (let i = 0; i < nd.length; ++i)
+			if(nd[i].parentNode == Node) {
+				this.X509Certificate= nd[i].textContent;
+				break;
+			}
 	}
 
 }

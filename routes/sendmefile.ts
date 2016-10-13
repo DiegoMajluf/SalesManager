@@ -1,22 +1,16 @@
 import * as express from 'express';
-import * as fs from 'fs';
-import * as DTE from '../cliente/dtes'
-import { DOMParser } from 'xmldom'
+import * as DTE from '../cliente/dtes';
 
 
 export let router = express.Router();
-let str: string = '';
-router.post('/', function (req, res, next) {
+router.post('/', (req, res, next) => {
+    let str = '';
     req.setEncoding('utf8')
-    req.on('readable',  () => str += <string>req.read());
+    req.on('data', chnk => str += chnk);
     req.on('end', () => {
-        let doc = new DOMParser().parseFromString(str, "text/xml")
-        let dd = new DTE.SetDTE();
-        dd.ParseFromXMLElement(doc.documentElement)
-        res.send(JSON.stringify(dd));
+        let set = <DTE.SetDTE>JSON.parse(str);
+        res.send(set);
     })
 });
 
-router.get('/', (req, res) => {
-    res.sendFile(process.cwd() + '/cliente/postFile.htm')
-}) 
+router.get('/', (req, res) => res.sendFile(process.cwd() + '/cliente/postFile.htm'));

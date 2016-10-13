@@ -18,6 +18,7 @@
     "express": "~4.13.4",
     "mongodb": "^2.2.10",
     "morgan": "~1.7.0",
+    "rxjs": "^5.0.0-rc.1",
     "serve-favicon": "~2.3.0",
     "systemjs": "^0.19.39",
     "xmldom": "^0.1.22"

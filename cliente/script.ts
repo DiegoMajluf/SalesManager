@@ -8,7 +8,7 @@ function sendText() {
     let xml = new XMLHttpRequest();
     xml.open('post', '/sendmefile');
     xml.onload = () => pre.textContent = xml.response;
-    xml.send(new Blob([txt.value], {type: "application/xml"}))
+    xml.send(new Blob([txt.value], { type: "application/xml" }))
 }
 
 
@@ -18,28 +18,27 @@ function sendText() {
 
     let inp = <HTMLInputElement>document.getElementById('inpFile');
     let but = <HTMLInputElement>document.getElementById('button');
-     but.addEventListener('click', sendText);
+    but.addEventListener('click', sendText);
 
     inp.addEventListener('change', () => {
 
         let xml = new XMLHttpRequest();
         xml.open('post', '/sendmefile');
+        
         xml.onload = function () { pre.textContent = xml.response; }
         let fr = new FileReader();
         fr.onload = function () {
-            let dp = new DOMParser();
-            let doc = dp.parseFromString(fr.result, "application/xml");
+            let doc =  new DOMParser().parseFromString(fr.result, "application/xml");
             let dt = new DTE.SetDTE();
             dt.ParseFromXMLElement(doc.documentElement)
-            console.log(dt)
-            xml.send(fr.result)
+            xml.send(JSON.stringify(dt));
         }
-        fr.readAsArrayBuffer(inp.files[0])
+        fr.readAsText(inp.files[0])
 
     })
 
 })()
 
-    
+
 
 
