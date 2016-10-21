@@ -1,5 +1,4 @@
 
-
 /**Firma Digital sobre Documento. */
 export class Signature {
 	/**Descripcion de la Informacion Firmada y del Metodo de Firma. */
@@ -8,7 +7,7 @@ export class Signature {
 	SignatureValue:string
 	/**Informacion de Claves Publicas y Certificado. */
 	KeyInfo: KeyInfo
-	ParseFromXMLElement = (Node: Element) => {
+	ParseFromXMLElement = (Node: Element) => { 
 		let nd : NodeListOf<Element>
 		nd = Node.getElementsByTagName('SignatureValue')
 		for (let i = 0; i < nd.length; ++i)
@@ -96,7 +95,7 @@ export class SignatureMethod {
 
 }
 
-type Algorithm = 'http://www.w3.org/2000/09/xmldsig#rsa-sha1' | 'http://www.w3.org/2000/09/xmldsig#dsa-sha1' 
+export type Algorithm = 'http://www.w3.org/2000/09/xmldsig#rsa-sha1' | 'http://www.w3.org/2000/09/xmldsig#dsa-sha1' 
 
 /**Referencia a Elemento Firmado. */
 export class Reference {
