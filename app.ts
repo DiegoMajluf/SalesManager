@@ -9,6 +9,9 @@ import * as logger from 'morgan';
 import * as cookieParser from 'cookie-parser';
 import * as bodyParser from 'body-parser';
 import { router as getFile } from './routes/sendmefile'
+import { router as query } from './routes/querydata'
+import { db  } from './commons/mongo';
+
 
 
 
@@ -25,6 +28,7 @@ app.use('/cliente', express.static(path.join(__dirname, 'cliente')));
 app.use('/node_modules', express.static(path.join(__dirname, 'node_modules')));
 
 app.use('/sendmefile', getFile)
+app.use('/query', query)
 
 app.get('/', (req, res) => {
   res.send({ app: 'hola' })

@@ -4,6 +4,12 @@ import * as DTE from '../cliente/dtes';
 
 export let router = express.Router();
 
+router.get('/getfoliosyaingresadosde/:tipo/enrango/:ini-:fin', (req, res, next) => {
+
+res.send([]);
+
+})
+
 router.get('/getventas/:tiempo/entre/:desde-:hasta', (req, res, next) => {
 
 
