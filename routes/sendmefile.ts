@@ -11,10 +11,17 @@ router.post('/setdte', (req, res, next) => {
     req.setEncoding('utf8')
     req.on('data', chnk => str += chnk);
     req.on('end', () => {
-        let set = <DTE.SetDTE>JSON.parse(str);
+        let set: DTE.SetDTE
+        try {
+            set = JSON.parse(str);
+        } catch (err) {
+            res.send(500, err)
+        }
 
-
-
+        addDTEsToBase(set.DTE).subscribe(
+            x => res.send(x),
+            err => res.send(500, err)
+        )
     });
 });
 
@@ -23,94 +30,43 @@ router.post('/arraydte', (req, res, next) => {
     req.setEncoding('utf8')
     req.on('data', chnk => str += chnk);
     req.on('end', () => {
-        let dtes = <DTE.DTE[]>JSON.parse(str);
-        let sortDTE = dtes.reduce((vp, va) => {
-            va['ingresado'] = false;
-            if (!vp[va.Documento.Encabezado.Emisor.RUTEmisor]) vp[va.Documento.Encabezado.Emisor.RUTEmisor] = {};
-            if (!vp[va.Documento.Encabezado.Emisor.RUTEmisor][va.Documento.Encabezado.IdDoc.TipoDTE])
-                vp[va.Documento.Encabezado.IdDoc.TipoDTE] = []
-            vp[va.Documento.Encabezado.Emisor.RUTEmisor][va.Documento.Encabezado.IdDoc.TipoDTE].push(va)
-            vp[va.Documento.Encabezado.Emisor.RUTEmisor + va.Documento.Encabezado.IdDoc.TipoDTE + va.Documento.Encabezado.IdDoc.Folio] = vp;
-            return vp;
-        }, {})
+        let dtes: DTE.DTE[]
+        try {
+            dtes = JSON.parse(str);
+        } catch (err) {
+            res.send(500, err)
+        }
 
-        Object.keys(sortDTE).forEach(rut => Object.keys(sortDTE[rut])
-            .forEach(tipo => {
-                let cursor = db.collection('dtes').find({
-                    $and: [
-                        { 'Documento.Encabezado.IdDoc.TipoDTE': tipo },
-                        { 'Documento.Encabezado.Emisor.RUTEmisor': rut },
-                        { 'Documento.Encabezado.IdDoc.Folio': { $in: sortDTE[rut][tipo] } }
-                    ]
-                }).toArray()
-                    .then(dtes => {
-                        dtes.forEach(
-                            dte => {
-                                let tmp = sortDTE[dte.Documento.Encabezado.Emisor.RUTEmisor +
-                                    dte.Documento.Encabezado.IdDoc.TipoDTE +
-                                    dte.Documento.Encabezado.IdDoc.Folio];
-                                if (tmp) tmp['ingresado'] = true;
-                            })
-                        db.collection('dtes').insertMany(dtes.filter(d => !d['ingresado']))
-                            .then(iw =>
-                                res.send(dtes.reduce((ac, d) => {
-                                    if (!ac[d.Documento.Encabezado.Emisor.RUTEmisor]) ac[d.Documento.Encabezado.Emisor.RUTEmisor] = {};
-                                    if (!ac[d.Documento.Encabezado.Emisor.RUTEmisor][d.Documento.Encabezado.IdDoc.TipoDTE])
-                                        ac[d.Documento.Encabezado.Emisor.RUTEmisor][d.Documento.Encabezado.IdDoc.TipoDTE] = {};
-                                    ac[d.Documento.Encabezado.Emisor.RUTEmisor][d.Documento.Encabezado.IdDoc.TipoDTE]
-                                    [d.Documento.Encabezado.IdDoc.Folio] = d['ingresado'];
+        addDTEsToBase(dtes).subscribe(
+            x => res.send(x),
+            err => res.send(500, err)
+        )
 
-                                    return ac;
-                                })))
-                            .catch(err => {
-                                res.statusCode = 500;
-                                res.send(err)
-                            })
-
-                    })
-                    .catch(err => {
-                        res.statusCode = 500;
-                        res.send(err)
-                    })
-            }))
 
     })
 });
 
-function addDTEsToBase(dtes: DTE.DTE[]): Observable<ResponseAddDTE> {
-    let okDTEs = <DTE.Encabezado[]>[];
-    let errDTEs = <{ enc: DTE.Encabezado, err: any }[]>[];
-    Observable.merge(dtes.reduce((acc, dte) =>
-        acc.concat([Observable.from(db.collection('dtes').findOneAndUpdate({
-            $and: [
-                { 'Documento.Encabezado.Emisor.RUTEmisor': dte.Documento.Encabezado.Emisor.RUTEmisor },
-                { 'Documento.Encabezado.IdDoc.TipoDTE': dte.Documento.Encabezado.IdDoc.TipoDTE },
-                { 'Documento.Encabezado.IdDoc.Folio': dte.Documento.Encabezado.IdDoc.Folio }
-            ]
-        }, { $setOnInsert: dte }, { upsert: true })
-        )
-            // .catch(err => {
-            //     errDTEs.push({ enc: dte.Documento.Encabezado, err: err })
-            //     return <Observable<FindAndModifyWriteOpResultObject>>Observable.empty();
-            // })
-        ]), <Observable<FindAndModifyWriteOpResultObject>[]>[]))
-        .flatMap(x => x)
-        .reduce((acc, va) => {
-            acc.okDTEs.push(va.value)
-            return acc
-        }, new ResponseAddDTE([], []))
-        
-        
-        //)
+function addDTEsToBase(dtes: DTE.DTE[]): Observable<{ okDTEs: DTE.Encabezado[], errDTEs: { enc: DTE.Encabezado, err: any }[] }> {
+    return dtes.reduce((acc, dte) => {
+        let query = { $and: [{}, {}, {}] }
+        let tipoDoc = dte.Documento || dte.Exportaciones || dte.Liquidacion;
+        let nombreTipo = (dte.Documento ? 'Documento' : null) || (dte.Exportaciones ? 'Exportaciones' : null)
+            || (dte.Liquidacion ? 'Liquidacion' : null);
+        query.$and[0][`${nombreTipo}.Encabezado.Emisor.RUTEmisor`] = tipoDoc.Encabezado.Emisor.RUTEmisor
+        query.$and[1][`${nombreTipo}.Encabezado.IdDoc.TipoDTE`] = tipoDoc.Encabezado.IdDoc.TipoDTE
+        query.$and[2][`${nombreTipo}.Encabezado.IdDoc.Folio`] = tipoDoc.Encabezado.IdDoc.Folio
 
+        return acc.merge(Observable.fromPromise(db.collection('dtes').findOneAndUpdate(query, { $setOnInsert: dte }, { upsert: true })))
+    }, <Observable<FindAndModifyWriteOpResultObject>>Observable.empty())
+        .reduce((acc, v) => {
+            let tipoDoc = v.value.Documento || v.value.Exportaciones || v.value.Liquidacion;
+            if (v.ok == 1) acc.okDTEs.push(tipoDoc.Encabezado);
+            else acc.errDTEs.push({ enc: tipoDoc.Encabezado, err: v.lastErrorObject })
+            return acc
+        }, { okDTEs: <DTE.Encabezado[]>[], errDTEs: <{ enc: DTE.Encabezado, err: any }[]>[] })
 
 }
 
 
 router.get('/', (req, res) => res.sendFile(process.cwd() + '/cliente/postFile.htm'));
 
-
-class ResponseAddDTE {
-    constructor(public okDTEs: DTE.DTE[], public errDTEs: { enc: DTE.Encabezado, err: any }[]) { }
-
-}
