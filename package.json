@@ -8,7 +8,7 @@
   },
   "private": true,
   "scripts": {
-    "start": "node app",
+    "start": "tsc && node app",
     "postinstall": "typings install && tsc"
   },
   "dependencies": {

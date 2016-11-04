@@ -6,6 +6,8 @@ import { FindAndModifyWriteOpResultObject } from 'mongodb'
 
 
 export let router = express.Router();
+type IdDoc = DTE.DocumentoIdDoc | DTE.ExportacionesIdDoc | DTE.LiquidacionIdDoc
+
 router.post('/setdte', (req, res, next) => {
     let str = '';
     req.setEncoding('utf8')
@@ -34,39 +36,48 @@ router.post('/arraydte', (req, res, next) => {
         try {
             dtes = JSON.parse(str);
         } catch (err) {
-            res.send(500, err)
+            res.status(500).send(err)
         }
+        console.log(dtes.length)
 
         addDTEsToBase(dtes).subscribe(
             x => res.send(x),
-            err => res.send(500, err)
+            err => {
+                console.log(err)
+                res.status(500).send(err)
+            }
         )
 
 
     })
 });
 
-function addDTEsToBase(dtes: DTE.DTE[]): Observable<{ okDTEs: DTE.Encabezado[], errDTEs: { enc: DTE.Encabezado, err: any }[] }> {
+function addDTEsToBase(dtes: DTE.DTE[]): Observable<{ okDTEs: IdDoc[], errDTEs: { IdDoc: IdDoc, err: any }[] }> {
     return dtes.reduce((acc, dte) => {
         let query = { $and: [{}, {}, {}] }
         let tipoDoc = dte.Documento || dte.Exportaciones || dte.Liquidacion;
-        let nombreTipo = (dte.Documento ? 'Documento' : null) || (dte.Exportaciones ? 'Exportaciones' : null)
+        let nombreTipo = (dte.Documento ? 'Documento' : null)
+            || (dte.Exportaciones ? 'Exportaciones' : null)
             || (dte.Liquidacion ? 'Liquidacion' : null);
+
         query.$and[0][`${nombreTipo}.Encabezado.Emisor.RUTEmisor`] = tipoDoc.Encabezado.Emisor.RUTEmisor
         query.$and[1][`${nombreTipo}.Encabezado.IdDoc.TipoDTE`] = tipoDoc.Encabezado.IdDoc.TipoDTE
         query.$and[2][`${nombreTipo}.Encabezado.IdDoc.Folio`] = tipoDoc.Encabezado.IdDoc.Folio
 
-        return acc.merge(Observable.fromPromise(db.collection('dtes').findOneAndUpdate(query, { $setOnInsert: dte }, { upsert: true })))
+        return acc.merge(Observable.fromPromise(db.collection('dtes')
+        .findOneAndUpdate(query, { $setOnInsert: dte }, { upsert: true, returnOriginal: false  })))
     }, <Observable<FindAndModifyWriteOpResultObject>>Observable.empty())
         .reduce((acc, v) => {
-            let tipoDoc = v.value.Documento || v.value.Exportaciones || v.value.Liquidacion;
-            if (v.ok == 1) acc.okDTEs.push(tipoDoc.Encabezado);
-            else acc.errDTEs.push({ enc: tipoDoc.Encabezado, err: v.lastErrorObject })
+            console.log(v)
+            let iddoc: IdDoc = (v.value.Documento || v.value.Exportaciones || v.value.Liquidacion).IdDoc;
+            if (v.ok == 1) acc.okDTEs.push(iddoc);
+            else acc.errDTEs.push({ IdDoc: iddoc, err: v.lastErrorObject })
             return acc
-        }, { okDTEs: <DTE.Encabezado[]>[], errDTEs: <{ enc: DTE.Encabezado, err: any }[]>[] })
+        }, { okDTEs: <IdDoc[]>[], errDTEs: <{ IdDoc: IdDoc, err: any }[]>[] })
 
 }
 
 
 router.get('/', (req, res) => res.sendFile(process.cwd() + '/cliente/postFile.htm'));
+
 

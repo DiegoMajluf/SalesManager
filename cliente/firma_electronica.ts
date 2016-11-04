@@ -1,18 +1,19 @@
 
+
 /**Firma Digital sobre Documento. */
 export class Signature {
 	/**Descripcion de la Informacion Firmada y del Metodo de Firma. */
 	SignedInfo: SignedInfo
 	/**Valor de la Firma Digital. */
-	SignatureValue:string
+	SignatureValue: string
 	/**Informacion de Claves Publicas y Certificado. */
 	KeyInfo: KeyInfo
-	ParseFromXMLElement = (Node: Element) => { 
+	ParseFromXMLElement = (Node: Element) => {
 		let nd : NodeListOf<Element>
 		nd = Node.getElementsByTagName('SignatureValue')
 		for (let i = 0; i < nd.length; ++i)
 			if(nd[i].parentNode == Node) {
-				this.SignatureValue= nd[i].textContent;
+				this.SignatureValue = nd[i].textContent;
 				break;
 			}
 		nd = Node.getElementsByTagName('SignedInfo');
@@ -79,7 +80,7 @@ export class CanonicalizationMethod {
 	Algorithm: string = "http://www.w3.org/TR/2001/REC-xml-c14n-20010315"
 	ParseFromXMLElement = (Node: Element) => {
 		let nd : NodeListOf<Element>
-		if(Node.hasAttribute('Algorithm')) this.Algorithm = Node.getAttribute('Algorithm');
+		if(Node.hasAttribute('Algorithm')) this.Algorithm = <string>Node.getAttribute('Algorithm');
 	}
 
 }
@@ -87,10 +88,10 @@ export class CanonicalizationMethod {
 /**Algoritmo de Firma. */
 export class SignatureMethod {
 	
-	Algorithm: string
+	Algorithm: Algorithm
 	ParseFromXMLElement = (Node: Element) => {
 		let nd : NodeListOf<Element>
-		if(Node.hasAttribute('Algorithm')) this.Algorithm = <string>Node.getAttribute('Algorithm');
+		if(Node.hasAttribute('Algorithm')) this.Algorithm = <Algorithm>Node.getAttribute('Algorithm');
 	}
 
 }
@@ -106,14 +107,14 @@ export class Reference {
 	/**Algoritmo de Digest. */
 	DigestMethod: DigestMethod
 	/**Valor de Digest. */
-	DigestValue:string
+	DigestValue: string
 	ParseFromXMLElement = (Node: Element) => {
 		let nd : NodeListOf<Element>
 		if(Node.hasAttribute('URI')) this.URI = <string>Node.getAttribute('URI');
 		nd = Node.getElementsByTagName('DigestValue')
 		for (let i = 0; i < nd.length; ++i)
 			if(nd[i].parentNode == Node) {
-				this.DigestValue= nd[i].textContent;
+				this.DigestValue = nd[i].textContent;
 				break;
 			}
 		nd = Node.getElementsByTagName('Transforms');
@@ -171,7 +172,7 @@ export class DigestMethod {
 	Algorithm: string = "http://www.w3.org/2000/09/xmldsig#sha1"
 	ParseFromXMLElement = (Node: Element) => {
 		let nd : NodeListOf<Element>
-		if(Node.hasAttribute('Algorithm')) this.Algorithm = Node.getAttribute('Algorithm');
+		if(Node.hasAttribute('Algorithm')) this.Algorithm = <string>Node.getAttribute('Algorithm');
 	}
 
 }
@@ -235,21 +236,21 @@ export class KeyValue {
 /**Informacion de Claves Publicas RSA. */
 export class RSAKeyValue {
 	/**Modulo Clave RSA. */
-	Modulus:string
+	Modulus: string
 	/**Exponente Clave RSA. */
-	Exponent:string
+	Exponent: string
 	ParseFromXMLElement = (Node: Element) => {
 		let nd : NodeListOf<Element>
 		nd = Node.getElementsByTagName('Modulus')
 		for (let i = 0; i < nd.length; ++i)
 			if(nd[i].parentNode == Node) {
-				this.Modulus= nd[i].textContent;
+				this.Modulus = nd[i].textContent;
 				break;
 			}
 		nd = Node.getElementsByTagName('Exponent')
 		for (let i = 0; i < nd.length; ++i)
 			if(nd[i].parentNode == Node) {
-				this.Exponent= nd[i].textContent;
+				this.Exponent = nd[i].textContent;
 				break;
 			}
 	}
@@ -259,37 +260,37 @@ export class RSAKeyValue {
 /**Informacion de Claves Publicas DSA. */
 export class DSAKeyValue {
 	/**Modulo Primo. */
-	P:string
+	P: string
 	/**Entero Divisor de P - 1. */
-	Q:string
+	Q: string
 	/**Entero f(P, Q). */
-	G:string
+	G: string
 	/**G**X mod P. */
-	Y:string
+	Y: string
 	ParseFromXMLElement = (Node: Element) => {
 		let nd : NodeListOf<Element>
 		nd = Node.getElementsByTagName('P')
 		for (let i = 0; i < nd.length; ++i)
 			if(nd[i].parentNode == Node) {
-				this.P= nd[i].textContent;
+				this.P = nd[i].textContent;
 				break;
 			}
 		nd = Node.getElementsByTagName('Q')
 		for (let i = 0; i < nd.length; ++i)
 			if(nd[i].parentNode == Node) {
-				this.Q= nd[i].textContent;
+				this.Q = nd[i].textContent;
 				break;
 			}
 		nd = Node.getElementsByTagName('G')
 		for (let i = 0; i < nd.length; ++i)
 			if(nd[i].parentNode == Node) {
-				this.G= nd[i].textContent;
+				this.G = nd[i].textContent;
 				break;
 			}
 		nd = Node.getElementsByTagName('Y')
 		for (let i = 0; i < nd.length; ++i)
 			if(nd[i].parentNode == Node) {
-				this.Y= nd[i].textContent;
+				this.Y = nd[i].textContent;
 				break;
 			}
 	}
@@ -299,13 +300,13 @@ export class DSAKeyValue {
 /**Informacion del Certificado Publico. */
 export class X509Data {
 	/**Certificado Publico. */
-	X509Certificate:string
+	X509Certificate: string
 	ParseFromXMLElement = (Node: Element) => {
 		let nd : NodeListOf<Element>
 		nd = Node.getElementsByTagName('X509Certificate')
 		for (let i = 0; i < nd.length; ++i)
 			if(nd[i].parentNode == Node) {
-				this.X509Certificate= nd[i].textContent;
+				this.X509Certificate = nd[i].textContent;
 				break;
 			}
 	}
