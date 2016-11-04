@@ -3,30 +3,18 @@ import * as DTE from '../cliente/dtes';
 import { db } from '../commons/mongo';
 import { Observable, Subscriber } from 'rxjs/Rx';
 import { FindAndModifyWriteOpResultObject } from 'mongodb'
+import {dteService} from '../commons/dte-service'
 
 
 export let router = express.Router();
+let rut: string = '76398667-5'
 
-let getNombreDocumento = (tipo: string): string => {
-
-    for (let member in DTE.DTEType)
-        if (member == tipo) return "Documento";
-
-    for (let member in DTE.EXPType)
-        if (member == tipo) return "Exportacion";
-
-    for (let member in DTE.LIQType)
-        if (member == tipo) return "Liquidacion";
-
-}
-
-
+let dteServ = new dteService()
 
 router.get('/getfoliosyaingresadosde/:tipo/enrango/:ini-:fin', (req, res, next) => {
     let query = { $and: [{}, {}, {}, {}] }
 
-    let NombreDoc = getNombreDocumento(req.params.tipo);
-    let rut: string = '76398667-5'
+    let NombreDoc = dteServ.getNombreDocumento(req.params.tipo);
 
     query.$and[0][`${NombreDoc}.Encabezado.Emisor.RUTEmisor`] = rut
     query.$and[1][`${NombreDoc}.Encabezado.IdDoc.TipoDTE`] = parseInt(req.params.tipo)
@@ -48,42 +36,59 @@ router.get('/getfoliosyaingresadosde/:tipo/enrango/:ini-:fin', (req, res, next) 
 
 })
 
-router.get('/getventas/:tiempo/entre/:desde-:hasta', (req, res, next) => {
+router.get('/getventas/:periodo/entre/:desde-:hasta', (req, res, next) => {
+    let query = { $or: [{}, {}, {}] }
+    let d = new DTE.DTE()
+
+    d.Documento.Encabezado.IdDoc.FchEmis
+
+    let fec = { $gte: new Date(req.params.desde), $lte: new Date(req.params.hasta) }
+
+    query.$or[0][`Documento.Encabezado.IdDoc.FchEmis`] = fec
+    query.$or[1][`Exportaciones.Encabezado.IdDoc.FchEmis`] = fec
+    query.$or[2][`Liquidaciones.Encabezado.IdDoc.FchEmis`] = fec
+
+    Observable.from(<Promise<DTE.DTE[]>>db.collection('dtes').find(query).toArray())
+        .subscribe(
+        dtes => dtes.reduce((acc, dte) => {
+            let periodo = getPeriodo(dte.Documento.Encabezado.IdDoc.FchEmis, )
+            return acc
+        }, {}),
+        err => res.send(err))
+
+})
+
+router.get('/getventasporcliente/:rut/:periodo/entre/:desde-:hasta', (req, res, next) => {
 
 
 })
 
-router.get('/getventasporcliente/:rut/:tiempo/entre/:desde-:hasta', (req, res, next) => {
+router.get('/gettop/:num/clientes/:periodo/entre/:desde-:hasta', (req, res, next) => {
 
 
 })
 
-router.get('/gettop/:num/clientes/:tiempo/entre/:desde-:hasta', (req, res, next) => {
+router.get('/getventasporetiquetacliente/:nombre/:periodo/entre/:desde-:hasta', (req, res, next) => {
 
 
 })
 
-router.get('/getventasporetiquetacliente/:nombre/:tiempo/entre/:desde-:hasta', (req, res, next) => {
+router.get('/getventasporetiquetaitem/:nombre/:periodo/entre/:desde-:hasta', (req, res, next) => {
 
 
 })
 
-router.get('/getventasporetiquetaitem/:nombre/:tiempo/entre/:desde-:hasta', (req, res, next) => {
+router.get('/getventasporetiquetaitem/:nombre/:periodo/entre/:desde-:hasta', (req, res, next) => {
 
 
 })
 
-router.get('/getventasporetiquetaitem/:nombre/:tiempo/entre/:desde-:hasta', (req, res, next) => {
+router.get('/getventasporubicacion/:nombre/:periodo/entre/:desde-:hasta', (req, res, next) => {
 
 
 })
 
-router.get('/getventasporubicacion/:nombre/:tiempo/entre/:desde-:hasta', (req, res, next) => {
-
-
-})
-
-router.get('/getventasporubicacion/:nombre/:tiempo/entre/:desde-:hasta', (req, res, next) => {
+router.get('/getventasporubicacion/:nombre/:periodo/entre/:desde-:hasta', (req, res, next) => {
 
 
 })

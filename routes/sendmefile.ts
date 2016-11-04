@@ -68,7 +68,6 @@ function addDTEsToBase(dtes: DTE.DTE[]): Observable<{ okDTEs: IdDoc[], errDTEs: 
         .findOneAndUpdate(query, { $setOnInsert: dte }, { upsert: true, returnOriginal: false  })))
     }, <Observable<FindAndModifyWriteOpResultObject>>Observable.empty())
         .reduce((acc, v) => {
-            console.log(v)
             let iddoc: IdDoc = (v.value.Documento || v.value.Exportaciones || v.value.Liquidacion).IdDoc;
             if (v.ok == 1) acc.okDTEs.push(iddoc);
             else acc.errDTEs.push({ IdDoc: iddoc, err: v.lastErrorObject })
