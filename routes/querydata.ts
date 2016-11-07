@@ -3,7 +3,7 @@ import * as DTE from '../cliente/dtes';
 import { db } from '../commons/mongo';
 import { Observable, Subscriber } from 'rxjs/Rx';
 import { FindAndModifyWriteOpResultObject } from 'mongodb'
-import { dteService, Periodo } from '../commons/dte-service'
+import { dteService, Periodo, tipoPeriodos } from '../commons/dte-service'
 
 
 export let router = express.Router();
@@ -43,9 +43,10 @@ router.get('/getventas/:periodo/entre/:desde/:hasta', (req, res, next) => {
     query.$or[1][`Exportaciones.Encabezado.IdDoc.FchEmis`] = fec
     query.$or[2][`Liquidaciones.Encabezado.IdDoc.FchEmis`] = fec
 
+    let p = tipoPeriodos[<string>req.params.periodo]
     let gruPe: { periodo: Periodo, dtes: DTE.DTE[] }[];
     Observable.from(<Promise<DTE.DTE[]>>db.collection('dtes').find(query).toArray()).subscribe(
-        dtes => gruPe = Periodo.asignarDTEaPeriodos(req.params.periodo, fec.$gte, fec.$lte, dtes),
+        dtes => gruPe = Periodo.asignarDTEaPeriodos(p, fec.$gte, fec.$lte, dtes),
         err => res.send(500).send(err),
         () => res.send(Periodo.resumenVentasPorPeriodos(gruPe))
     )

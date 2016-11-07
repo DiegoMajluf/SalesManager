@@ -1,6 +1,7 @@
 import * as express from 'express';
 import * as DTE from '../cliente/dtes';
 import { db } from '../commons/mongo';
+import { dteService } from '../commons/dte-service';
 import { Observable, Subscriber } from 'rxjs/Rx';
 import { FindAndModifyWriteOpResultObject } from 'mongodb'
 
@@ -15,7 +16,7 @@ router.post('/setdte', (req, res, next) => {
     req.on('end', () => {
         let set: DTE.SetDTE
         try {
-            set = JSON.parse(str);
+            set = JSON.parse(str, dteService.dateReviver);
         } catch (err) {
             res.send(500, err)
         }
@@ -34,7 +35,7 @@ router.post('/arraydte', (req, res, next) => {
     req.on('end', () => {
         let dtes: DTE.DTE[]
         try {
-            dtes = JSON.parse(str);
+            dtes = JSON.parse(str, dteService.dateReviver);
         } catch (err) {
             res.status(500).send(err)
         }
@@ -65,7 +66,7 @@ function addDTEsToBase(dtes: DTE.DTE[]): Observable<{ okDTEs: IdDoc[], errDTEs: 
         query.$and[2][`${nombreTipo}.Encabezado.IdDoc.Folio`] = tipoDoc.Encabezado.IdDoc.Folio
 
         return acc.merge(Observable.fromPromise(db.collection('dtes')
-        .findOneAndUpdate(query, { $setOnInsert: dte }, { upsert: true, returnOriginal: false  })))
+            .findOneAndUpdate(query, { $setOnInsert: dte }, { upsert: true, returnOriginal: false })))
     }, <Observable<FindAndModifyWriteOpResultObject>>Observable.empty())
         .reduce((acc, v) => {
             let iddoc: IdDoc = (v.value.Documento || v.value.Exportaciones || v.value.Liquidacion).IdDoc;

@@ -30,6 +30,13 @@ export class dteService {
         return 0
     }
 
+    static dateReviver = (key: string, value: any) => {
+        if (typeof value === 'string')
+            if (/^(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2}):(\d{2}(?:\.\d*)?)(Z|([+\-])(\d{2}):(\d{2}))$/.test(value))
+                return new Date(value);
+        return value;
+
+    }
 }
 
 export class Periodo {
