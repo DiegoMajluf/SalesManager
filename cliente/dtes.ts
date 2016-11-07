@@ -1616,7 +1616,7 @@ export enum ImpAdicDTEType {
 	N_481 = 481,
 }
 /**Comisiones y otros cargos es obligatoria para Liquidaciones Factura . */
-export class DocumentoComisiones {
+export class DocumentoComisionesTotales {
 	/**Opcional. Valor Neto Comisiones y Otros Cargos. */
 	ValComNeto: number
 	/**Opcional. Val. Comis. y Otros Cargos no Afectos o Exentos. */
@@ -2434,7 +2434,7 @@ export enum DocumentoCodRef {
 	CorrigeMontos = 3,
 }
 /**Comisiones y otros cargos es obligatoria para Liquidaciones Factura . */
-export class DocumentoComisionesTotales {
+export class DocumentoComisiones {
 	/**Numero Secuencial de Linea. */
 	NroLinCom: number
 	/**C (comisión) u O (otros cargos). */
@@ -3561,7 +3561,7 @@ export class LiquidacionImptoReten {
 }
 
 /**Comisiones y otros cargos es obligatoria para Liquidaciones Factura . */
-export class LiquidacionComisiones {
+export class LiquidacionComisionesTotales {
 	/**Opcional. Valor Neto Comisiones y Otros Cargos. */
 	ValComNeto: number
 	/**Opcional. Val. Comis. y Otros Cargos no Afectos o Exentos. */
@@ -3958,7 +3958,7 @@ export enum LiquidacionCodRef {
 	CorrigeMontos = 3,
 }
 /**Comisiones y otros cargos es obligatoria para Liquidaciones Factura . */
-export class LiquidacionComisionesTotales {
+export class LiquidacionComisiones {
 	/**Numero Secuencial de Linea. */
 	NroLinCom: number
 	/**C (comisión) u O (otros cargos). */

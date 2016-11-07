@@ -5,7 +5,7 @@
             "name": "Iniciar",
             "type": "node",
             "request": "launch",
-            "program": "${workspaceRoot}/app.ts",
+            "program": "${workspaceRoot}/app.js",
             "stopOnEntry": false,
             "args": [],
             "cwd": "${workspaceRoot}",
@@ -18,7 +18,7 @@
                 "NODE_ENV": "development"
             },
             "console": "internalConsole",
-            "sourceMaps": false,
+            "sourceMaps": true,
             "outDir": null
         },
         {

@@ -3,18 +3,16 @@ import * as DTE from '../cliente/dtes';
 import { db } from '../commons/mongo';
 import { Observable, Subscriber } from 'rxjs/Rx';
 import { FindAndModifyWriteOpResultObject } from 'mongodb'
-import {dteService} from '../commons/dte-service'
+import { dteService, Periodo } from '../commons/dte-service'
 
 
 export let router = express.Router();
 let rut: string = '76398667-5'
 
-let dteServ = new dteService()
-
 router.get('/getfoliosyaingresadosde/:tipo/enrango/:ini-:fin', (req, res, next) => {
     let query = { $and: [{}, {}, {}, {}] }
 
-    let NombreDoc = dteServ.getNombreDocumento(req.params.tipo);
+    let NombreDoc = dteService.getNombreDocumento(req.params.tipo);
 
     query.$and[0][`${NombreDoc}.Encabezado.Emisor.RUTEmisor`] = rut
     query.$and[1][`${NombreDoc}.Encabezado.IdDoc.TipoDTE`] = parseInt(req.params.tipo)
@@ -36,11 +34,8 @@ router.get('/getfoliosyaingresadosde/:tipo/enrango/:ini-:fin', (req, res, next) 
 
 })
 
-router.get('/getventas/:periodo/entre/:desde-:hasta', (req, res, next) => {
+router.get('/getventas/:periodo/entre/:desde/:hasta', (req, res, next) => {
     let query = { $or: [{}, {}, {}] }
-    let d = new DTE.DTE()
-
-    d.Documento.Encabezado.IdDoc.FchEmis
 
     let fec = { $gte: new Date(req.params.desde), $lte: new Date(req.params.hasta) }
 
@@ -48,13 +43,12 @@ router.get('/getventas/:periodo/entre/:desde-:hasta', (req, res, next) => {
     query.$or[1][`Exportaciones.Encabezado.IdDoc.FchEmis`] = fec
     query.$or[2][`Liquidaciones.Encabezado.IdDoc.FchEmis`] = fec
 
-    Observable.from(<Promise<DTE.DTE[]>>db.collection('dtes').find(query).toArray())
-        .subscribe(
-        dtes => dtes.reduce((acc, dte) => {
-            let periodo = getPeriodo(dte.Documento.Encabezado.IdDoc.FchEmis, )
-            return acc
-        }, {}),
-        err => res.send(err))
+    let gruPe: { periodo: Periodo, dtes: DTE.DTE[] }[];
+    Observable.from(<Promise<DTE.DTE[]>>db.collection('dtes').find(query).toArray()).subscribe(
+        dtes => gruPe = Periodo.asignarDTEaPeriodos(req.params.periodo, fec.$gte, fec.$lte, dtes),
+        err => res.send(500).send(err),
+        () => res.send(Periodo.resumenVentasPorPeriodos(gruPe))
+    )
 
 })
 
