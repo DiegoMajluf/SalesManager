@@ -1,5 +1,5 @@
 import * as express from 'express';
-import * as DTE from '../cliente/dtes';
+import { dte } from 'sii-dtes'
 import { db } from '../commons/mongo';
 import { Observable, Subscriber } from 'rxjs/Rx';
 import { FindAndModifyWriteOpResultObject } from 'mongodb'
@@ -7,8 +7,7 @@ import { dteService, Periodo, tipoPeriodos } from '../commons/dte-service'
 
 
 export let router = express.Router();
-let rut: string = '76398667-5'
-
+let rut: string = '76398667-5';
 router.get('/getfoliosyaingresadosde/:tipo/enrango/:ini-:fin', (req, res, next) => {
     let query = { $and: [{}, {}, {}, {}] }
 
@@ -19,7 +18,7 @@ router.get('/getfoliosyaingresadosde/:tipo/enrango/:ini-:fin', (req, res, next) 
     query.$and[2][`${NombreDoc}.Encabezado.IdDoc.Folio`] = { $gte: parseInt(req.params.ini) };
     query.$and[3][`${NombreDoc}.Encabezado.IdDoc.Folio`] = { $lte: parseInt(req.params.fin) };
 
-    Observable.fromPromise(<Promise<DTE.DTE[]>>db.collection('dtes').find(query, { Signature: 0 }).toArray()).subscribe(
+    Observable.fromPromise(<Promise<dte.DTE[]>>db.collection('dtes').find(query, { Signature: 0 }).toArray()).subscribe(
         dtes => {
             let resp = {}
             resp[req.params.tipo] = []
@@ -44,8 +43,8 @@ router.get('/getventas/:periodo/entre/:desde/:hasta', (req, res, next) => {
     query.$or[2][`Liquidaciones.Encabezado.IdDoc.FchEmis`] = fec
 
     let p = tipoPeriodos[<string>req.params.periodo]
-    let gruPe: { periodo: Periodo, dtes: DTE.DTE[] }[];
-    Observable.from(<Promise<DTE.DTE[]>>db.collection('dtes').find(query).toArray()).subscribe(
+    let gruPe: { periodo: Periodo, dtes: dte.DTE[] }[];
+    Observable.from(<Promise<dte.DTE[]>>db.collection('dtes').find(query).toArray()).subscribe(
         dtes => gruPe = Periodo.asignarDTEaPeriodos(p, fec.$gte, fec.$lte, dtes),
         err => res.send(500).send(err),
         () => res.send(Periodo.resumenVentasPorPeriodos(gruPe))

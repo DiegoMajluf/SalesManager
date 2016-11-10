@@ -1,4 +1,4 @@
-import * as DTE from './dtes'
+import { dte } from 'sii-dtes'
 
 let pre = <HTMLPreElement>document.getElementById('pre');
 
@@ -24,12 +24,12 @@ function sendText() {
 
         let xml = new XMLHttpRequest();
         xml.open('post', '/sendmefile');
-        
+
         xml.onload = function () { pre.textContent = xml.response; }
         let fr = new FileReader();
         fr.onload = function () {
-            let doc =  new DOMParser().parseFromString(fr.result, "application/xml");
-            let dt = new DTE.SetDTE();
+            let doc = new DOMParser().parseFromString(fr.result, "application/xml");
+            let dt = new dte.SetDTE();
             dt.ParseFromXMLElement(doc.documentElement)
             xml.send(JSON.stringify(dt));
         }

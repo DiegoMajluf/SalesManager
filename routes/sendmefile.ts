@@ -1,5 +1,5 @@
 import * as express from 'express';
-import * as DTE from '../cliente/dtes';
+import { dte } from 'sii-dtes'
 import { db } from '../commons/mongo';
 import { dteService } from '../commons/dte-service';
 import { Observable, Subscriber } from 'rxjs/Rx';
@@ -7,14 +7,14 @@ import { FindAndModifyWriteOpResultObject } from 'mongodb'
 
 
 export let router = express.Router();
-type IdDoc = DTE.DocumentoIdDoc | DTE.ExportacionesIdDoc | DTE.LiquidacionIdDoc
+type IdDoc = dte.DocumentoIdDoc | dte.ExportacionesIdDoc | dte.LiquidacionIdDoc
 
 router.post('/setdte', (req, res, next) => {
     let str = '';
     req.setEncoding('utf8')
     req.on('data', chnk => str += chnk);
     req.on('end', () => {
-        let set: DTE.SetDTE
+        let set: dte.SetDTE
         try {
             set = JSON.parse(str, dteService.dateReviver);
         } catch (err) {
@@ -33,7 +33,7 @@ router.post('/arraydte', (req, res, next) => {
     req.setEncoding('utf8')
     req.on('data', chnk => str += chnk);
     req.on('end', () => {
-        let dtes: DTE.DTE[]
+        let dtes: dte.DTE[]
         try {
             dtes = JSON.parse(str, dteService.dateReviver);
         } catch (err) {
@@ -53,7 +53,7 @@ router.post('/arraydte', (req, res, next) => {
     })
 });
 
-function addDTEsToBase(dtes: DTE.DTE[]): Observable<{ okDTEs: IdDoc[], errDTEs: { IdDoc: IdDoc, err: any }[] }> {
+function addDTEsToBase(dtes: dte.DTE[]): Observable<{ okDTEs: IdDoc[], errDTEs: { IdDoc: IdDoc, err: any }[] }> {
     return dtes.reduce((acc, dte) => {
         let query = { $and: [{}, {}, {}] }
         let tipoDoc = dte.Documento || dte.Exportaciones || dte.Liquidacion;
