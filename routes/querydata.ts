@@ -1,9 +1,8 @@
 import * as express from 'express';
-import { dte } from 'sii-dtes'
+import { dte, periodos } from 'sii-dtes'
 import { db } from '../commons/mongo';
 import { Observable, Subscriber } from 'rxjs/Rx';
 import { FindAndModifyWriteOpResultObject } from 'mongodb'
-import { dteService, Periodo, tipoPeriodos } from '../commons/dte-service'
 
 
 export let router = express.Router();
@@ -86,3 +85,59 @@ router.get('/getventasporubicacion/:nombre/:periodo/entre/:desde-:hasta', (req, 
 
 
 })
+
+
+    function asignarDTEaPeriodos(tipo: TipoPeriodos, desde: Date, hasta: Date, dtes: dtes.DTE[])
+        : { periodo: Periodo, dtes: dtes.DTE[] }[] => {
+
+        let periodos = Periodo.getPeriodos(desde, hasta, tipo)
+        let o = {}
+        periodos.forEach(p => o[p.fechaIni.toISOString()] = { periodo: p, dtes: [] })
+
+        dtes.forEach(dte => {
+            let fec = Periodo.getFecIniPeriodo(
+                (dte.Documento || dte.Exportaciones || dte.Liquidacion).Encabezado.IdDoc.FchEmis, tipo)
+            o[fec.toISOString()].dtes.push(dte)
+        })
+
+        let arr: { periodo: Periodo, dtes: dtes.DTE[] }[] = [];
+        for (let k in o) arr.push(o[k])
+        return arr;
+    }
+
+    function resumenVentasPorPeriodos(grupPe: { periodo: Periodo, dtes: dtes.DTE[] }[])
+        : { periodo: Periodo, ventas: any, numDocs: number }[] => {
+
+        let arr: { periodo: Periodo, ventas: any, numDocs: number }[] = [];
+
+        for (let k in grupPe) {
+            let itm = { periodo: grupPe[k].periodo, ventas: {}, numDocs: grupPe[k].dtes.length };
+            let peso: dtes.TipMonType = 'PESO CL'
+            itm.ventas[peso] = { venta: 0, numDocs: 0, moneda: peso };
+
+            (<dtes.DTE[]>grupPe[k].dtes).forEach(dte => {
+                let sig = DteService.getSignoDocumento(dte)
+                if (sig === 0) return;
+                if (dte.Documento) {
+                    itm.ventas[peso].venta += sig *
+                        (dte.Documento.Encabezado.Totales.MntExe || 0 + dte.Documento.Encabezado.Totales.MntNeto || 0);
+                    itm.ventas[peso].numDocs++;
+                } else if (dte.Exportaciones) {
+                    let mon = dte.Exportaciones.Encabezado.Totales.TpoMoneda
+                    if (!itm.ventas[mon]) itm.ventas[mon] = { venta: 0, numDocs: 0, moneda: mon }
+                    itm.ventas[mon].venta += sig * dte.Exportaciones.Encabezado.Totales.MntExe
+                    itm.ventas[mon].numDocs++;
+                } else {
+                    itm.ventas[peso].venta += sig *
+                        (dte.Liquidacion.Encabezado.Totales.Comisiones.ValComExe || 0
+                            + dte.Liquidacion.Encabezado.Totales.Comisiones.ValComNeto || 0);
+                    itm.ventas[peso].numDocs++;
+                }
+
+            })
+
+            arr.push(itm);
+        }
+
+        return arr;
+    }

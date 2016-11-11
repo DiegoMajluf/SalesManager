@@ -1,7 +1,6 @@
 import * as express from 'express';
-import { dte } from 'sii-dtes'
+import { dte, dteService } from 'sii-dtes'
 import { db } from '../commons/mongo';
-import { dteService } from '../commons/dte-service';
 import { Observable, Subscriber } from 'rxjs/Rx';
 import { FindAndModifyWriteOpResultObject } from 'mongodb'
 
@@ -69,7 +68,7 @@ function addDTEsToBase(dtes: dte.DTE[]): Observable<{ okDTEs: IdDoc[], errDTEs: 
             .findOneAndUpdate(query, { $setOnInsert: dte }, { upsert: true, returnOriginal: false })))
     }, <Observable<FindAndModifyWriteOpResultObject>>Observable.empty())
         .reduce((acc, v) => {
-            let iddoc: IdDoc = (v.value.Documento || v.value.Exportaciones || v.value.Liquidacion).IdDoc;
+            let iddoc: IdDoc = (v.value.Documento || v.value.Exportaciones || v.value.Liquidacion).Encabezado.IdDoc;
             if (v.ok == 1) acc.okDTEs.push(iddoc);
             else acc.errDTEs.push({ IdDoc: iddoc, err: v.lastErrorObject })
             return acc
