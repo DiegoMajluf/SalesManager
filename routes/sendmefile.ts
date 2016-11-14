@@ -6,7 +6,7 @@ import { FindAndModifyWriteOpResultObject } from 'mongodb'
 
 
 export let router = express.Router();
-type IdDoc = dte.DocumentoIdDoc | dte.ExportacionesIdDoc | dte.LiquidacionIdDoc
+type IdDoc = dte.DocumentoIdDoc | dte.ExportacionesIdDoc | dte.LiquidacionIdDoc;
 
 router.post('/setdte', (req, res, next) => {
     let str = '';
