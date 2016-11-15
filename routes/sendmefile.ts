@@ -1,5 +1,5 @@
 import * as express from 'express';
-import { dte, dteService } from 'sii-dtes'
+import { dte, DteService } from 'sii-dtes'
 import { db } from '../commons/mongo';
 import { Observable, Subscriber } from 'rxjs/Rx';
 import { FindAndModifyWriteOpResultObject } from 'mongodb'
@@ -15,7 +15,7 @@ router.post('/setdte', (req, res, next) => {
     req.on('end', () => {
         let set: dte.SetDTE
         try {
-            set = JSON.parse(str, dteService.dateReviver);
+            set = JSON.parse(str, DteService.dateReviver);
         } catch (err) {
             res.send(500, err)
         }
@@ -34,7 +34,7 @@ router.post('/arraydte', (req, res, next) => {
     req.on('end', () => {
         let dtes: dte.DTE[]
         try {
-            dtes = JSON.parse(str, dteService.dateReviver);
+            dtes = JSON.parse(str, DteService.dateReviver);
         } catch (err) {
             res.status(500).send(err)
         }
