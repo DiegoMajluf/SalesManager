@@ -11,8 +11,6 @@
     "suppressImplicitAnyIndexErrors": true
   },
   "exclude": [
-    "web_app",
-    "node_modules",
-    "typings"
+    "node_modules"
   ]
 }
