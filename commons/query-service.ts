@@ -22,7 +22,8 @@ export function asignarDTEaPeriodos(tipo: periodos.TipoPeriodos, desde: Date, ha
 export function resumenVentasPorPeriodos(grupPe: { periodo: periodos.Periodo, dtes: dte.DTE[] }[],
     grupoEtiquetas?: string,
     etiquetas?: { [nombre: string]: string },
-    fun?: (dte: dte.DTE, etiquetas: { [nombre: string]: string }) => string): responses.QueryResponsePoint[] {
+    fun?: (dte: dte.DTE, etiquetas: { [nombre: string]: string }) =>
+        { [etiqueta: string]: number }): responses.QueryResponsePoint[] {
 
     let qrps: responses.QueryResponsePoint[] = [];
 
@@ -45,9 +46,11 @@ export function resumenVentasPorPeriodos(grupPe: { periodo: periodos.Periodo, dt
             itm.monedas[mon].numDocs++;
             if (fun) {
                 let eti = fun(dte, etiquetas);
-                if(!itm.monedas[mon].etiquetas[eti]) itm.monedas[mon].etiquetas[eti] = { valor: 0, numDocs: 0 }
-                itm.monedas[mon].etiquetas[eti].numDocs++;
-                itm.monedas[mon].etiquetas[eti].valor += aporte;
+                for (let et in eti) {
+                    if (!itm.monedas[mon].etiquetas[et]) itm.monedas[mon].etiquetas[et] = { valor: 0, numDocs: 0 }
+                    itm.monedas[mon].etiquetas[et].numDocs++;
+                    itm.monedas[mon].etiquetas[et].valor += aporte * eti[et];
+                }
             }
 
         })

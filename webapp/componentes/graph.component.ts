@@ -14,8 +14,6 @@ export class componentVentas {
 
 
  dibujar() {
-   this.data.
-   this.chart.draw()
  }
 
 

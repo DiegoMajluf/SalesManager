@@ -8,7 +8,9 @@
   },
   "private": true,
   "scripts": {
-    "start": "tsc && node app",
+    "start": "tsc && concurrently \"tsc -w\" \"lite-server\" ",
+    "lite": "lite-server",
+    "tsc:w": "tsc -w",
     "postinstall": "typings install && tsc"
   },
   "dependencies": {
@@ -21,32 +23,26 @@
     "@angular/platform-browser-dynamic": "~2.2.0",
     "@angular/router": "~3.2.0",
     "@angular/upgrade": "~2.2.0",
-
     "angular-in-memory-web-api": "~0.1.15",
-    "core-js": "^2.4.1",
-    "reflect-metadata": "^0.1.8",    
-    "zone.js": "^0.6.25",
-
     "body-parser": "~1.15.1",
     "cookie-parser": "~1.4.3",
+    "core-js": "^2.4.1",
     "dateformat": "^1.0.12",
     "debug": "~2.2.0",
     "express": "~4.13.4",
     "google-closure-library": "^20161024.0.0",
     "mongodb": "^2.2.10",
     "morgan": "~1.7.0",
+    "reflect-metadata": "^0.1.8",
     "rxjs": "^5.0.0-beta.12",
     "serve-favicon": "~2.3.0",
+    "sii-dtes": "git://github.com/DiegoMajluf/SII-DTEs.git",
     "systemjs": "^0.19.39",
     "xmldom": "^0.1.22",
-    "sii-dtes": "git://github.com/DiegoMajluf/SII-DTEs.git"
+    "zone.js": "^0.6.25"
   },
   "devDependencies": {
-    "@types/core-js": "^0.9.34",
-    "@types/node": "^6.0.45",
     "concurrently": "^3.0.0",
-    "lite-server": "^2.2.2",
-    "typescript": "^2.0.3",
-    "typings": "^2.0.0"
+    "lite-server": "^2.2.2"
   }
 }

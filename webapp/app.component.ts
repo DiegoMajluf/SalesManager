@@ -1,6 +1,11 @@
 import { Component } from '@angular/core';
+import globals from '../commons/global-variables'
+
 @Component({
   selector: 'my-app',
-  template: '<h1>Hello Angular!</h1>'
+  templateUrl: './webapp/app.component.html'
 })
-export class AppComponent { }
+export class AppComponent {
+  appVars = globals;
+
+}

@@ -5,7 +5,6 @@ import { db } from '../commons/mongo';
 import { Observable, Subscriber } from 'rxjs/Rx';
 import { FindAndModifyWriteOpResultObject } from 'mongodb'
 
-
 export let router = express.Router();
 let rut: string = '76398667-5';
 router.get('/getfoliosyaingresadosde/:tipo/enrango/:ini-:fin', (req, res, next) => {
@@ -128,7 +127,7 @@ router.get('/gettop/:num/clientes/:moneda/:periodo/entre/:desde-:hasta', (req, r
 
 })
 
-router.get('/getventasporetiquetacliente/:nombre/:periodo/entre/:desde-:hasta', (req, res, next) => {
+router.get('/getventasporetiquetacliente/:periodo/entre/:desde-:hasta', (req, res, next) => {
     let query = { $or: [{}, {}, {}] }
 
     let fec = { $gte: new Date(req.params.desde), $lte: new Date(req.params.hasta) }
@@ -139,7 +138,7 @@ router.get('/getventasporetiquetacliente/:nombre/:periodo/entre/:desde-:hasta', 
 
     let p = periodos.TipoPeriodos[<string>req.params.periodo]
     let gruPe: { periodo: periodos.Periodo, dtes: dte.DTE[] }[];
-    let ob1 : { [rut: string]: string }
+    let ob1: { [rut: string]: string }
 
     Observable.combineLatest(
         Observable.from(<Promise<dte.DTE[]>>db.collection('dtes').find(query).toArray()),
@@ -152,24 +151,70 @@ router.get('/getventasporetiquetacliente/:nombre/:periodo/entre/:desde-:hasta', 
         },
         err => res.send(500).send(err),
         () => res.send(queryService
-            .resumenVentasPorPeriodos(gruPe, req.params.nombre, ob1, (dte, ets) =>
-                ets[DteService.getEncabezado(dte).Receptor.RUTRecep] || 'sin clasificación'
-            ))
+            .resumenVentasPorPeriodos(gruPe, req.params.nombre, ob1, (dte, ets) => {
+                let q = {}
+                q[ets[DteService.getEncabezado(dte).Receptor.RUTRecep]] = 1
+                return q;
+            })))
+
+})
+
+router.get('/getventasporetiquetaitem/:periodo/entre/:desde-:hasta', (req, res, next) => {
+    let query = { $or: [{}, {}, {}] }
+
+    let fec = { $gte: new Date(req.params.desde), $lte: new Date(req.params.hasta) }
+
+    query.$or[0][`Documento.Encabezado.IdDoc.FchEmis`] = fec
+    query.$or[1][`Exportaciones.Encabezado.IdDoc.FchEmis`] = fec
+    query.$or[2][`Liquidaciones.Encabezado.IdDoc.FchEmis`] = fec
+
+    let p = periodos.TipoPeriodos[<string>req.params.periodo]
+    let gruPe: { periodo: periodos.Periodo, dtes: dte.DTE[] }[];
+    let ob1: { [rut: string]: string }
+
+    Observable.combineLatest(
+        Observable.from(<Promise<dte.DTE[]>>db.collection('dtes').find(query).toArray()),
+        Observable.from(<Promise<{ [rut: string]: string }>>db.collection('etiquetas-items')
+            .findOne({ nombre: req.params.nombre, rut: rut })))
+        .subscribe(
+        ob => {
+            gruPe = queryService.asignarDTEaPeriodos(p, fec.$gte, fec.$lte, ob[0])
+            ob1 = ob[1];
+        },
+        err => res.send(500).send(err),
+        () => res.send(queryService.resumenVentasPorPeriodos(gruPe, req.params.nombre, ob1,
+            (dte, ets): { [etiqueta: string]: number } => {
+                let dets = DteService.getDetalles(dte);
+                let tot = 0
+
+                //hacemos una proporción con los detalles de los items
+                let proporcion = dets.reduce((acc, det) => {
+                    let cod = det.CdgItem.find(cod => !!ets[cod.VlrCodigo])
+                    let et: string = undefined;
+                    if (cod) et = ets[cod.VlrCodigo]
+                    if (acc[et]) acc[et] = 0;
+                    acc[et] += det.MontoItem
+                    tot += det.MontoItem
+                    return acc
+                }, <{ [etiqueta: string]: number }>{})
+                for (let k in proporcion) proporcion[k] /= tot
+                return proporcion;
+            }
+        ))
         )
 
 })
 
-router.get('/getventasporetiquetaitem/:nombre/:periodo/entre/:desde-:hasta', (req, res, next) => {
-
-
-})
-
-router.get('/getventasporciudad/:nombre/:periodo/entre/:desde-:hasta', (req, res, next) => {
-
+router.get('/getventasporciudad/:periodo/entre/:desde-:hasta', (req, res, next) => {
 
 })
 
 router.get('/getventasporcomuna/:nombre/:periodo/entre/:desde-:hasta', (req, res, next) => {
+
+
+})
+
+router.get('/getventasporlocal/:periodo/entre/:desde-:hasta', (req, res, next) => {
 
 
 })
