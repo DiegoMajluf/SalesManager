@@ -6,13 +6,13 @@ import { Observable, Subscriber } from 'rxjs/Rx';
 import { FindAndModifyWriteOpResultObject } from 'mongodb'
 
 export let router = express.Router();
-let rut: string = '76398667-5';
+let docsName = ['Documento', 'Exportaciones', 'Liquidaciones']
 router.get('/getfoliosyaingresadosde/:tipo/enrango/:ini-:fin', (req, res, next) => {
     let query = { $and: [{}, {}, {}, {}] }
 
     let NombreDoc = DteService.getNombreDocumento(req.params.tipo);
 
-    query.$and[0][`${NombreDoc}.Encabezado.Emisor.RUTEmisor`] = rut
+    query.$and[0][`${NombreDoc}.Encabezado.Emisor.RUTEmisor`] = req['rutEmpresa'];
     query.$and[1][`${NombreDoc}.Encabezado.IdDoc.TipoDTE`] = parseInt(req.params.tipo)
     query.$and[2][`${NombreDoc}.Encabezado.IdDoc.Folio`] = { $gte: parseInt(req.params.ini) };
     query.$and[3][`${NombreDoc}.Encabezado.IdDoc.Folio`] = { $lte: parseInt(req.params.fin) };
@@ -37,9 +37,11 @@ router.get('/getventas/:periodo/entre/:desde/:hasta', (req, res, next) => {
 
     let fec = { $gte: new Date(req.params.desde), $lte: new Date(req.params.hasta) }
 
-    query.$or[0][`Documento.Encabezado.IdDoc.FchEmis`] = fec
-    query.$or[1][`Exportaciones.Encabezado.IdDoc.FchEmis`] = fec
-    query.$or[2][`Liquidaciones.Encabezado.IdDoc.FchEmis`] = fec
+    docsName.forEach((v, k) => {
+        query.$or[k][`${v}.Encabezado.IdDoc.FchEmis`] = fec
+        query.$or[k][`${v}.Encabezado.Emisor.RUTEmisor`] = req['rutEmpresa'];
+
+    })
 
     let p = periodos.TipoPeriodos[<string>req.params.periodo]
     let gruPe: { periodo: periodos.Periodo, dtes: dte.DTE[] }[];
@@ -56,13 +58,13 @@ router.get('/getventasporcliente/:rut/:periodo/entre/:desde-:hasta', (req, res, 
 
     let fec = { $gte: new Date(req.params.desde), $lte: new Date(req.params.hasta) }
 
-    query.$or[0][`Documento.Encabezado.IdDoc.FchEmis`] = fec
-    query.$or[1][`Exportaciones.Encabezado.IdDoc.FchEmis`] = fec
-    query.$or[2][`Liquidaciones.Encabezado.IdDoc.FchEmis`] = fec
+    docsName.forEach((v, k) => {
+        query.$or[k][`${v}.Encabezado.IdDoc.FchEmis`] = fec
+        query.$or[k][`${v}.Encabezado.Emisor.RUTEmisor`] = req['rutEmpresa'];
+        query.$or[0][`${v}.Encabezado.Receptor.RUTRecep`] = req.params.rut
 
-    query.$or[0][`Documento.Encabezado.Receptor.RUTRecep`] = req.params.rut
-    query.$or[1][`Exportaciones.Encabezado.Receptor.RUTRecep`] = req.params.rut
-    query.$or[2][`Liquidaciones.Encabezado.Receptor.RUTRecep`] = req.params.rut
+    })
+
 
     let p = periodos.TipoPeriodos[<string>req.params.periodo]
     let gruPe: { periodo: periodos.Periodo, dtes: dte.DTE[] }[];
@@ -80,17 +82,22 @@ router.get('/gettop/:num/clientes/:moneda/:periodo/entre/:desde-:hasta', (req, r
 
     let query: { $or?: [{}, {}, {}] }
 
+
+
     if (<dte.TipMonType>req.params.moneda === 'PESO CL') {
         query = { $or: [{}, {}, {}] };
-        query.$or[0][`Documento.Encabezado.IdDoc.FchEmis`] = fec
-        query.$or[1][`Exportaciones.Encabezado.IdDoc.FchEmis`] = fec
-        query.$or[2][`Liquidaciones.Encabezado.IdDoc.FchEmis`] = fec
+        docsName.forEach((v, k) => {
+            query.$or[k][`${v}.Encabezado.IdDoc.FchEmis`] = fec
+            query.$or[k][`${v}.Encabezado.Emisor.RUTEmisor`] = req['rutEmpresa'];
+
+        })
 
         query.$or[1][`Exportaciones.Encabezado.Totales.TpoMoneda`] = req.params.moneda
     } else {
         query = {};
         query[`Exportaciones.Encabezado.IdDoc.FchEmis`] = fec
         query[`Exportaciones.Encabezado.Totales.TpoMoneda`] = req.params.moneda
+        query[`Exportaciones.Encabezado.Emisor.RUTEmisor`] = req['rutEmpresa'];
 
     }
 
@@ -132,9 +139,11 @@ router.get('/getventasporetiquetacliente/:periodo/entre/:desde-:hasta', (req, re
 
     let fec = { $gte: new Date(req.params.desde), $lte: new Date(req.params.hasta) }
 
-    query.$or[0][`Documento.Encabezado.IdDoc.FchEmis`] = fec
-    query.$or[1][`Exportaciones.Encabezado.IdDoc.FchEmis`] = fec
-    query.$or[2][`Liquidaciones.Encabezado.IdDoc.FchEmis`] = fec
+    docsName.forEach((v, k) => {
+        query.$or[k][`${v}.Encabezado.IdDoc.FchEmis`] = fec
+        query.$or[k][`${v}.Encabezado.Emisor.RUTEmisor`] = req['rutEmpresa'];
+
+    })
 
     let p = periodos.TipoPeriodos[<string>req.params.periodo]
     let gruPe: { periodo: periodos.Periodo, dtes: dte.DTE[] }[];
@@ -143,7 +152,7 @@ router.get('/getventasporetiquetacliente/:periodo/entre/:desde-:hasta', (req, re
     Observable.combineLatest(
         Observable.from(<Promise<dte.DTE[]>>db.collection('dtes').find(query).toArray()),
         Observable.from(<Promise<{ [rut: string]: string }>>db.collection('etiquetas-clientes')
-            .findOne({ nombre: req.params.nombre, rut: rut })))
+            .findOne({ nombre: req.params.nombre, rut: req['rutEmpresa'] })))
         .subscribe(
         ob => {
             gruPe = queryService.asignarDTEaPeriodos(p, fec.$gte, fec.$lte, ob[0])
@@ -164,9 +173,11 @@ router.get('/getventasporetiquetaitem/:periodo/entre/:desde-:hasta', (req, res, 
 
     let fec = { $gte: new Date(req.params.desde), $lte: new Date(req.params.hasta) }
 
-    query.$or[0][`Documento.Encabezado.IdDoc.FchEmis`] = fec
-    query.$or[1][`Exportaciones.Encabezado.IdDoc.FchEmis`] = fec
-    query.$or[2][`Liquidaciones.Encabezado.IdDoc.FchEmis`] = fec
+    docsName.forEach((v, k) => {
+        query.$or[k][`${v}.Encabezado.IdDoc.FchEmis`] = fec
+        query.$or[k][`${v}.Encabezado.Emisor.RUTEmisor`] = req['rutEmpresa'];
+
+    })
 
     let p = periodos.TipoPeriodos[<string>req.params.periodo]
     let gruPe: { periodo: periodos.Periodo, dtes: dte.DTE[] }[];
@@ -175,7 +186,7 @@ router.get('/getventasporetiquetaitem/:periodo/entre/:desde-:hasta', (req, res, 
     Observable.combineLatest(
         Observable.from(<Promise<dte.DTE[]>>db.collection('dtes').find(query).toArray()),
         Observable.from(<Promise<{ [rut: string]: string }>>db.collection('etiquetas-items')
-            .findOne({ nombre: req.params.nombre, rut: rut })))
+            .findOne({ nombre: req.params.nombre, rut: req['rutEmpresa'] })))
         .subscribe(
         ob => {
             gruPe = queryService.asignarDTEaPeriodos(p, fec.$gte, fec.$lte, ob[0])

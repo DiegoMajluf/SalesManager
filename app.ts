@@ -28,6 +28,10 @@ app.use('/webapp', express.static(path.join(__dirname, 'webapp')));
 app.use('/index.html', express.static(path.join(__dirname, 'index.html')));
 app.use('/node_modules', express.static(path.join(__dirname, 'node_modules')));
 
+app.use((req, res, next) => {
+  req['rutEmpresa']= '76398667-5'
+  next();
+})
 app.use('/sendmefile', getFile)
 app.use('/query', query)
 
