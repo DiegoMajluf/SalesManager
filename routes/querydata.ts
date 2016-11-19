@@ -1,5 +1,5 @@
 import * as express from 'express';
-import { dte, periodos, DteService, responses } from 'sii-dtes'
+import { dte, periodos, DteService, responses } from 'core-sales-manager'
 import * as queryService from '../commons/query-service'
 import { db } from '../commons/mongo';
 import { Observable, Subscriber } from 'rxjs/Rx';
