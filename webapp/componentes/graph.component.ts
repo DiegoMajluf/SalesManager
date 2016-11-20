@@ -4,12 +4,12 @@ import  'google.visualization'
 
 
 @Component({
-  selector: 'grafico',
-  templateUrl: './app/componentes/dte-recibidos.component.html',
+  selector: 'graph',
+  templateUrl: './webapp/componentes/graph.component.html',
 })
-export class componentVentas {
+export class componentGraph {
 
-  chart: google.visualization.LineChart | google.visualization.ComboChart
+  chart: google.visualization.LineChart | google.visualization.ComboChart | google.visualization.PieChart
   data: google.visualization.DataTable
 
 
