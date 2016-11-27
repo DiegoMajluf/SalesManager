@@ -1,4 +1,4 @@
-import { dte } from 'sii-dtes'
+import { dte } from 'core-sales-manager'
 
 let pre = <HTMLPreElement>document.getElementById('pre');
 

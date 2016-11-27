@@ -1,5 +1,5 @@
 import * as express from 'express';
-import { dte, DteService } from 'sii-dtes'
+import { dte, DteService } from 'core-sales-manager'
 import { db } from '../commons/mongo';
 import { Observable, Subscriber } from 'rxjs/Rx';
 import { FindAndModifyWriteOpResultObject } from 'mongodb'

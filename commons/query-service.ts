@@ -1,4 +1,4 @@
-import { dte, periodos, DteService, responses } from 'sii-dtes'
+import { dte, periodos, DteService, responses } from 'core-sales-manager'
 
 
 export function asignarDTEaPeriodos(tipo: periodos.TipoPeriodos, desde: Date, hasta: Date, dtes: dte.DTE[]):
