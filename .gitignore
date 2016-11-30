@@ -41,3 +41,5 @@ typings
 #pures js
 **/*.js
 **/*.js.map
+!config.js
+!systemjs.config.js

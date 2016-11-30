@@ -30,19 +30,42 @@
     "dateformat": "^1.0.12",
     "debug": "~2.2.0",
     "express": "~4.13.4",
-    "google-closure-library": "^20161024.0.0",
     "mongodb": "^2.2.10",
     "morgan": "~1.7.0",
     "reflect-metadata": "^0.1.8",
     "rxjs": "^5.0.0-beta.12",
-    "serve-favicon": "~2.3.0",
-    "core-sales-manager": "git://github.com/DiegoMajluf/coreSalesManager.git",
     "systemjs": "^0.19.39",
-    "xmldom": "^0.1.22",
-    "zone.js": "^0.6.25"
+    "serve-favicon": "~2.3.0",
+    "core-sales-manager": "git://github.com/DiegoMajluf/coreSalesManager.git"
   },
   "devDependencies": {
     "concurrently": "^3.0.0",
+    "jspm": "^0.16.48",
     "lite-server": "^2.2.2"
+  },
+  "jspm": {
+    "dependencies": {
+      "@angular/common": "npm:@angular/common@^2.2.3",
+      "@angular/compiler": "npm:@angular/compiler@^2.2.3",
+      "@angular/core": "npm:@angular/core@^2.2.3",
+      "@angular/forms": "npm:@angular/forms@^2.2.3",
+      "@angular/http": "npm:@angular/http@^2.2.3",
+      "@angular/platform-browser": "npm:@angular/platform-browser@^2.2.3",
+      "@angular/platform-browser-dynamic": "npm:@angular/platform-browser-dynamic@^2.2.3",
+      "@angular/router": "npm:@angular/router@^3.2.3",
+      "@angular/upgrade": "npm:@angular/upgrade@^2.2.3",
+      "angular-in-memory-web-api": "npm:angular-in-memory-web-api@^0.1.16",
+      "core-sales-manager": "github:DiegoMajluf/coreSalesManager@master",
+      "reflect-metadata": "npm:reflect-metadata@^0.1.8",
+      "zone.js": "npm:zone.js@^0.7.2"
+    },
+    "devDependencies": {
+      "typescript": "npm:typescript@^2.0.7"
+    },
+    "overrides": {
+      "github:DiegoMajluf/coreSalesManager@master": {
+        "registry": "npm"
+      }
+    }
   }
 }

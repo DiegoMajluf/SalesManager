@@ -1,7 +1,8 @@
 import { Component, OnInit } from '@angular/core';
 import { Observable } from 'rxjs/Rx';
-import  'google.visualization'
+import  'google.visualization';
 
+declare var System: any
 
 @Component({
   selector: 'graph',
@@ -12,6 +13,9 @@ export class componentGraph {
   chart: google.visualization.LineChart | google.visualization.ComboChart | google.visualization.PieChart
   data: google.visualization.DataTable
 
+  constructor() {
+    System.import('https://www.gstatic.com/charts/loader.js')
+  }
 
  dibujar() {
  }
