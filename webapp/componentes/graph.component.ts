@@ -1,25 +1,36 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ViewChild, ElementRef, Input } from '@angular/core';
 import { Observable } from 'rxjs/Rx';
-import  'google.visualization';
-
-declare var System: any
+import 'google.visualization';
 
 @Component({
   selector: 'graph',
-  templateUrl: './webapp/componentes/graph.component.html',
+  template: '<div #div class="grafico" ></div>',
 })
-export class componentGraph {
+export class componentGraph implements OnInit {
+  @ViewChild('div') div: ElementRef
 
   chart: google.visualization.LineChart | google.visualization.ComboChart | google.visualization.PieChart
-  data: google.visualization.DataTable
+  @Input() data: google.visualization.DataTable
 
-  constructor() {
-    System.import('https://www.gstatic.com/charts/loader.js')
+  constructor() { }
+
+  dibujar() {
+    this.chart = new google.visualization.PieChart(this.div.nativeElement);
+
+    // Set chart options
+    var options: google.visualization.PieChartOptions = {
+      'title': 'How Much Pizza I Ate Last Night',
+      'width': 400,
+      'height': 300
+    };
+    (<google.visualization.PieChart>this.chart).draw(this.data, options);
   }
 
- dibujar() {
- }
 
-
-
+  ngOnInit() {
+    if (!google.visualization) {
+      google.charts.load('current', { 'packages': ['corechart'] });
+      google.charts.setOnLoadCallback(() => this.dibujar());
+    } else this.dibujar()
+  }
 }
