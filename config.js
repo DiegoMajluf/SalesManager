@@ -1,19 +1,20 @@
 System.config({
   baseURL: "/",
-  
   defaultJSExtensions: true,
   transpiler: "typescript",
   paths: {
     "github:*": "jspm_packages/github/*",
     "npm:*": "jspm_packages/npm/*"
   },
-  "meta": {
+
+  meta: {
     "https://www.gstatic.com/charts/loader.js": {
-      exports: 'google.visualization',
-      format: 'global',
-      scriptLoad: true
+      "exports": "google.visualization",
+      "format": "global",
+      "scriptLoad": true
     }
   },
+
   map: {
     "@angular/common": "npm:@angular/common@2.2.3",
     "@angular/compiler": "npm:@angular/compiler@2.2.3",
@@ -26,10 +27,10 @@ System.config({
     "@angular/upgrade": "npm:@angular/upgrade@2.2.3",
     "angular-in-memory-web-api": "npm:angular-in-memory-web-api@0.1.16",
     "core-sales-manager": "github:DiegoMajluf/coreSalesManager@master",
+    "google.visualization": "https://www.gstatic.com/charts/loader.js",
     "reflect-metadata": "npm:reflect-metadata@0.1.8",
     "typescript": "npm:typescript@2.1.1",
     "zone.js": "npm:zone.js@0.7.2",
-    "google.visualization": "https://www.gstatic.com/charts/loader.js",
     "github:DiegoMajluf/coreSalesManager@master": {
       "dateformat": "npm:dateformat@1.0.12"
     },
