@@ -4,13 +4,14 @@ import 'google.visualization';
 
 @Component({
   selector: 'graph',
-  template: '<div #div class="grafico" ></div>',
+  template: '<div #div class="grafico"></div>',
 })
-export class componentGraph implements OnInit {
+export class GraphComponent {
   @ViewChild('div') div: ElementRef
 
   chart: google.visualization.LineChart | google.visualization.ComboChart | google.visualization.PieChart
   @Input() data: google.visualization.DataTable
+  @Input() item: any
 
   constructor() { }
 
@@ -19,7 +20,7 @@ export class componentGraph implements OnInit {
 
     // Set chart options
     var options: google.visualization.PieChartOptions = {
-      'title': 'How Much Pizza I Ate Last Night',
+      'title': this.item.Titulo,
       'width': 400,
       'height': 300
     };
@@ -27,10 +28,4 @@ export class componentGraph implements OnInit {
   }
 
 
-  ngOnInit() {
-    if (!google.visualization) {
-      google.charts.load('current', { 'packages': ['corechart'] });
-      google.charts.setOnLoadCallback(() => this.dibujar());
-    } else this.dibujar()
-  }
 }
