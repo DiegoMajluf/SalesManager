@@ -17,7 +17,8 @@ router.get('/getfoliosyaingresadosde/:tipo/enrango/:ini-:fin', (req, res, next) 
     query.$and[2][`${NombreDoc}.Encabezado.IdDoc.Folio`] = { $gte: parseInt(req.params.ini) };
     query.$and[3][`${NombreDoc}.Encabezado.IdDoc.Folio`] = { $lte: parseInt(req.params.fin) };
 
-    Observable.fromPromise(<Promise<dte.DTE[]>>db.collection('dtes').find(query, { Signature: 0 }).toArray()).subscribe(
+    Observable.fromPromise(<Promise<dte.DTE[]>>db.collection('dtes').find(query, { Signature: 0 }).toArray())
+        .subscribe(
         dtes => {
             let resp = {}
             resp[req.params.tipo] = []
@@ -53,7 +54,7 @@ router.get('/getventas/:periodo/entre/:desde/:hasta', (req, res, next) => {
 
 })
 
-router.get('/getventasporcliente/:rut/:periodo/entre/:desde-:hasta', (req, res, next) => {
+router.get('/getventasporcliente/:rut/:periodo/entre/:desde/:hasta', (req, res, next) => {
     let query = { $or: [{}, {}, {}] }
 
     let fec = { $gte: new Date(req.params.desde), $lte: new Date(req.params.hasta) }
@@ -76,7 +77,7 @@ router.get('/getventasporcliente/:rut/:periodo/entre/:desde-:hasta', (req, res, 
 
 })
 
-router.get('/gettop/:num/clientes/:moneda/:periodo/entre/:desde-:hasta', (req, res, next) => {
+router.get('/gettop/:num/clientes/:moneda/:periodo/entre/:desde/:hasta', (req, res, next) => {
 
     let fec = { $gte: new Date(req.params.desde), $lte: new Date(req.params.hasta) }
 
@@ -134,7 +135,7 @@ router.get('/gettop/:num/clientes/:moneda/:periodo/entre/:desde-:hasta', (req, r
 
 })
 
-router.get('/getventasporetiquetacliente/:periodo/entre/:desde-:hasta', (req, res, next) => {
+router.get('/getventasporetiquetacliente/:periodo/entre/:desde/:hasta', (req, res, next) => {
     let query = { $or: [{}, {}, {}] }
 
     let fec = { $gte: new Date(req.params.desde), $lte: new Date(req.params.hasta) }
@@ -168,7 +169,7 @@ router.get('/getventasporetiquetacliente/:periodo/entre/:desde-:hasta', (req, re
 
 })
 
-router.get('/getventasporetiquetaitem/:periodo/entre/:desde-:hasta', (req, res, next) => {
+router.get('/getventasporetiquetaitem/:periodo/entre/:desde/:hasta', (req, res, next) => {
     let query = { $or: [{}, {}, {}] }
 
     let fec = { $gte: new Date(req.params.desde), $lte: new Date(req.params.hasta) }
@@ -216,16 +217,16 @@ router.get('/getventasporetiquetaitem/:periodo/entre/:desde-:hasta', (req, res, 
 
 })
 
-router.get('/getventasporciudad/:periodo/entre/:desde-:hasta', (req, res, next) => {
+router.get('/getventasporciudad/:periodo/entre/:desde/:hasta', (req, res, next) => {
 
 })
 
-router.get('/getventasporcomuna/:nombre/:periodo/entre/:desde-:hasta', (req, res, next) => {
+router.get('/getventasporcomuna/:nombre/:periodo/entre/:desde/:hasta', (req, res, next) => {
 
 
 })
 
-router.get('/getventasporlocal/:periodo/entre/:desde-:hasta', (req, res, next) => {
+router.get('/getventasporlocal/:periodo/entre/:desde/:hasta', (req, res, next) => {
 
 
 })
