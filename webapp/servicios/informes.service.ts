@@ -1,24 +1,56 @@
 import { Injectable } from '@angular/core';
 import { Http, Response } from '@angular/http';
 import { Observable } from 'rxjs'
-import { periodos } from 'core-sales-manager'
+import { periodos } from 'core-sales-manager';
+import { QueryDataService } from './query-data.service'
+import 'google.visualization'
+
 
 @Injectable()
 export class InformesService {
 
-    constructor(private http: Http) { }
+    constructor(private http: Http, private queryData: QueryDataService) { }
 
     getInformeById(Id: string) {
 
-        return Observable.of([{
+        return [{
             Graph: 'LineChart',
             Titulo: 'Ventas Totales',
             Posicion: 1,
-            Query: {
+            Querys: [{
                 Funcion: "GetVentas",
-                Params: ["return periodos.TipoPeriodos.mensuales",
-                    "return "]
-            }
-        }])
+                FecFinOffset: 0,
+                NumPeriodos: 6,
+                TipoPeriodos: periodos.TipoPeriodos.mensuales
+            }, {
+                Funcion: "GetVentas",
+                FecFinOffset: 0,
+                NumPeriodos: 6,
+                TipoPeridoOffset: periodos.TipoPeriodos.anuales,
+                PeriodosOffset: 1,
+                TipoPeriodos: periodos.TipoPeriodos.mensuales
+            }]
+        }]
     }
+
+    QueryDetailToQueryData(inf: QueryDetail): google.visualization.DataTable {
+        let fecFin: Date = periodos.Periodo.
+    }
+}
+
+
+export interface GraphDetail {
+    Graph: string;
+    Titulo?: string;
+    Posicion?: number;
+    Querys: QueryDetail[]
+}
+
+export interface QueryDetail {
+    Funcion: string;
+    FecFinOffset?: number;
+    NumPeriodos?: number;
+    TipoPeridoOffset?: periodos.TipoPeriodos;
+    PeriodosOffset?: number;
+    TipoPeriodos: periodos.TipoPeriodos;
 }
