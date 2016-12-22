@@ -54,6 +54,13 @@ export interface QueryDetail {
         UltPeriodoOffset?: number;
         NumPeriodos: number;
     }
+    resultado: {
+        ventasNetas: boolean,
+        ventasBrutas: boolean,
+        cantDocs: boolean,
+        cantClientes: boolean,
+        cantProductos: boolean
+    }
     filtros?: {
         receptor?: {
             ruts?: string[],
@@ -65,6 +72,7 @@ export interface QueryDetail {
             ciudades?: string[],
         },
         itemVenta?: {
+            tipoCod?: string[]
             codigo?: string[],
             nombres?: string[],
             etiqueta?: {
@@ -74,6 +82,17 @@ export interface QueryDetail {
         }
     },
     agrupacion?: {
-
+        receptor?: {
+            ruts?: boolean,
+            subetiquetas?: boolean,
+            comunas?: boolean,
+            ciudades?: boolean,
+        },
+        itemVenta?: {
+            tipoCod?: boolean,
+            codigo?: boolean,
+            nombres?: boolean,
+            subetiqueta?: boolean
+        }
     }
 }
