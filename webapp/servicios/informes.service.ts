@@ -33,9 +33,6 @@ export class InformesService {
         }]
     }
 
-    QueryDetailToQueryData(inf: QueryDetail): google.visualization.DataTable {
-        let fecFin: Date = periodos.Periodo.
-    }
 }
 
 
@@ -47,10 +44,36 @@ export interface GraphDetail {
 }
 
 export interface QueryDetail {
-    Funcion: string;
-    FecFinOffset?: number;
+    Consulta: string;
+    UltPeriodoOffset?: number;
     NumPeriodos?: number;
-    TipoPeridoOffset?: periodos.TipoPeriodos;
-    PeriodosOffset?: number;
     TipoPeriodos: periodos.TipoPeriodos;
+    PrimerosN?: number
+    Offset?: {
+        TipoPeriodos: periodos.TipoPeriodos;
+        UltPeriodoOffset?: number;
+        NumPeriodos: number;
+    }
+    filtros?: {
+        receptor?: {
+            ruts?: string[],
+            etiqueta?: {
+                nombre: string,
+                subetiquetas?: string[]
+            },
+            comunas?: string[],
+            ciudades?: string[],
+        },
+        itemVenta?: {
+            codigo?: string[],
+            nombres?: string[],
+            etiqueta?: {
+                nombre: string,
+                subetiqueta?: string[]
+            }
+        }
+    },
+    agrupacion?: {
+
+    }
 }
