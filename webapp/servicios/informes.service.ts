@@ -44,22 +44,23 @@ export interface GraphDetail {
 }
 
 export interface QueryDetail {
-    Consulta: string;
-    UltPeriodoOffset?: number;
-    NumPeriodos?: number;
-    TipoPeriodos: periodos.TipoPeriodos;
-    PrimerosN?: number
-    Offset?: {
-        TipoPeriodos: periodos.TipoPeriodos;
+    consulta: {
+        campos: {
+            ventasNetas: boolean,
+            ventasBrutas: boolean,
+            cantDocs: boolean,
+            cantClientes: boolean,
+            cantProductos: boolean
+        }
         UltPeriodoOffset?: number;
-        NumPeriodos: number;
-    }
-    resultado: {
-        ventasNetas: boolean,
-        ventasBrutas: boolean,
-        cantDocs: boolean,
-        cantClientes: boolean,
-        cantProductos: boolean
+        NumPeriodos?: number;
+        TipoPeriodos: periodos.TipoPeriodos;
+        PrimerosN?: number,
+        Offset?: {
+            TipoPeriodos: periodos.TipoPeriodos;
+            NumPeriodos: number;
+        }
+
     }
     filtros?: {
         receptor?: {
@@ -72,7 +73,7 @@ export interface QueryDetail {
             ciudades?: string[],
         },
         itemVenta?: {
-            tipoCod?: string[]
+            tipoCod?: string[],
             codigo?: string[],
             nombres?: string[],
             etiqueta?: {

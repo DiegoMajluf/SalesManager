@@ -5,6 +5,8 @@ import { db } from '../commons/mongo';
 import { Observable, Subscriber } from 'rxjs/Rx';
 import { FindAndModifyWriteOpResultObject } from 'mongodb'
 
+import { QueryDetail } from '../webapp/servicios/informes.service'
+
 export let router = express.Router();
 let docsName = ['Documento', 'Exportaciones', 'Liquidaciones']
 router.get('/getfoliosyaingresadosde/:tipo/enrango/:ini-:fin', (req, res, next) => {
@@ -221,16 +223,67 @@ router.get('/getventasporciudad/:periodo/entre/:desde/:hasta', (req, res, next) 
 
 })
 
-router.get('/getventasporcomuna/:nombre/:periodo/entre/:desde/:hasta', (req, res, next) => {
+router.post('/getquery', (req, res, next) => {
+    let str = '';
+    req.setEncoding('utf8')
+    req.on('data', chnk => str += chnk);
+    req.on('end', () => {
+        let query: QueryDetail
+        try {
+            query = JSON.parse(str);
+        } catch (err) {
+            res.send(500, err)
+        }
 
 
+    });
 })
 
-router.get('/getventasporlocal/:periodo/entre/:desde/:hasta', (req, res, next) => {
+let queryDetailToMongoQuery = (qd: QueryDetail, rutEmpresa: string) => {
+    let query = { $or: [{}, {}, {}] }
 
+    let rangoFechas = GetRangoFechaFromQueryDetail(qd)
+    docsName.forEach((v, k) => {
+        query.$or[k][`${v}.Encabezado.IdDoc.FchEmis`] = rangoFechas
+        query.$or[k][`${v}.Encabezado.Emisor.RUTEmisor`] = rutEmpresa;
+        if (qd.filtros) {
+            if (qd.filtros.receptor) {
+                if (qd.filtros.receptor.ruts)
+                    query.$or[k][`${v}.Encabezado.Emisor.RUTRecep`] = { $in: qd.filtros.receptor.ruts };
+                if (qd.filtros.receptor.ciudades)
+                    query.$or[k][`${v}.Encabezado.Emisor.CiudadRecep`] = { $in: qd.filtros.receptor.ciudades };
+                if (qd.filtros.receptor.comunas)
+                    query.$or[k][`${v}.Encabezado.Emisor.CmnaRecep`] = { $in: qd.filtros.receptor.comunas };
 
-})
+            }
+            if(qd.filtros.itemVenta) {
+                query.$or[k][`${v}.Detalle`] = { $elemMatch: {}}
+                if (qd.filtros.itemVenta.tipoCod)
+                    query.$or[k][`${v}.Detalle`].$elemMatch.tipoCod = { $in: qd.filtros.itemVenta.tipoCod };
+                if (qd.filtros.itemVenta.codigo)
+                    query.$or[k][`${v}.Detalle`].$elemMatch.codigo = { $in: qd.filtros.itemVenta.codigo };
+                if (qd.filtros.itemVenta.nombres)
+                    query.$or[k][`${v}.Detalle`].$elemMatch.nombres = { $in: qd.filtros.itemVenta.nombres };
+            }
+        }
+    })
+    let d = new dte.DocumentoDetalle()
+}
 
+let GetRangoFechaFromQueryDetail = (qd: QueryDetail): { $gte: Date, $lt: Date } => {
 
+    let peIni: periodos.Periodo
+    let peFin: periodos.Periodo
+    if (qd.consulta.Offset) {
+        let peOff = periodos.Periodo.getPeriodo(new Date(), qd.consulta.Offset.TipoPeriodos, qd.consulta.Offset.NumPeriodos)
+        peIni = periodos.Periodo.getPeriodo(peOff.fechaIni, qd.consulta.TipoPeriodos, -qd.consulta.NumPeriodos + qd.consulta.UltPeriodoOffset)
+        peFin = periodos.Periodo.getPeriodo(peOff.fechaIni, qd.consulta.TipoPeriodos, -qd.consulta.NumPeriodos)
+    } else {
+        peIni = periodos.Periodo.getPeriodo(new Date(), qd.consulta.TipoPeriodos, -qd.consulta.NumPeriodos + qd.consulta.UltPeriodoOffset)
+        peFin = periodos.Periodo.getPeriodo(new Date(), qd.consulta.TipoPeriodos, -qd.consulta.NumPeriodos)
+    }
+
+    return { $gte: peIni.fechaIni, $lt: peFin.fechaFin }
+}
 
 
