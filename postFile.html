@@ -1,0 +1,69 @@
+<html>
+
+<head>
+    <meta charset="UTF-8">
+    <title>Document</title>
+    <script src="jspm_packages/system.js"></script>
+    <!-- 2. Configure SystemJS -->
+    <script src="config.js"></script>
+    <script>
+      System.import('webapp/script');
+    </script>
+
+</head>
+
+<body>
+    <input type="file" id='inpFile' /><br>
+    <textarea id='textArea' id="" cols="70" rows="15">
+{
+  "consulta": {
+    "UltPeriodoOffset": 2,
+    "NumPeriodos": 10,
+    "TipoPeriodos": 3,
+    "Offset": {
+      "TipoPeriodos": 8,
+      "NumPeriodos": 1
+    }
+  },
+  "filtros": {
+    "receptor": {
+      "etiqueta": {
+        "nombre": "vendedores",
+        "subetiquetas": [
+          "keno",
+          "gille"
+        ]
+      },
+      "comunas": [
+        "sanmiguel"
+      ],
+      "ciudades": [
+        "santiago",
+        "viña"
+      ]
+    },
+    "itemVenta": {
+      "tipoCod": [
+        "int"
+      ],
+      "codigo": [
+        "098"
+      ],
+      "nombres": [
+        
+      ],
+      "etiqueta": {
+        "nombre": "tipoproducto",
+        "subetiqueta": [
+          "vacuno"
+        ]
+      }
+    }
+  }
+}
+    </textarea>
+    <input id='button' type="button"  value="Enviar">
+    <pre id='pre'></pre>
+</body>
+
+</html>

@@ -25,7 +25,10 @@ app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(cookieParser());
 app.use('/webapp', express.static(path.join(__dirname, 'webapp')));
+app.use('/jspm_packages', express.static(path.join(__dirname, 'jspm_packages')));
 app.use('/index.html', express.static(path.join(__dirname, 'index.html')));
+app.use('/config.js', express.static(path.join(__dirname, 'config.js')));
+app.use('/postFile.html', express.static(path.join(__dirname, 'postFile.html')));
 app.use('/node_modules', express.static(path.join(__dirname, 'node_modules')));
 
 app.use((req, res, next) => {

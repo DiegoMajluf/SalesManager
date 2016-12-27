@@ -6,9 +6,9 @@ function sendText() {
     let txt = <HTMLTextAreaElement>document.getElementById('textArea');
 
     let xml = new XMLHttpRequest();
-    xml.open('post', '/sendmefile');
+    xml.open('post', 'query/getquery');
     xml.onload = () => pre.textContent = xml.response;
-    xml.send(new Blob([txt.value], { type: "application/xml" }))
+    xml.send(txt.value)
 }
 
 

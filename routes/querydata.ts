@@ -232,14 +232,14 @@ router.post('/getquery', (req, res, next) => {
         try {
             query = JSON.parse(str);
         } catch (err) {
-            res.send(500, err)
+            res.status(500).send(err)
         }
 
-
+        res.send(queryDetailToMongoQuery(query, '76398667-5'))
     });
 })
 
-let queryDetailToMongoQuery = (qd: QueryDetail, rutEmpresa: string) => {
+let queryDetailToMongoQuery = (qd: QueryDetail, rutEmpresa: string): any => {
     let query = { $or: [{}, {}, {}] }
 
     let rangoFechas = GetRangoFechaFromQueryDetail(qd)
@@ -263,11 +263,12 @@ let queryDetailToMongoQuery = (qd: QueryDetail, rutEmpresa: string) => {
                 if (qd.filtros.itemVenta.codigo)
                     query.$or[k][`${v}.Detalle`].$elemMatch.codigo = { $in: qd.filtros.itemVenta.codigo };
                 if (qd.filtros.itemVenta.nombres)
-                    query.$or[k][`${v}.Detalle`].$elemMatch.nombres = { $in: qd.filtros.itemVenta.nombres };
+                    query.$or[k][`${v}.Detalle`].$elemMatch.NmbItem = { $in: qd.filtros.itemVenta.nombres };
             }
         }
     })
-    let d = new dte.DocumentoDetalle()
+
+    return query;
 }
 
 let GetRangoFechaFromQueryDetail = (qd: QueryDetail): { $gte: Date, $lt: Date } => {
@@ -275,12 +276,12 @@ let GetRangoFechaFromQueryDetail = (qd: QueryDetail): { $gte: Date, $lt: Date } 
     let peIni: periodos.Periodo
     let peFin: periodos.Periodo
     if (qd.consulta.Offset) {
-        let peOff = periodos.Periodo.getPeriodo(new Date(), qd.consulta.Offset.TipoPeriodos, qd.consulta.Offset.NumPeriodos)
+        let peOff = periodos.Periodo.getPeriodo(new Date(), qd.consulta.Offset.TipoPeriodos, -qd.consulta.Offset.NumPeriodos)
         peIni = periodos.Periodo.getPeriodo(peOff.fechaIni, qd.consulta.TipoPeriodos, -qd.consulta.NumPeriodos + qd.consulta.UltPeriodoOffset)
-        peFin = periodos.Periodo.getPeriodo(peOff.fechaIni, qd.consulta.TipoPeriodos, -qd.consulta.NumPeriodos)
+        peFin = periodos.Periodo.getPeriodo(peOff.fechaIni, qd.consulta.TipoPeriodos, qd.consulta.UltPeriodoOffset || 0)
     } else {
         peIni = periodos.Periodo.getPeriodo(new Date(), qd.consulta.TipoPeriodos, -qd.consulta.NumPeriodos + qd.consulta.UltPeriodoOffset)
-        peFin = periodos.Periodo.getPeriodo(new Date(), qd.consulta.TipoPeriodos, -qd.consulta.NumPeriodos)
+        peFin = periodos.Periodo.getPeriodo(new Date(), qd.consulta.TipoPeriodos, qd.consulta.UltPeriodoOffset || 0)
     }
 
     return { $gte: peIni.fechaIni, $lt: peFin.fechaFin }

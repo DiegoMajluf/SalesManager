@@ -77,6 +77,6 @@ function addDTEsToBase(dtes: dte.DTE[]): Observable<{ okDTEs: IdDoc[], errDTEs: 
 }
 
 
-router.get('/', (req, res) => res.sendFile(process.cwd() + '/cliente/postFile.htm'));
+router.get('/', (req, res) => res.sendFile(process.cwd() + '/webapp/postFile.htm'));
 
 

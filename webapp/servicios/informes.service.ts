@@ -64,28 +64,31 @@ export interface QueryDetail {
     }
     filtros?: {
         receptor?: {
-            ruts?: string[],
+            ruts?: (string|RegExp)[],
             etiqueta?: {
                 nombre: string,
-                subetiquetas?: string[]
+                subetiquetas: (string|RegExp)[]
             },
-            comunas?: string[],
-            ciudades?: string[],
+            comunas?: (string|RegExp)[],
+            ciudades?: (string|RegExp)[],
         },
         itemVenta?: {
-            tipoCod?: string[],
-            codigo?: string[],
-            nombres?: string[],
+            tipoCod?: (string|RegExp)[],
+            codigo?: (string|RegExp)[],
+            nombres?: (string|RegExp)[],
             etiqueta?: {
                 nombre: string,
-                subetiqueta?: string[]
+                subetiqueta: (string|RegExp)[]
             }
+        },
+        documento?: {
+            moneda: string
         }
     },
     agrupacion?: {
         receptor?: {
             ruts?: boolean,
-            subetiquetas?: boolean,
+            etiqueta?: string,
             comunas?: boolean,
             ciudades?: boolean,
         },
@@ -93,7 +96,7 @@ export interface QueryDetail {
             tipoCod?: boolean,
             codigo?: boolean,
             nombres?: boolean,
-            subetiqueta?: boolean
+            etiqueta?: string,
         }
     }
 }
