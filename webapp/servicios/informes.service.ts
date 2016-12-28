@@ -52,15 +52,11 @@ export interface QueryDetail {
             cantClientes: boolean,
             cantProductos: boolean
         }
-        UltPeriodoOffset?: number;
-        NumPeriodos?: number;
-        TipoPeriodos: periodos.TipoPeriodos;
-        PrimerosN?: number,
-        Offset?: {
-            TipoPeriodos: periodos.TipoPeriodos;
-            NumPeriodos: number;
-        }
-
+        UltPeriodoOffset?: number,
+        NumPeriodos?: number,
+        TipoPeriodos: periodos.TipoPeriodos,
+        ComparaMismaFraccionDePeriodo: boolean,
+        PrimerosNdias?: number
     }
     filtros?: {
         receptor?: {
