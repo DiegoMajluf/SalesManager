@@ -57,7 +57,7 @@ router.get('/getventas/:periodo/entre/:desde/:hasta', (req, res, next) => {
 })
 
 
-router.post('/getquery', (req, res, next) => {
+router.post('/getquerys', (req, res, next) => {
     let str = '';
     req.setEncoding('utf8')
     req.on('data', chnk => str += chnk);
@@ -69,8 +69,18 @@ router.post('/getquery', (req, res, next) => {
             res.status(500).send(err)
         }
 
-        res.send(JSON.stringify(queryDetailToMongoQuery(querys, req['rutEmpresa']), null, '  '))
-    });
+
+        querys.map(q => queryDetailToMongoQuery(q, req['rutEmpresa']))
+            .map(mq => Observable.from(<Promise<dte.DTE[]>>db.collection('dtes').find(mq).toArray()))
+            .forEach(o => o.subscribe(
+                dtes => dtes,
+                err => res.status(500).send(err),
+                () => console.log('listo')
+            ))
+
+
+
+});
 })
 
 let queryDetailToMongoQuery = (qd: QueryDetail, rutEmpresa: string): any => {
