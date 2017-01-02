@@ -70,17 +70,23 @@ router.post('/getquerys', (req, res, next) => {
         }
 
 
-        querys.map(q => queryDetailToMongoQuery(q, req['rutEmpresa']))
-            .map(mq => Observable.from(<Promise<dte.DTE[]>>db.collection('dtes').find(mq).toArray()))
-            .forEach(o => o.subscribe(
-                dtes => dtes,
-                err => res.status(500).send(err),
-                () => console.log('listo')
-            ))
+        let queryResult: {query: any, dtes: dte.DTE[], err: any}[] = []
+        querys.forEach(q => {
+            let o: {query: any, dtes: dte.DTE[], err: any} = {query: q, dtes: null, err: null}
+            let mq = queryDetailToMongoQuery(q, req['rutEmpresa']);
+            Observable.from(<Promise<dte.DTE[]>>db.collection('dtes').find(mq).toArray())
+            .subscribe( 
+                dtes => o.dtes = dtes,
+                err => o.err = err,
+                () => {
+                    if(!queryResult.find(qr => !(qr.dtes || qr.err)))
+                        res.send(queryResult.map(qr => qr.dtes || qr.err))
+                }
+            )
+            queryResult.push(o)
+        })
 
-
-
-});
+    });
 })
 
 let queryDetailToMongoQuery = (qd: QueryDetail, rutEmpresa: string): any => {
