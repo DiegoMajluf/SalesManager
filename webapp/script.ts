@@ -6,7 +6,7 @@ function sendText() {
     let txt = <HTMLTextAreaElement>document.getElementById('textArea');
 
     let xml = new XMLHttpRequest();
-    xml.open('post', 'query/getquery');
+    xml.open('post', 'query/getquerys');
     xml.onload = () => pre.textContent = xml.response;
     xml.send(txt.value)
 }

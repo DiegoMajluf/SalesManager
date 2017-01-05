@@ -66,23 +66,34 @@ router.post('/getquerys', (req, res, next) => {
         try {
             querys = JSON.parse(str);
         } catch (err) {
-            res.status(500).send(err)
+            return res.status(500).send(err)
+
         }
 
 
-        let queryResult: {query: any, dtes: dte.DTE[], err: any}[] = []
+        let queryResult: { query: any, dtes: dte.DTE[], err: any }[] = []
         querys.forEach(q => {
-            let o: {query: any, dtes: dte.DTE[], err: any} = {query: q, dtes: null, err: null}
+            let o: { query: any, dtes: dte.DTE[], err: any } = { query: q, dtes: null, err: null }
             let mq = queryDetailToMongoQuery(q, req['rutEmpresa']);
             Observable.from(<Promise<dte.DTE[]>>db.collection('dtes').find(mq).toArray())
-            .subscribe( 
+                .subscribe(
                 dtes => o.dtes = dtes,
-                err => o.err = err,
+                err => JSON.stringify(res.status(500).send(err), null, ' '),
                 () => {
-                    if(!queryResult.find(qr => !(qr.dtes || qr.err)))
-                        res.send(queryResult.map(qr => qr.dtes || qr.err))
+                    if (!queryResult.find(qr => !(qr.dtes || qr.err))) {
+                        res.send(JSON.stringify(queryResult.reduce((acc, qr) =>
+                            acc.concat([qr.dtes.reduce((acc, dte) =>
+                                acc.concat([{
+                                    folio: dte.Documento.Encabezado.IdDoc.Folio,
+                                    razon: dte.Documento.Encabezado.Receptor.RznSocRecep,
+                                    fecha: dte.Documento.Encabezado.IdDoc.FchEmis,
+                                    valor: dte.Documento.Encabezado.Totales.MntNeto,
+                                    tipo: dte.Documento.Encabezado.IdDoc.TipoDTE
+                                }]), [])])
+                            , []), null, ' '))
+                    }
                 }
-            )
+                )
             queryResult.push(o)
         })
 
@@ -94,45 +105,53 @@ let queryDetailToMongoQuery = (qd: QueryDetail, rutEmpresa: string): any => {
 
     let rangoFechas = GetRangoFechaFromQueryDetail(qd)
     docsName.forEach((v, k) => {
-        query.$or[k][`${v}.Encabezado.IdDoc.FchEmis`] = rangoFechas
+        query.$or[k]['$or'] = rangoFechas.reduce((acc, rng) => {
+            let o = {}
+            o[`${v}.Encabezado.IdDoc.FchEmis`] = rng;
+            acc.push(o)
+            return acc
+        }, [])
         query.$or[k][`${v}.Encabezado.Emisor.RUTEmisor`] = rutEmpresa;
         if (qd.filtros) {
             if (qd.filtros.receptor) {
                 if (qd.filtros.receptor.ruts)
-                    query.$or[k][`${v}.Encabezado.Emisor.RUTRecep`] = { $in: qd.filtros.receptor.ruts };
+                    query.$or[k][`${v}.Encabezado.Receptor.RUTRecep`] = { $in: qd.filtros.receptor.ruts };
                 if (qd.filtros.receptor.ciudades)
-                    query.$or[k][`${v}.Encabezado.Emisor.CiudadRecep`] = { $in: qd.filtros.receptor.ciudades };
+                    query.$or[k][`${v}.Encabezado.Receptor.CiudadRecep`] = { $in: qd.filtros.receptor.ciudades };
                 if (qd.filtros.receptor.comunas)
-                    query.$or[k][`${v}.Encabezado.Emisor.CmnaRecep`] = { $in: qd.filtros.receptor.comunas };
+                    query.$or[k][`${v}.Encabezado.Receptor.CmnaRecep`] = { $in: qd.filtros.receptor.comunas };
 
             }
             if (qd.filtros.itemVenta) {
                 query.$or[k][`${v}.Detalle`] = { $elemMatch: {} }
-                if (qd.filtros.itemVenta.tipoCod)
-                    query.$or[k][`${v}.Detalle`].$elemMatch.tipoCod = { $elemMatch: { $in: qd.filtros.itemVenta.tipoCod } };
-                if (qd.filtros.itemVenta.codigo)
-                    query.$or[k][`${v}.Detalle`].$elemMatch.codigo = { $elemMatch: { $in: qd.filtros.itemVenta.codigo } };
-                if (qd.filtros.itemVenta.nombres)
+                if (qd.filtros.itemVenta.tipoCod || qd.filtros.itemVenta.codigo) {
+                    let o = {$elemMatch: {}};
+                    if (qd.filtros.itemVenta.codigo) o.$elemMatch['VlrCodigo'] = { $in: qd.filtros.itemVenta.codigo }
+                    if (qd.filtros.itemVenta.tipoCod) o.$elemMatch['TpoCodigo'] = { $in: qd.filtros.itemVenta.tipoCod }
+                    query.$or[k][`${v}.Detalle`].$elemMatch.CdgItem = o
+                } if (qd.filtros.itemVenta.nombres)
                     query.$or[k][`${v}.Detalle`].$elemMatch.NmbItem = { $in: qd.filtros.itemVenta.nombres };
             }
         }
     })
 
+    let doc = new dte.Documento
+    //doc.Detalle[0].CdgItem[0].TpoCodigo
     return query;
 }
 
-let GetRangoFechaFromQueryDetail = (qd: QueryDetail): { $gte: Date, $lt: Date } => {
+let GetRangoFechaFromQueryDetail = (qd: QueryDetail): { $gte: Date, $lt: Date }[] => {
 
     let peIni = periodos.Periodo.getPeriodo(new Date(), qd.consulta.TipoPeriodos, -qd.consulta.NumPeriodos + qd.consulta.UltPeriodoOffset + 1)
     let peFin = periodos.Periodo.getPeriodo(new Date(), qd.consulta.TipoPeriodos, qd.consulta.UltPeriodoOffset || 0)
 
     if (!qd.consulta.ComparaMismaFraccionDePeriodo && isNaN(qd.consulta.PrimerosNdias)) {
-        return { $gte: peIni.fechaIni, $lt: peFin.fechaIni }
+        return [{ $gte: peIni.fechaIni, $lt: peFin.fechaFin }]
     } else {
         let pe = periodos.Periodo.getPeriodo(new Date(), qd.consulta.TipoPeriodos, 0)
         let dias = Math.ceil((new Date().getTime() - pe.fechaIni.getTime()) / 86400000) + 1
         let prd = periodos.Periodo.getPeriodos(peIni.fechaIni, peFin.fechaIni, qd.consulta.TipoPeriodos)
-        let o: any = { $or: [] }
+        let o: { $gte: Date, $lt: Date }[] = []
         prd.forEach(p => {
             if (qd.consulta.ComparaMismaFraccionDePeriodo) {
                 let d = new Date(p.fechaFin.getTime())
@@ -145,7 +164,7 @@ let GetRangoFechaFromQueryDetail = (qd: QueryDetail): { $gte: Date, $lt: Date } 
                 d.setUTCDate(Math.min(qd.consulta.PrimerosNdias + 1, 1 + (p.fechaFin.getTime() - p.fechaIni.getTime()) / 86400000))
                 p.fechaFin = d
             }
-            o.$or.push({ $gte: p.fechaIni, $lt: p.fechaFin })
+            o.push({ $gte: p.fechaIni, $lt: p.fechaFin })
         })
         return o
     }

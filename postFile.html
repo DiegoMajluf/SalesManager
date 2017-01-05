@@ -15,11 +15,12 @@
 <body>
     <input type="file" id='inpFile' /><br>
     <textarea id='textArea' id="" cols="70" rows="15">
-{
+[{
   "consulta": {
-    "UltPeriodoOffset": 2,
-    "NumPeriodos": 10,
-    "TipoPeriodos": 3
+    "UltPeriodoOffset": 0,
+    "NumPeriodos": 12,
+    "TipoPeriodos": 3,
+    "PrimerosNdias": 20
   },
   "filtros": {
     "receptor": {
@@ -29,34 +30,11 @@
           "keno",
           "gille"
         ]
-      },
-      "comunas": [
-        "sanmiguel"
-      ],
-      "ciudades": [
-        "santiago",
-        "viña"
-      ]
-    },
-    "itemVenta": {
-      "tipoCod": [
-        "int"
-      ],
-      "codigo": [
-        "098"
-      ],
-      "nombres": [
-        
-      ],
-      "etiqueta": {
-        "nombre": "tipoproducto",
-        "subetiqueta": [
-          "vacuno"
-        ]
       }
     }
   }
-}
+}]
+    
     </textarea>
     <input id='button' type="button"  value="Enviar">
     <pre id='pre'></pre>
