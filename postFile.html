@@ -17,24 +17,21 @@
     <textarea id='textArea' id="" cols="70" rows="15">
 [{
   "consulta": {
-    "UltPeriodoOffset": 0,
+    "UltPeriodoOffset": -1,
     "NumPeriodos": 12,
     "TipoPeriodos": 3,
-    "PrimerosNdias": 20
+    "campos": {
+        "ventasNetas": true,
+        "ventasBrutas": true,
+        "cantDocs": false,
+        "cantClientes": true,
+        "cantProductos": true
+     }
   },
   "filtros": {
-    "receptor": {
-      "etiqueta": {
-        "nombre": "vendedores",
-        "subetiquetas": [
-          "keno",
-          "gille"
-        ]
-      }
-    }
+
   }
-}]
-    
+}]    
     </textarea>
     <input id='button' type="button"  value="Enviar">
     <pre id='pre'></pre>

@@ -60,21 +60,22 @@ export interface QueryDetail {
     }
     filtros?: {
         receptor?: {
-            ruts?: (string|RegExp)[],
+            ruts?: (string | RegExp)[],
+            razones?: (string | RegExp)[],
             etiqueta?: {
                 nombre: string,
-                subetiquetas: (string|RegExp)[]
+                subetiquetas: (string | RegExp)[]
             },
-            comunas?: (string|RegExp)[],
-            ciudades?: (string|RegExp)[],
+            comunas?: (string | RegExp)[],
+            ciudades?: (string | RegExp)[],
         },
         itemVenta?: {
-            tipoCod?: (string|RegExp)[],
-            codigo?: (string|RegExp)[],
-            nombres?: (string|RegExp)[],
+            tipoCod?: (string | RegExp)[],
+            codigo?: (string | RegExp)[],
+            nombres?: (string | RegExp)[],
             etiqueta?: {
                 nombre: string,
-                subetiqueta: (string|RegExp)[]
+                subetiqueta: (string | RegExp)[]
             }
         },
         documento?: {
@@ -95,4 +96,37 @@ export interface QueryDetail {
             etiqueta?: string,
         }
     }
+}
+
+export interface QueryResponsePoint {
+    periodo: periodos.Periodo
+    monedas: {
+        [moneda: string]: {
+            data: QueryResponsePointData;
+            grupoCliente?: {
+                etiquetas?: { [id: string]: QueryResponsePointData }
+                ruts?: { [id: string]: QueryResponsePointData }
+                comunas?: { [id: string]: QueryResponsePointData }
+                ciudades?: { [id: string]: QueryResponsePointData }
+            }
+            grupoProducto?: {
+                tipoCod?: { [id: string]: QueryResponsePointData }
+                codigo?: { [id: string]: QueryResponsePointData }
+                nombres?: { [id: string]: QueryResponsePointData }
+                etiqueta?: { [id: string]: QueryResponsePointData }
+            }
+        }
+    }
+    numDocs: number
+    grupoEtiquetas?: string
+
+}
+
+export interface QueryResponsePointData {
+    montoNeto?: number,
+    montoBruto?: number,
+    numDocs?: number,
+    numClientes?: number,
+    numProductos?: number
+
 }
