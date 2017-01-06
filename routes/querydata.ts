@@ -188,6 +188,7 @@ function formatearResultado(pes: { periodo: periodos.Periodo, dtes: dte.DTE[] }[
         let qp: QueryResponsePoint = { periodo: pd.periodo, numDocs: pd.dtes.length, monedas: {} }
         qrps.push(qp)
         let clis: { [rut: string]: number } = {}
+        let clisgroup : { [key: string]: {[rut: string]: number} } = {}
         pd.dtes.forEach(dt => {
             let enc = dt.Documento.Encabezado || dt.Liquidacion.Encabezado || dt.Exportaciones.Encabezado
             let moneda = enc.Totales['TpoMoneda'] || 'PESO CL'
@@ -200,14 +201,14 @@ function formatearResultado(pes: { periodo: periodos.Periodo, dtes: dte.DTE[] }[
             if (query.agrupacion.receptor) {
                 if (!qp.monedas[moneda].grupoCliente) qp.monedas[moneda].grupoCliente = {}
                 let gc = qp.monedas[moneda].grupoCliente
-                let clis: { [rut: string]: number } = {}
                 Object.keys(query.agrupacion.receptor).forEach(key => {
                     if (!gc[key]) gc[key] = {}
                     if (!gc[key][enc.Receptor[mapGrupoCliente[key]]]) {
                         gc[key][enc.Receptor[mapGrupoCliente[key]]] = {}
                         inicializarCampos(query, gc[key][enc.Receptor[mapGrupoCliente[key]]])
                     }
-                    sumarDocumento(query, dt, gc[key][enc.Receptor[mapGrupoCliente[key]]], clis)
+                    if(!clisgroup[key]) clisgroup[key]= {}
+                    sumarDocumento(query, dt, gc[key][enc.Receptor[mapGrupoCliente[key]]], clisgroup[key])
                 })
             }
         })
@@ -233,9 +234,10 @@ function sumarDocumento(query: QueryDetail, dt: dte.DTE, dta: QueryResponsePoint
     if (query.consulta.campos.ventasBrutas)
         dta.montoBruto += DteService.getSignoDocumento(dt) * enc.Totales.MntTotal
     if (query.consulta.campos.cantDocs) dta.numDocs++
-    if (query.consulta.campos.cantClientes && clis[enc.Receptor.RUTRecep] === undefined)
-        clis[enc.Receptor.RUTRecep] = dta.numClientes++
-
+    if (query.consulta.campos.cantClientes) {
+        clis[enc.Receptor.RUTRecep] = 1
+        dta.numClientes  = Object.keys(clis).length
+    }
 }
 
 
