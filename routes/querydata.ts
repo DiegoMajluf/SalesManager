@@ -188,9 +188,10 @@ function formatearResultado(pes: { periodo: periodos.Periodo, dtes: dte.DTE[] }[
         let qp: QueryResponsePoint = { periodo: pd.periodo, numDocs: pd.dtes.length, monedas: {} }
         qrps.push(qp)
         let clis: { [rut: string]: number } = {}
-        let clisgroup : { [key: string]: {[rut: string]: number} } = {}
+        let clisgroup: { [key: string]: { [rut: string]: number } } = {}
+        let etClis: { [rut: string]: string } = {}
         pd.dtes.forEach(dt => {
-            let enc = dt.Documento.Encabezado || dt.Liquidacion.Encabezado || dt.Exportaciones.Encabezado
+            let enc = DteService.getEncabezado(dt)
             let moneda = enc.Totales['TpoMoneda'] || 'PESO CL'
             if (!qp.monedas[moneda]) {
                 qp.monedas[moneda] = { data: {} }
@@ -202,16 +203,18 @@ function formatearResultado(pes: { periodo: periodos.Periodo, dtes: dte.DTE[] }[
                 if (!qp.monedas[moneda].grupoCliente) qp.monedas[moneda].grupoCliente = {}
                 let gc = qp.monedas[moneda].grupoCliente
                 Object.keys(query.agrupacion.receptor).forEach(key => {
+                    if (!query.agrupacion.receptor[key]) return
                     if (!gc[key]) gc[key] = {}
                     if (!gc[key][enc.Receptor[mapGrupoCliente[key]]]) {
                         gc[key][enc.Receptor[mapGrupoCliente[key]]] = {}
                         inicializarCampos(query, gc[key][enc.Receptor[mapGrupoCliente[key]]])
                     }
-                    if(!clisgroup[key]) clisgroup[key]= {}
+                    if (!clisgroup[key]) clisgroup[key] = {}
                     sumarDocumento(query, dt, gc[key][enc.Receptor[mapGrupoCliente[key]]], clisgroup[key])
                 })
             }
         })
+
     })
 
     return qrps;
@@ -230,13 +233,13 @@ function inicializarCampos(query: QueryDetail, dta: QueryResponsePointData) {
 function sumarDocumento(query: QueryDetail, dt: dte.DTE, dta: QueryResponsePointData, clis: { [rut: string]: number }) {
     let enc = DteService.getEncabezado(dt)
     if (query.consulta.campos.ventasNetas)
-        dta.montoNeto += DteService.getSignoDocumento(dt) * enc.Totales['MntNeto'] || enc.Totales.MntTotal
+        dta.montoNeto += DteService.getSignoDocumento(dt) * (enc.Totales['MntNeto'] || enc.Totales.MntTotal)
     if (query.consulta.campos.ventasBrutas)
         dta.montoBruto += DteService.getSignoDocumento(dt) * enc.Totales.MntTotal
     if (query.consulta.campos.cantDocs) dta.numDocs++
     if (query.consulta.campos.cantClientes) {
         clis[enc.Receptor.RUTRecep] = 1
-        dta.numClientes  = Object.keys(clis).length
+        dta.numClientes = Object.keys(clis).length
     }
 }
 
@@ -244,5 +247,11 @@ function sumarDocumento(query: QueryDetail, dt: dte.DTE, dta: QueryResponsePoint
 let mapGrupoCliente = {
     ruts: 'RUTRecep',
     ciudades: 'CiudadRecep',
-    comunas: 'CmnaRecep'
+    comunas: 'CmnaRecep',
+    etiqueta: (et: string, rut: string) => Observable.fromPromise(
+        <Promise<{ subetiquetas: string[], asignaciones: { [rut: string]: string } }[]>>
+        db.collection('etiquetaClientes').find({
+            empresa: rut,
+            etiqueta: et
+        }, { subetiquetas: 1, asignaciones: 1 }).limit(1).toArray())
 }
