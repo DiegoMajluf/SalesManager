@@ -6,3 +6,11 @@ mongo.MongoClient.connect('mongodb://localhost:27017/salesmanager', (err, base) 
     db = base
     console.log(db.collection.length)
 });
+
+
+export interface etiquetas {
+    nombre: string
+    rut: string
+    subetiquetas: string[]
+    asignaciones: {[rut: string]: string}
+}
