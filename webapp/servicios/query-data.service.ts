@@ -1,6 +1,8 @@
 import { Injectable } from '@angular/core';
 import { Http, Response } from '@angular/http';
+import { Observable } from 'rxjs'
 import { periodos, appData, responses } from 'core-sales-manager'
+import { QueryDetail, QueryResponsePoint } from './informes.service'
 import 'google.visualization'
 
 
@@ -17,8 +19,8 @@ export class QueryDataService {
 
     constructor(private http: Http) { }
 
-    getVentas(periodo: periodos.TipoPeriodos, fecIni: Date, fecFin: Date) {
-        return this.http.get(`${appData.HTTP_ROOT}/getventas/${periodo}/entre/${fecIni.toUTCString()}/${fecIni.toUTCString()}`)
+    getQuery(qd: QueryDetail): Observable<google.visualization.DataTable> {
+        return this.http.post(`${appData.HTTP_ROOT}/query/getquery`, qd)
             .map(x => <responses.QueryResponsePoint[]>x.json())
             .map(x => {
                 let d = { cols: <columna[]>[], rows: <{ c: celda[] }[]>[] }

@@ -11,27 +11,34 @@ export class InformesService {
 
     constructor(private http: Http, private queryData: QueryDataService) { }
 
-    getInformeById(Id: string) {
+    getInformeById(Id: string): Observable<GraphDetail> {
 
-        return [{
+        return Observable.of({
             Graph: 'LineChart',
             Titulo: 'Ventas Totales',
             Posicion: 1,
             Querys: [{
-                Funcion: "GetVentas",
-                FecFinOffset: 0,
-                NumPeriodos: 6,
-                TipoPeriodos: periodos.TipoPeriodos.mensuales
-            }, {
-                Funcion: "GetVentas",
-                FecFinOffset: 0,
-                NumPeriodos: 6,
-                TipoPeridoOffset: periodos.TipoPeriodos.anuales,
-                PeriodosOffset: 1,
-                TipoPeriodos: periodos.TipoPeriodos.mensuales
+                "consulta": {
+                    "UltPeriodoOffset": -1,
+                    "NumPeriodos": 12,
+                    "TipoPeriodos": 3,
+                    "campos": {
+                        "ventasNetas": true,
+                        "ventasBrutas": true,
+                        "cantDocs": false,
+                        "cantClientes": true,
+                        "cantProductos": true
+                    }
+                },
+                "filtros": {
+
+                }
             }]
-        }]
+
+        })
     }
+
+
 
 }
 
@@ -55,7 +62,7 @@ export interface QueryDetail {
         UltPeriodoOffset?: number,
         NumPeriodos?: number,
         TipoPeriodos: periodos.TipoPeriodos,
-        ComparaMismaFraccionDePeriodo: boolean,
+        ComparaMismaFraccionDePeriodo?: boolean,
         PrimerosNdias?: number
     }
     filtros?: {
@@ -129,4 +136,20 @@ export interface QueryResponsePointData {
     numClientes?: number,
     numProductos?: number
 
+}
+
+export interface DataTable {
+    cols: ColumnaDataTable[]
+    rows: FilaDataTable[]
+
+
+}
+
+export interface ColumnaDataTable {
+    id?: string, label?: string, pattern?: string, p?: any,
+    type: 'string' | 'boolean' | 'number' | 'date' | 'datetime' | 'timeofday'
+}
+
+export interface FilaDataTable {
+    c: {v?: string | boolean | number | Date, f?: string, p?: any}[]
 }
