@@ -107,7 +107,7 @@ export interface QueryDetail {
 
 export interface QueryResponsePoint {
     periodo: periodos.Periodo
-    monedas: { [moneda: string]: QueryResponseGroup }
+    monedas: { [moneda: string]: (QueryResponseGroup | QueryResponsePointData) }
     numDocs: number
 
 }

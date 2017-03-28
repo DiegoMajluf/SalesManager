@@ -198,7 +198,7 @@ function getPoints(pes: { periodo: periodos.Periodo, dtes: dte.DTE[] }[], query:
         qrps.push(qp)
         let clis: { [rut: string]: number } = {}
         let clisgroup: { [key: string]: { [rut: string]: number } } = {}
-        let last: qo.QueryResponseGroup
+        let last: (qo.QueryResponseGroup | qo.QueryResponsePointData)
 
 
         pd.dtes.forEach(dt => {
@@ -224,11 +224,11 @@ function getPoints(pes: { periodo: periodos.Periodo, dtes: dte.DTE[] }[], query:
                         return acc[vg]
                     }, gc);
 
-                if (!last.data) last.data = {}
+                if (!last['data']) last['data'] = {}
             }
 
-            inicializarCampos(query, last.data)
-            sumarDocumento(query, dt, last.data, clis)
+            inicializarCampos(query, last['data'])
+            sumarDocumento(query, dt, last['data'], clis)
         })
 
     })
