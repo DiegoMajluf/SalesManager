@@ -56,7 +56,8 @@ router.post('/getquerys', (req, res, next) => {
             let mq = queryDetailToMongoQuery(q, req['rutEmpresa']);
             Observable.forkJoin(
                 Observable.from(<Promise<dte.DTE[]>>db.collection('dtes').find(mq).toArray()),
-                getEtiquetasFromQuery(q, req['rutEmpresa'])).subscribe(
+                getEtiquetasFromQuery(q, req['rutEmpresa']))
+                .subscribe(
                 x => {
                     let prds = asignarDTEaPeriodos(q.consulta.TipoPeriodos, getMinFechaFrom(mq), getMaxFechaFrom(mq), x[0])
                     let puntos = getPoints(prds, q, x[1].cliente, x[1].producto)
@@ -185,7 +186,8 @@ function asignarDTEaPeriodos(tipo: periodos.TipoPeriodos, desde: Date, hasta: Da
 
 /**Genera los puntos agrupados para la consulta */
 function getPoints(pes: { periodo: periodos.Periodo, dtes: dte.DTE[] }[], query: qo.QueryDetail,
-    etReceptor: { [rut: string]: string }, etItemVenta: { [rut: string]: string }): qo.QueryResponsePoint[] {
+    etReceptor: { [key: string]: { [key: string]: string } },
+    etItemVenta: { [key: string]: { [key: string]: string } }): qo.QueryResponsePoint[] {
 
 
     //Todo: etiqueta de producto
@@ -196,50 +198,62 @@ function getPoints(pes: { periodo: periodos.Periodo, dtes: dte.DTE[] }[], query:
         qrps.push(qp)
         let clis: { [rut: string]: number } = {}
         let clisgroup: { [key: string]: { [rut: string]: number } } = {}
+        let last: qo.QueryResponseGroup
+
+
         pd.dtes.forEach(dt => {
             let enc = DteService.getEncabezado(dt)
             let moneda = enc.Totales['TpoMoneda'] || 'PESO CL'
             if (!qp.monedas[moneda]) {
                 qp.monedas[moneda] = { data: {} }
-                inicializarCampos(query, qp.monedas[moneda].data)
+                last = qp.monedas[moneda]
             }
-            sumarDocumento(query, dt, qp.monedas[moneda].data, clis)
 
             if (query.agrupacion) {
-                if (query.agrupacion.receptor) {
-                    if (!qp.monedas[moneda].grupoCliente) qp.monedas[moneda].grupoCliente = {}
-                    let gc = qp.monedas[moneda].grupoCliente
-                    Object.keys(query.agrupacion.receptor)
-                        .filter(key => key !== 'etiqueta')
-                        .forEach(key => {
-                            if (!gc[key]) gc[key] = {}
-                            if (!gc[key][enc.Receptor[mapGrupoCliente[key]]]) {
-                                gc[key][enc.Receptor[mapGrupoCliente[key]]] = {}
-                                inicializarCampos(query, gc[key][enc.Receptor[mapGrupoCliente[key]]])
-                                if (!clisgroup[key]) clisgroup[key] = {}
-                            }
-                            sumarDocumento(query, dt, gc[key][enc.Receptor[mapGrupoCliente[key]]], clisgroup[key])
-                        })
+                if (!qp.monedas[moneda]) qp.monedas[moneda] = {}
+                let gc = qp.monedas[moneda]
+                last = Object.keys(query.agrupacion)
+                    .filter(key => query.agrupacion[key])
+                    .map(key => key.indexOf('etiqueta') === -1 ? { clave: key } :
+                        { clave: key, campo: query.agrupacion[key] })
+                    .sort((k1, k2) => k1.clave.localeCompare(k2.clave))
+                    .reduce((acc, o) => {
+                        //construimos algo del estilo gc['santiago']['vitacura']['vendedores']['76398667-5'] : {data: {ventasBruts: 47383736}}
+                        let vg = getNombreDeGrupo(o, dt, etReceptor, etItemVenta)
+                        if (!acc[vg]) acc[vg] = {}
+                        return acc[vg]
+                    }, gc);
 
-                    if (query.agrupacion.receptor.etiqueta) {
-                        if (!gc.etiquetas) {
-                            gc.etiquetas = {}
-                            if (!etReceptor) etReceptor = {}
-                        }
-                        if (!gc.etiquetas[etReceptor[enc.Receptor.RUTRecep]]) {
-                            gc.etiquetas[etReceptor[enc.Receptor.RUTRecep]] = {}
-                            inicializarCampos(query, gc.etiquetas[etReceptor[enc.Receptor.RUTRecep]])
-                        }
-                        sumarDocumento(query, dt, gc.etiquetas[etReceptor[enc.Receptor.RUTRecep]])
-                    }
-
-                }
+                if (!last.data) last.data = {}
             }
+
+            inicializarCampos(query, last.data)
+            sumarDocumento(query, dt, last.data, clis)
         })
 
     })
 
     return qrps;
+}
+
+//**Obtiene el valor del grupo para una clave Ej. clave: ciudad => valor: 'santiago' */
+function getNombreDeGrupo(key: { clave: string, campo?: string }, dt: dte.DTE,
+    etr: { [key: string]: { [key: string]: string } },
+    etv: { [key: string]: { [key: string]: string } }): string {
+
+    let enc = DteService.getEncabezado(dt)
+
+    if (key.clave === 'ruts') return enc.Receptor.RUTRecep
+    if (key.clave === 'comunas') return enc.Receptor.CmnaRecep
+    if (key.clave === 'ciudades') return enc.Receptor.CiudadRecep
+    if (key.clave === 'tipoCod') throw 'No implementado'
+    if (key.clave === 'codigo') throw 'No implementado'
+    if (key.clave === 'nombres') throw 'No implementado'
+    if (key.clave === 'etiquetaProducto') throw 'No implementado'
+
+    if (key.clave === 'etiquetaReceptor') return etr[key.campo][enc.Receptor.RUTRecep]
+
+
 }
 
 /**Obtiene las asignaciones de etiquetas de la consulta, si las hubiera */
@@ -249,26 +263,24 @@ function getEtiquetasFromQuery(query: qo.QueryDetail, rut: string):
     let c: Observable<{ [id: string]: string }> = Observable.of(null)
     let p: Observable<{ [id: string]: string }> = Observable.of(null)
     if (query.agrupacion) {
-        if (query.agrupacion.receptor)
-            if (query.agrupacion.receptor.etiqueta)
-                c = Observable.fromPromise(
-                    <Promise<{ asignaciones: { [rut: string]: string } }[]>>
-                    db.collection('etiquetaClientes').find({
-                        empresa: rut,
-                        etiqueta: query.agrupacion.receptor.etiqueta
-                    }, { asignaciones: 1 }).limit(1).toArray())
-                    .map(x => x.length === 1 ? x[0].asignaciones : null)
+        if (query.agrupacion.etiquetaReceptor)
+            c = Observable.fromPromise(
+                <Promise<{ asignaciones: { [rut: string]: string } }[]>>
+                db.collection('etiquetasReceptor').find({
+                    empresa: rut,
+                    etiqueta: query.agrupacion.etiquetaReceptor
+                }, { asignaciones: 1 }).limit(1).toArray())
+                .map(x => x.length === 1 ? x[0].asignaciones : null)
 
 
-        if (query.agrupacion.itemVenta)
-            if (query.agrupacion.itemVenta.etiqueta)
-                p = Observable.fromPromise(
-                    <Promise<{ asignaciones: { [rut: string]: string } }[]>>
-                    db.collection('etiquetaProductos').find({
-                        empresa: rut,
-                        etiqueta: query.agrupacion.itemVenta.etiqueta
-                    }, { asignaciones: 1 }).limit(1).toArray())
-                    .map(x => x.length === 1 ? x[0].asignaciones : null)
+        if (query.agrupacion.etiquetaProducto)
+            p = Observable.fromPromise(
+                <Promise<{ asignaciones: { [rut: string]: string } }[]>>
+                db.collection('etiquetasProducto').find({
+                    empresa: rut,
+                    etiqueta: query.agrupacion.etiquetaProducto
+                }, { asignaciones: 1 }).limit(1).toArray())
+                .map(x => x.length === 1 ? x[0].asignaciones : null)
 
     }
 
@@ -293,6 +305,7 @@ function inicializarCampos(query: qo.QueryDetail, dta: qo.QueryResponsePointData
 
 }
 
+/**Suma un documento al QueryResponsePoint */
 function sumarDocumento(query: qo.QueryDetail, dt: dte.DTE, dta: qo.QueryResponsePointData, clis?: { [rut: string]: number }) {
     let enc = DteService.getEncabezado(dt)
     if (query.consulta.campos.ventasNetas)
@@ -301,41 +314,47 @@ function sumarDocumento(query: qo.QueryDetail, dt: dte.DTE, dta: qo.QueryRespons
         dta.montoBruto += DteService.getSignoDocumento(dt) * enc.Totales.MntTotal
     if (query.consulta.campos.cantDocs) dta.numDocs++
     if (query.consulta.campos.cantClientes && clis) {
-        clis[enc.Receptor.RUTRecep] = 1
-        dta.numClientes = Object.keys(clis).length
+
     }
 }
 
+/**Trasforma la respuesta de los QueryResponsePoint[] en un DataTable para Google Charts */
 function getDataTable(query: qo.QueryDetail, puntos: qo.QueryResponsePoint[]): qo.DataTable {
     let dt = { rows: <qo.FilaDataTable[]>[], cols: <qo.ColumnaDataTable[]>[] }
 
-    if (query.consulta.NumPeriodos > 1)
-        dt.cols.push({ label: periodos.TipoPeriodos[query.consulta.TipoPeriodos], type: 'string' })
+    Object.keys(query.asignacion).forEach(j => {
+        if (query.asignacion[j].campo)
+            dt.cols.push({ label: query.asignacion[j].campo, type: 'number' })
+        else if (query.asignacion[j].periodo)
+            dt.cols.push({ label: query.consulta.TipoPeriodos.toString(), type: 'date' })
+        else if (query.asignacion[j].receptor)
+            dt.cols.push({ label: Object.keys(query.asignacion[j])[0], type: 'string' })
+        else //Columna opcional que se deja en blanco
+            dt.cols.push({ type: 'string' })
+    })
 
-    if (query.consulta.campos.cantClientes) dt.cols.push({ label: 'Cantidad de Clientes', type: 'number' })
-    if (query.consulta.campos.cantDocs) dt.cols.push({ label: 'Cantidad de Documentos', type: 'number' })
-    if (query.consulta.campos.cantProductos) dt.cols.push({ label: 'Cantidad de Productos', type: 'number' })
-    if (query.consulta.campos.ventasBrutas) dt.cols.push({ label: 'Ventas Brutas', type: 'number' })
-    if (query.consulta.campos.ventasNetas) dt.cols.push({ label: 'Ventas Netas', type: 'number' })
 
-    if (query.agrupacion) {
-        if (query.agrupacion.receptor) {
-            if (query.agrupacion.receptor.ciudades) dt.cols.push({ label: 'Ciudades', type: 'string' })
-            if (query.agrupacion.receptor.comunas) dt.cols.push({ label: 'Comunas', type: 'string' })
-            if (query.agrupacion.receptor.ruts) dt.cols.push({ label: 'Empresa', type: 'string' })
-            if (query.agrupacion.receptor.etiqueta) dt.cols.push({ label: query.agrupacion.receptor.etiqueta, type: 'string' })
-        }
-    }
 
 
     puntos.forEach(p => {
         let c: any[] = []
-        if (query.consulta.NumPeriodos > 1) c.push({ v: p.periodo.nombre })
-        if (query.consulta.campos.cantClientes) c.push({ v: p.monedas['PESO CL'].grupoCliente. })
-        if (query.consulta.campos.cantDocs) c.push({ label: 'Cantidad de Documentos', type: 'number' })
-        if (query.consulta.campos.cantProductos) c.push({ label: 'Cantidad de Productos', type: 'number' })
-        if (query.consulta.campos.ventasBrutas) c.push({ label: 'Ventas Brutas', type: 'number' })
-        if (query.consulta.campos.ventasNetas) c.push({ label: 'Ventas Netas', type: 'number' })
+
+        dt.rows.push({
+            c: Object.keys(query.asignacion).reduce((acc, j) => {
+                if (query.asignacion[j].campo)
+                    acc.push({ v: p.monedas['PESO CL'].data[query.asignacion[j].campo] })
+                else if (query.asignacion[j].periodo)
+                    acc.push({ v: p.periodo.fechaIni, f: p.periodo.nombre })
+                else if (query.asignacion[j].etiquetaRecep)
+                    acc.push({ v: p.monedas['PESO CL'].grupoCliente.etiquetas[query.asignacion[j].etiquetaRecep] })
+                else if (query.asignacion[j].etiquetaItmVta)
+                    acc.push({ v: p.monedas['PESO CL'].grupoCliente[query.asignacion[j].etiquetaItmVta] })
+                else //Columna opcional que se deja en blanco
+                    acc.push({ v: null })
+                return acc
+            }, [])
+        })
+
 
         dt.rows.push({
             c: [

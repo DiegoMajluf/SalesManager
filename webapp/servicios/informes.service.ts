@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { Http, Response } from '@angular/http';
-import { Observable } from 'rxjs'
+import { Observable } from 'rxjs/Observable'
 import { periodos } from 'core-sales-manager';
 import { QueryDataService } from './query-data.service'
 import 'google.visualization'
@@ -31,6 +31,9 @@ export class InformesService {
                     }
                 },
                 "filtros": {
+
+                },
+                "asignacion": {
 
                 }
             }]
@@ -90,43 +93,27 @@ export interface QueryDetail {
         }
     },
     agrupacion?: {
-        receptor?: {
-            ruts?: boolean,
-            etiqueta?: string,
-            comunas?: boolean,
-            ciudades?: boolean,
-        },
-        itemVenta?: {
-            tipoCod?: boolean,
-            codigo?: boolean,
-            nombres?: boolean,
-            etiqueta?: string,
-        }
+        ruts?: boolean,
+        etiquetaReceptor?: string,
+        comunas?: boolean,
+        ciudades?: boolean,
+        tipoCod?: boolean,
+        codigo?: boolean,
+        nombres?: boolean,
+        etiquetaProducto?: string,
     }
+    asignacion: columnsAsignations
 }
 
 export interface QueryResponsePoint {
     periodo: periodos.Periodo
-    monedas: {
-        [moneda: string]: {
-            data: QueryResponsePointData;
-            grupoCliente?: {
-                etiquetas?: { [id: string]: QueryResponsePointData }
-                ruts?: { [id: string]: QueryResponsePointData }
-                comunas?: { [id: string]: QueryResponsePointData }
-                ciudades?: { [id: string]: QueryResponsePointData }
-            }
-            grupoProducto?: {
-                tipoCod?: { [id: string]: QueryResponsePointData }
-                codigo?: { [id: string]: QueryResponsePointData }
-                nombres?: { [id: string]: QueryResponsePointData }
-                etiqueta?: { [id: string]: QueryResponsePointData }
-            }
-        }
-    }
+    monedas: { [moneda: string]: QueryResponseGroup }
     numDocs: number
-    grupoEtiquetas?: string
 
+}
+
+export interface QueryResponseGroup {
+    [id: string]: (QueryResponseGroup | QueryResponsePointData)
 }
 
 export interface QueryResponsePointData {
@@ -146,10 +133,55 @@ export interface DataTable {
 }
 
 export interface ColumnaDataTable {
-    id?: string, label?: string, pattern?: string, p?: any,
+    /**Id debe ser único en la tabla, evitar carcateres que requieran escapes */
+    id?: string,
+    /**Etiqueta de columna para visualización en algunos gráficos */
+    label?: string,
+    /**Un patrón de formato para el valor de celdas, sólo como referencia, no tiene uso */
+    pattern?: string,
+    /**Valores personalizados. Ej p:{style: 'border: 1px solid green;'} */
+    p?: any,
     type: 'string' | 'boolean' | 'number' | 'date' | 'datetime' | 'timeofday'
 }
 
 export interface FilaDataTable {
-    c: {v?: string | boolean | number | Date, f?: string, p?: any}[]
+    /**Arreglo de celdas */
+    c: {
+        /**Es el valor asociado a cada columna, debe coincidir con el tipo de dato */
+        v?: string | boolean | number | Date,
+        /**Es una versión de texto del valor v. Ej v:1000, f:$1,000.00 */
+        f?: string,
+        /**Valores personalizados. Ej p:{style: 'border: 1px solid green;'} */
+        p?: any
+    }[]
+}
+
+export interface chartDefinitions {
+    charts: chart[],
+    columnsFormats: {
+        [id: number]: {
+            columna: number,
+            dataType: string[],
+            esRepetible: boolean
+        }
+    }
+}
+
+export interface chart {
+    nombre: "string",
+    packages: "string",
+    className: "string",
+    scope: "string",
+    columnsFormat: number
+}
+
+export interface columnsAsignations {
+    [id: string]: {
+        campo?: string,
+        receptor?: "ruts" | "comunas" | "ciudades",
+        etiquetaRecep?: string,
+        itemVenta?: "tipoCod" | "codigo" | "nombres",
+        etiquetaItmVta?: string,
+        periodo?: string
+    }
 }

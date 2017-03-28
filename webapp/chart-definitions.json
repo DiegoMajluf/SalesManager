@@ -1,0 +1,174 @@
+{
+    "charts": [
+        {
+            "nombre": "Gráfico de Áreas",
+            "packages": "corechart",
+            "className": "AreaChart",
+            "scope": "visualization",
+            "columnsFormat": "0"
+        },
+        {
+            "nombre": "Gráfico de Barras",
+            "packages": "corechart",
+            "className": "BarChart",
+            "scope": "visualization",
+            "columnsFormat": "0"
+        },
+        {
+            "nombre": "Gráfico de Barras ++",
+            "packages": "bar",
+            "className": "Bar",
+            "scope": "charts",
+            "columnsFormat": "0"
+        },
+        {
+            "nombre": "Gráfico de Burbujas",
+            "packages": "corechart",
+            "className": "BubbleChart",
+            "scope": "visualization",
+            "columnsFormat": "1"
+        },
+        {
+            "nombre": "Gráfico Calendario",
+            "packages": "calendar",
+            "className": "Calendar",
+            "scope": "visualization",
+            "columnsFormat": "2"
+        },
+        {
+            "nombre": "Gráfico de Candeleros",
+            "packages": "corechart",
+            "className": "CandlestickChart",
+            "scope": "visualization",
+            "columnsFormat": "3"
+        },
+        {
+            "nombre": "Gráfico de Columnas",
+            "packages": "corechart",
+            "className": "ColumnChart",
+            "scope": "visualization",
+            "columnsFormat": "0"
+        },
+        {
+            "nombre": "Gráfico Combinado Columnas y Líneas",
+            "packages": "corechart",
+            "className": "ComboChart",
+            "scope": "visualization",
+            "columnsFormat": "0"
+        }
+    ],
+    "columnsFormats": {
+        "0": [
+            {
+                "columna": 0,
+                "dataType": [
+                    "string",
+                    "number",
+                    "date"
+                ],
+                "esRepetible": false
+            },
+            {
+                "columna": 1,
+                "dataType": [
+                    "number"
+                ],
+                "esRepetible": true
+            }
+        ],
+        "1": [ //Grafico de Burbujas
+            {
+                "columna": 0,
+                "dataType": [
+                    "string"
+                ],
+                "esRepetible": false
+            },
+            {
+                "columna": 1,
+                "dataType": [
+                    "number"
+                ],
+                "esRepetible": false
+            },
+            {
+                "columna": 2,
+                "dataType": [
+                    "number"
+                ],
+                "esRepetible": false
+            },
+            {
+                "columna": 3,
+                "dataType": [
+                    "number",
+                    "string"
+                ],
+                "esRepetible": false
+            },
+            {
+                "columna": 4,
+                "dataType": [
+                    "number"
+                ],
+                "esRepetible": false
+            }
+        ],
+        "2": [
+            {
+                "columna": 0,
+                "dataType": [
+                    "date"
+                ],
+                "esRepetible": false
+            },
+            {
+                "columna": 1,
+                "dataType": [
+                    "number"
+                ],
+                "esRepetible": false
+            }
+        ],
+        "3": [
+            {
+                "columna": 0,
+                "dataType": [
+                    "string",
+                    "number",
+                    "date"
+                ],
+                "esRepetible": false
+            },
+            {
+                "columna": 2,
+                "dataType": [
+                    "number"
+                ],
+                "esRepetible": true
+            },
+            {
+                "columna": 3,
+                "dataType": [
+                    "number"
+                ],
+                "esRepetible": true
+            },
+            {
+                "columna": 4,
+                "dataType": [
+                    "number"
+                ],
+                "esRepetible": true
+            },
+            {
+                "columna": 5,
+                "dataType": [
+                    "string"
+                ],
+                "esRepetible": true
+            }
+        ],
+        "4": []
+    }
+}
