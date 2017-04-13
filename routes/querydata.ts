@@ -194,11 +194,16 @@ function getPoints(pes: { periodo: periodos.Periodo, dtes: dte.DTE[] }[], query:
     let qrps: qo.QueryResponsePoint[] = [];
 
     pes.forEach(pd => {
-        let qp: qo.QueryResponsePoint = { periodo: pd.periodo, numDocs: pd.dtes.length, monedas: {} }
+        let qp: qo.QueryResponsePoint = {
+            periodo: pd.periodo,
+            numDocs: pd.dtes.length,
+            monedas: <(qo.QueryResponseGroup | qo.QueryResponsePointData)>{}
+        }
+
         qrps.push(qp)
         let clis: { [rut: string]: number } = {}
         let clisgroup: { [key: string]: { [rut: string]: number } } = {}
-        let last: (qo.QueryResponseGroup | qo.QueryResponsePointData)
+        let last: qo.QueryResponsePointData
 
 
         pd.dtes.forEach(dt => {
@@ -213,12 +218,23 @@ function getPoints(pes: { periodo: periodos.Periodo, dtes: dte.DTE[] }[], query:
                 if (!qp.monedas[moneda]) qp.monedas[moneda] = {}
                 let gc = qp.monedas[moneda]
                 last = Object.keys(query.agrupacion)
-                    .filter(key => query.agrupacion[key])
-                    .map(key => key.indexOf('etiqueta') === -1 ? { clave: key } :
-                        { clave: key, campo: query.agrupacion[key] })
-                    .sort((k1, k2) => k1.clave.localeCompare(k2.clave))
+                    .filter(key => !(query.agrupacion[key] instanceof Array)) // Campos que no so etiquetas RUT, Ciudad, etc
+                    .sort((k1, k2) => k1.localeCompare(k2))
+                    .map(key => {
+                        return { clave: key }
+                    })
+                    .concat(Object.keys(query.agrupacion)
+                        .filter(key => query.agrupacion[key] instanceof Array) //Campos que son etiquetas Vendedores, Carnes
+                        .sort((k1, k2) => k1.localeCompare(k2))
+                        .map(key => (<string[]>query.agrupacion[key])
+                            .map(et => {
+                                return { clave: key, campo: et }
+                            })
+                        )
+                        .reduce((acc, k) => acc.concat(k), <{ clave: string, campo: string }[]>[])
+                    )
                     .reduce((acc, o) => {
-                        //construimos algo del estilo gc['santiago']['vitacura']['vendedores']['76398667-5'] : {data: {ventasBruts: 47383736}}
+                        //construimos algo del estilo gc['santiago']['vitacura']['76398667-5']['vendedor 1']['Carne Lomo'] : {data: {ventasBrutas: 47383736}}
                         let vg = getNombreDeGrupo(o, dt, etReceptor, etItemVenta)
                         if (!acc[vg]) acc[vg] = {}
                         return acc[vg]
@@ -328,40 +344,61 @@ function getDataTable(query: qo.QueryDetail, puntos: qo.QueryResponsePoint[]): q
         else if (query.asignacion[j].periodo)
             dt.cols.push({ label: query.consulta.TipoPeriodos.toString(), type: 'date' })
         else if (query.asignacion[j].receptor)
-            dt.cols.push({ label: Object.keys(query.asignacion[j])[0], type: 'string' })
-        else //Columna opcional que se deja en blanco
+            dt.cols.push({ label: query.asignacion[j].receptor, type: 'string' })
+        else if (query.asignacion[j].etiquetaItmVta)
+            dt.cols.push({ label: query.asignacion[j].etiquetaItmVta, type: 'string' })
+        else if (query.asignacion[j].etiquetaRecep)
+            dt.cols.push({ label: query.asignacion[j].etiquetaRecep, type: 'string' })
+        else //Opcionales que se deja en blanco
             dt.cols.push({ type: 'string' })
     })
 
 
-
+    /**
+     * Es un arreglo ordenado de las agrupaciones que se pidieron
+     * [{clave: Ciudad}, {clave: Comuna}, {clave:Codigo},
+     * {clave: etiquetaReceptor, campo:vendedores},{clave: etiquetaReceptor, campo:Pais Origen},
+     * {clave: etiquetaItmVenta, campo:Carne Bobina}]
+     */
+    let camino: { clave: string, campo?: string }[] = Object.keys(query.agrupacion)
+        .filter(key => !(query.agrupacion[key] instanceof Array)) // Campos que no so etiquetas RUT, Ciudad, etc
+        .sort((k1, k2) => k1.localeCompare(k2))
+        .map(key => {
+            return { clave: key }
+        })
+        .concat(Object.keys(query.agrupacion)
+            .filter(key => query.agrupacion[key] instanceof Array) //Campos que son etiquetas Vendedores, Carnes
+            .sort((k1, k2) => k1.localeCompare(k2))
+            .map(key => (<string[]>query.agrupacion[key])
+                .map(et => {
+                    return { clave: key, campo: et }
+                })
+            )
+            .reduce((acc, k) => acc.concat(k), <{ clave: string, campo: string }[]>[])
+        )
 
     puntos.forEach(p => {
-        let c: any[] = []
 
         dt.rows.push({
             c: Object.keys(query.asignacion).reduce((acc, j) => {
+                let data: qo.QueryResponsePointData = Object.keys(query.agrupacion)
+                    .reduce((ag, k) => ag[k], p.monedas['PESO CL'])
+
+
                 if (query.asignacion[j].campo)
-                    acc.push({ v: p.monedas['PESO CL'].data[query.asignacion[j].campo] })
+                    acc.push({ v: data[query.asignacion[j].campo] })
                 else if (query.asignacion[j].periodo)
                     acc.push({ v: p.periodo.fechaIni, f: p.periodo.nombre })
                 else if (query.asignacion[j].etiquetaRecep)
-                    acc.push({ v: p.monedas['PESO CL'].grupoCliente.etiquetas[query.asignacion[j].etiquetaRecep] })
+                    acc.push({ v: p.monedas['PESO CL'].etiquetas[query.asignacion[j].etiquetaRecep] })
                 else if (query.asignacion[j].etiquetaItmVta)
-                    acc.push({ v: p.monedas['PESO CL'].grupoCliente[query.asignacion[j].etiquetaItmVta] })
+                    acc.push({ v: p.monedas['PESO CL'].etiquetas[query.asignacion[j].etiquetaItmVta] })
                 else //Columna opcional que se deja en blanco
                     acc.push({ v: null })
                 return acc
-            }, [])
+            }, <qo.CeldaDataTable[]>[])
         })
 
-
-        dt.rows.push({
-            c: [
-                { v: p.periodo.nombre },
-                { v: p.monedas['PESO CL'].data.montoNeto }
-            ]
-        })
     })
 
     return dt

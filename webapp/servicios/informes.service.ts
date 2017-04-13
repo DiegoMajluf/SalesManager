@@ -94,20 +94,20 @@ export interface QueryDetail {
     },
     agrupacion?: {
         ruts?: boolean,
-        etiquetaReceptor?: string,
+        etiquetaReceptor?: string[],
         comunas?: boolean,
         ciudades?: boolean,
         tipoCod?: boolean,
         codigo?: boolean,
         nombres?: boolean,
-        etiquetaProducto?: string,
+        etiquetaProducto?: string[],
     }
     asignacion: columnsAsignations
 }
 
 export interface QueryResponsePoint {
     periodo: periodos.Periodo
-    monedas: { [moneda: string]: (QueryResponseGroup | QueryResponsePointData) }
+    monedas: (QueryResponseGroup | QueryResponsePointData)
     numDocs: number
 
 }
@@ -146,14 +146,16 @@ export interface ColumnaDataTable {
 
 export interface FilaDataTable {
     /**Arreglo de celdas */
-    c: {
-        /**Es el valor asociado a cada columna, debe coincidir con el tipo de dato */
-        v?: string | boolean | number | Date,
-        /**Es una versión de texto del valor v. Ej v:1000, f:$1,000.00 */
-        f?: string,
-        /**Valores personalizados. Ej p:{style: 'border: 1px solid green;'} */
-        p?: any
-    }[]
+    c: CeldaDataTable[]
+}
+
+export interface CeldaDataTable {
+    /**Es el valor asociado a cada columna, debe coincidir con el tipo de dato */
+    v?: string | boolean | number | Date,
+    /**Es una versión de texto del valor v. Ej v:1000, f:$1,000.00 */
+    f?: string,
+    /**Valores personalizados. Ej p:{style: 'border: 1px solid green;'} */
+    p?: any
 }
 
 export interface chartDefinitions {
