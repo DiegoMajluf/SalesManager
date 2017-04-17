@@ -34,7 +34,15 @@ export class InformesService {
 
                 },
                 "asignacion": {
-
+                    "0": {
+                        "periodo": "periodo"
+                    },
+                    "1": {
+                        "campo": "ventasNetas"
+                    },
+                    "2": {
+                        "receptor": "clientes"
+                    }
                 }
             }]
 
@@ -99,7 +107,7 @@ export interface QueryDetail {
 export interface columnsAsignations {
     [id: string]: {
         campo?: "ventasNetas" | "ventasBrutas" | "cantDocs" | "cantClientes" | "cantProductos",
-        receptor?: "ruts" | "comunas" | "ciudades",
+        receptor?: "clientes" | "comunas" | "ciudades",
         etiquetaRecep?: string,
         itemVenta?: "tipoCod" | "codigo" | "nombres",
         etiquetaItmVta?: string,
@@ -120,11 +128,11 @@ export interface QueryResponseGroup {
 
 export interface QueryResponsePointData {
     __data: {
-        montoNeto?: number,
-        montoBruto?: number,
-        numDocs?: number,
-        numClientes?: number,
-        numProductos?: number
+        ventasNetas?: number,
+        ventasBrutas?: number,
+        cantDocs?: number,
+        cantClientes?: number,
+        cantProductos?: number
     }
 
 }

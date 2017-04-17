@@ -62,10 +62,11 @@ router.post('/getquerys', (req, res, next) => {
                 .subscribe(
                 x => {
                     let prds = asignarDTEaPeriodos(q.consulta.TipoPeriodos, getMinFechaFrom(mq), getMaxFechaFrom(mq), x[0])
-                    let arrs = getPoints(prds, q, x[1].cliente, x[1].producto)
-                        .reduce((acc: any[], pun: qo.QueryResponsePoint) =>
-                            acc.concat(QueryPointToArray([], pun.periodo['PESO CL'])), [])
-                    let dataTable = getDataTable(q, arrs)
+                    let arrs: any[] = []
+                    getPoints(prds, q, x[1].cliente, x[1].producto)
+                        .forEach(pun =>
+                            QueryPointToArray(arrs, [pun], pun.monedas))
+                    res.send(getDataTable(q, arrs))
                 },
                 err => res.status(500).send(JSON.stringify(err, null, ' ')),
                 () => {
@@ -213,35 +214,32 @@ function getPoints(pes: { periodo: periodos.Periodo, dtes: dte.DTE[] }[], query:
         pd.dtes.forEach(dt => {
             let enc = DteService.getEncabezado(dt)
             let moneda = enc.Totales['TpoMoneda'] || 'PESO CL'
-            if (!qp.monedas[moneda]) {
-                qp.monedas[moneda] = { data: { __data: {} } }
-                last = qp.monedas[moneda]
+            if (!qp.monedas[moneda]) qp.monedas[moneda] = {}
+            let gc = qp.monedas[moneda]
+
+            last = Object.keys(query.asignacion)
+                .sort((k1, k2) => k1.localeCompare(k2))
+                .map(key => Object.keys(query.asignacion[key])
+                    .reduce((acc, c) => {
+                        acc.campo = query.asignacion[key][c]
+                        acc.clave = c
+                        return acc
+                    }, { clave: null, campo: null })
+                )
+                .filter(o => o.clave !== 'campo')
+                .reduce((acc, o) => {
+                    //construimos algo del estilo gc['PESO CL']['santiago']['vitacura']['76398667-5']['vendedor 1']['Carne Lomo'] : {__data: {ventasBrutas: 47383736}}
+                    let vg = getNombreDeGrupo(o, dt, qp, etReceptor, etItemVenta)
+                    if (!acc[vg]) acc[vg] = {}
+                    return acc[vg]
+                }, gc);
+
+            if (!last.__data) {
+                last.__data = {}
+                inicializarCampos(query, last)
             }
 
-            if (query.asignacion) {
-                let gc = qp.monedas[moneda]
-                delete gc.__data
-                last = Object.keys(query.asignacion)
-                    .sort((k1, k2) => k1.localeCompare(k2))
-                    .map(key => Object.keys(query.asignacion[key])
-                        .reduce((acc, c) => {
-                            acc.campo = query.asignacion[key][c]
-                            acc.clave = c
-                            return acc
-                        }, { clave: null, campo: null })
-                    )
-                    .reduce((acc, o) => {
-                        //construimos algo del estilo gc['santiago']['vitacura']['76398667-5']['vendedor 1']['Carne Lomo'] : {data: {ventasBrutas: 47383736}}
-                        let vg = getNombreDeGrupo(o, dt, pd, etReceptor, etItemVenta)
-                        if (!acc[vg]) acc[vg] = {}
-                        return acc[vg]
-                    }, gc);
-
-                if (!last['data']) last['data'] = { __data: {} }
-            }
-
-            inicializarCampos(query, last['data'])
-            sumarDocumento(query, dt, last['data'], clis)
+            sumarDocumento(query, dt, last, clis)
         })
 
     })
@@ -254,18 +252,30 @@ function getNombreDeGrupo(key: { clave: string, campo?: string }, dt: dte.DTE, p
     etr: { [key: string]: { [key: string]: string } },
     etv: { [key: string]: { [key: string]: string } }): string {
 
-    let enc = DteService.getEncabezado(dt)
-
-    if (key.clave === 'ruts') return enc.Receptor.RUTRecep
-    if (key.clave === 'comunas') return enc.Receptor.CmnaRecep
-    if (key.clave === 'ciudades') return enc.Receptor.CiudadRecep
     if (key.clave === 'periodo') return punto.periodo.nombre
-    if (key.clave === 'tipoCod') throw 'No implementado'
-    if (key.clave === 'codigo') throw 'No implementado'
-    if (key.clave === 'nombres') throw 'No implementado'
-    if (key.clave === 'etiquetaProducto') throw 'No implementado'
 
-    if (key.clave === 'etiquetaReceptor') return etr[key.campo][enc.Receptor.RUTRecep]
+
+    if (key.clave === 'receptor') {
+        let enc = DteService.getEncabezado(dt)
+        if (key.campo === 'clientes') return enc.Receptor.RznSocRecep
+        if (key.campo === 'comunas') return enc.Receptor.CmnaRecep
+        if (key.campo === 'ciudades') return enc.Receptor.CiudadRecep
+    }
+    if (key.clave === 'itemVenta') {
+        let dets = DteService.getDetalles(dt)
+        if (key.campo === 'tipoCod') throw 'No implementado'
+        if (key.campo === 'codigo') throw 'No implementado'
+        if (key.campo === 'nombres') throw 'No implementado'
+    }
+
+    if (key.clave === 'etiquetaProducto') {
+        let dets = DteService.getDetalles(dt)
+        throw 'No implementado'
+    }
+    if (key.clave === 'etiquetaReceptor') {
+        let enc = DteService.getEncabezado(dt)
+        return etr[key.campo][enc.Receptor.RUTRecep]
+    }
 
 
 }
@@ -320,11 +330,11 @@ function getEtiquetasFromQuery(query: qo.QueryDetail, rut: string):
 
 /**Inicializa en cero los datos de un punto o una sub agrupación dentro del punto */
 function inicializarCampos(query: qo.QueryDetail, dta: qo.QueryResponsePointData) {
-    if (query.consulta.campos.ventasNetas) dta.__data.montoNeto = 0;
-    if (query.consulta.campos.ventasBrutas) dta.__data.montoBruto = 0;
-    if (query.consulta.campos.cantDocs) dta.__data.numDocs = 0;
-    if (query.consulta.campos.cantClientes) dta.__data.numClientes = 0;
-    if (query.consulta.campos.cantProductos) dta.__data.numProductos = 0;
+    if (query.consulta.campos.ventasNetas) dta.__data.ventasNetas = 0;
+    if (query.consulta.campos.ventasBrutas) dta.__data.ventasBrutas = 0;
+    if (query.consulta.campos.cantDocs) dta.__data.cantDocs = 0;
+    if (query.consulta.campos.cantClientes) dta.__data.cantClientes = 0;
+    if (query.consulta.campos.cantProductos) dta.__data.cantProductos = 0;
 
 }
 
@@ -332,10 +342,10 @@ function inicializarCampos(query: qo.QueryDetail, dta: qo.QueryResponsePointData
 function sumarDocumento(query: qo.QueryDetail, dt: dte.DTE, dta: qo.QueryResponsePointData, clis?: { [rut: string]: number }) {
     let enc = DteService.getEncabezado(dt)
     if (query.consulta.campos.ventasNetas)
-        dta.__data.montoNeto += DteService.getSignoDocumento(dt) * (enc.Totales['MntNeto'] || enc.Totales.MntTotal)
+        dta.__data.ventasNetas += DteService.getSignoDocumento(dt) * (enc.Totales['MntNeto'] || enc.Totales.MntTotal)
     if (query.consulta.campos.ventasBrutas)
-        dta.__data.montoBruto += DteService.getSignoDocumento(dt) * enc.Totales.MntTotal
-    if (query.consulta.campos.cantDocs) dta.__data.numDocs++
+        dta.__data.ventasBrutas += DteService.getSignoDocumento(dt) * enc.Totales.MntTotal
+    if (query.consulta.campos.cantDocs) dta.__data.cantDocs++
     if (query.consulta.campos.cantClientes && clis) {
 
     }
@@ -364,22 +374,29 @@ function getDataTable(query: qo.QueryDetail, arrs: any[][]): qo.DataTable {
 
     arrs.forEach((arr, i) => {
 
+        let startIndex = 2
         dt.rows.push({
-            c: Object.keys(query.asignacion).reduce((acc, id, k) => {
-                if (query.asignacion[id].campo)
-                    acc.push({
-                        v: arr.slice(-1)[0].__data[query.asignacion[id].campo]
-                    })
-                else {
-                    let existeCampo = Object.keys(query.asignacion)
-                        .slice(0, k)
-                        .some(x => query.asignacion[x].campo !== undefined)
-                    acc.push({
-                        v: arr[k + (existeCampo ? -1 : 0)]
-                    })
-                }
-                return acc
-            }, <qo.CeldaDataTable[]>[])
+            c: Object.keys(query.asignacion)
+                .reduce((acc, id, k) => {
+                    if (query.asignacion[id].campo)
+                        acc.push({
+                            v: arr.slice(-1)[0][query.asignacion[id].campo] || 0
+                        })
+                    else {
+                        let existeCampo = Object.keys(query.asignacion)
+                            .slice(0, k)
+                            .some(x => query.asignacion[x].campo !== undefined)
+
+                        if (arr.length < startIndex + k && query.asignacion[id].periodo)
+                            acc.push({
+                                v: (<qo.QueryResponsePoint>arr[0]).periodo.nombre
+                            })
+                        else acc.push({
+                            v: arr[startIndex + k + (existeCampo ? -1 : 0)] || null
+                        })
+                    }
+                    return acc
+                }, <qo.CeldaDataTable[]>[])
         })
 
     })
@@ -389,14 +406,17 @@ function getDataTable(query: qo.QueryDetail, arrs: any[][]): qo.DataTable {
 }
 
 /**convierte un QueryResponseGroup en un arreglo de arreglos para ser agregado a un dataTable */
-function QueryPointToArray(padre: any[], punto: qo.QueryResponseGroup | qo.QueryResponsePointData): any[][] {
+function QueryPointToArray(acc: any[][], padre: any[], punto: qo.QueryResponseGroup | qo.QueryResponsePointData): any {
+
 
     if ((<qo.QueryResponsePointData>punto).__data)
-        return padre.concat([[(<qo.QueryResponsePointData>punto).__data]])
+        return acc.push(padre.concat([(<qo.QueryResponsePointData>punto).__data]))
 
-    return Object.keys(punto).reduce((arrs: any[][], key) =>
-        arrs.concat(QueryPointToArray(padre.concat([key]), punto[key])), [])
+    Object.keys(punto).forEach(key =>
+        QueryPointToArray(acc, padre.concat([key]), punto[key]))
 
+
+    if (Object.keys(punto).length === 0) acc.push(padre)
 
 }
 
