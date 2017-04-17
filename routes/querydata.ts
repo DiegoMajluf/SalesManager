@@ -9,6 +9,8 @@ import * as qo from '../webapp/servicios/informes.service'
 
 export let router = express.Router();
 let docsName = ['Documento', 'Exportaciones', 'Liquidaciones']
+
+
 router.get('/getfoliosyaingresadosde/:tipo/enrango/:ini-:fin', (req, res, next) => {
     let query = { $and: [{}, {}, {}, {}] }
 
@@ -60,8 +62,10 @@ router.post('/getquerys', (req, res, next) => {
                 .subscribe(
                 x => {
                     let prds = asignarDTEaPeriodos(q.consulta.TipoPeriodos, getMinFechaFrom(mq), getMaxFechaFrom(mq), x[0])
-                    let puntos = getPoints(prds, q, x[1].cliente, x[1].producto)
-                    let dataTable = getDataTable(q, puntos)
+                    let arrs = getPoints(prds, q, x[1].cliente, x[1].producto)
+                        .reduce((acc: any[], pun: qo.QueryResponsePoint) =>
+                            acc.concat(QueryPointToArray([], pun.periodo['PESO CL'])), [])
+                    let dataTable = getDataTable(q, arrs)
                 },
                 err => res.status(500).send(JSON.stringify(err, null, ' ')),
                 () => {
@@ -74,7 +78,7 @@ router.post('/getquerys', (req, res, next) => {
     });
 })
 
-/**Transforma la consulta web en una cosnulta para mongo dtes */
+/**Transforma la consulta web en una consulta para mongo dtes */
 function queryDetailToMongoQuery(qd: qo.QueryDetail, rutEmpresa: string): any {
     let query = { $or: [{}, {}, {}] }
 
@@ -210,37 +214,30 @@ function getPoints(pes: { periodo: periodos.Periodo, dtes: dte.DTE[] }[], query:
             let enc = DteService.getEncabezado(dt)
             let moneda = enc.Totales['TpoMoneda'] || 'PESO CL'
             if (!qp.monedas[moneda]) {
-                qp.monedas[moneda] = { data: {} }
+                qp.monedas[moneda] = { data: { __data: {} } }
                 last = qp.monedas[moneda]
             }
 
-            if (query.agrupacion) {
-                if (!qp.monedas[moneda]) qp.monedas[moneda] = {}
+            if (query.asignacion) {
                 let gc = qp.monedas[moneda]
-                last = Object.keys(query.agrupacion)
-                    .filter(key => !(query.agrupacion[key] instanceof Array)) // Campos que no so etiquetas RUT, Ciudad, etc
+                delete gc.__data
+                last = Object.keys(query.asignacion)
                     .sort((k1, k2) => k1.localeCompare(k2))
-                    .map(key => {
-                        return { clave: key }
-                    })
-                    .concat(Object.keys(query.agrupacion)
-                        .filter(key => query.agrupacion[key] instanceof Array) //Campos que son etiquetas Vendedores, Carnes
-                        .sort((k1, k2) => k1.localeCompare(k2))
-                        .map(key => (<string[]>query.agrupacion[key])
-                            .map(et => {
-                                return { clave: key, campo: et }
-                            })
-                        )
-                        .reduce((acc, k) => acc.concat(k), <{ clave: string, campo: string }[]>[])
+                    .map(key => Object.keys(query.asignacion[key])
+                        .reduce((acc, c) => {
+                            acc.campo = query.asignacion[key][c]
+                            acc.clave = c
+                            return acc
+                        }, { clave: null, campo: null })
                     )
                     .reduce((acc, o) => {
                         //construimos algo del estilo gc['santiago']['vitacura']['76398667-5']['vendedor 1']['Carne Lomo'] : {data: {ventasBrutas: 47383736}}
-                        let vg = getNombreDeGrupo(o, dt, etReceptor, etItemVenta)
+                        let vg = getNombreDeGrupo(o, dt, pd, etReceptor, etItemVenta)
                         if (!acc[vg]) acc[vg] = {}
                         return acc[vg]
                     }, gc);
 
-                if (!last['data']) last['data'] = {}
+                if (!last['data']) last['data'] = { __data: {} }
             }
 
             inicializarCampos(query, last['data'])
@@ -253,7 +250,7 @@ function getPoints(pes: { periodo: periodos.Periodo, dtes: dte.DTE[] }[], query:
 }
 
 //**Obtiene el valor del grupo para una clave Ej. clave: ciudad => valor: 'santiago' */
-function getNombreDeGrupo(key: { clave: string, campo?: string }, dt: dte.DTE,
+function getNombreDeGrupo(key: { clave: string, campo?: string }, dt: dte.DTE, punto: qo.QueryResponsePoint,
     etr: { [key: string]: { [key: string]: string } },
     etv: { [key: string]: { [key: string]: string } }): string {
 
@@ -262,6 +259,7 @@ function getNombreDeGrupo(key: { clave: string, campo?: string }, dt: dte.DTE,
     if (key.clave === 'ruts') return enc.Receptor.RUTRecep
     if (key.clave === 'comunas') return enc.Receptor.CmnaRecep
     if (key.clave === 'ciudades') return enc.Receptor.CiudadRecep
+    if (key.clave === 'periodo') return punto.periodo.nombre
     if (key.clave === 'tipoCod') throw 'No implementado'
     if (key.clave === 'codigo') throw 'No implementado'
     if (key.clave === 'nombres') throw 'No implementado'
@@ -274,37 +272,46 @@ function getNombreDeGrupo(key: { clave: string, campo?: string }, dt: dte.DTE,
 
 /**Obtiene las asignaciones de etiquetas de la consulta, si las hubiera */
 function getEtiquetasFromQuery(query: qo.QueryDetail, rut: string):
-    Observable<{ cliente: { [id: string]: string }, producto: { [id: string]: string } }> {
-
-    let c: Observable<{ [id: string]: string }> = Observable.of(null)
-    let p: Observable<{ [id: string]: string }> = Observable.of(null)
-    if (query.agrupacion) {
-        if (query.agrupacion.etiquetaReceptor)
-            c = Observable.fromPromise(
-                <Promise<{ asignaciones: { [rut: string]: string } }[]>>
-                db.collection('etiquetasReceptor').find({
-                    empresa: rut,
-                    etiqueta: query.agrupacion.etiquetaReceptor
-                }, { asignaciones: 1 }).limit(1).toArray())
-                .map(x => x.length === 1 ? x[0].asignaciones : null)
+    Observable<{
+        cliente: { [key: string]: { [key: string]: string } },
+        producto: { [key: string]: { [key: string]: string } }
+    }> {
 
 
-        if (query.agrupacion.etiquetaProducto)
-            p = Observable.fromPromise(
-                <Promise<{ asignaciones: { [rut: string]: string } }[]>>
-                db.collection('etiquetasProducto').find({
-                    empresa: rut,
-                    etiqueta: query.agrupacion.etiquetaProducto
-                }, { asignaciones: 1 }).limit(1).toArray())
-                .map(x => x.length === 1 ? x[0].asignaciones : null)
 
-    }
+    let querys = Object.keys(query.asignacion).reduce((acc, key) => {
+        if (query.asignacion[key].etiquetaItmVta)
+            acc.prod.$or.push({ nombre: query.asignacion[key].etiquetaItmVta })
+        else if (query.asignacion[key].etiquetaRecep)
+            acc.recep.$or.push({ nombre: query.asignacion[key].etiquetaRecep })
 
-    return Observable.forkJoin(c, p)
+        return acc
+    }, { prod: { $or: [] }, recep: { $or: [] } })
+
+    return Observable.forkJoin(
+        querys.prod.$or.length > 0
+            ? Observable.fromPromise(<Promise<{ nombre: string, asignaciones: { [key: string]: string } }[]>>db
+                .collection('etiquetas_productos')
+                .find(querys.prod)
+                .toArray())
+            : Observable.of(null),
+        querys.recep.$or.length > 0
+            ? Observable.fromPromise(<Promise<{ nombre: string, asignaciones: { [key: string]: string } }[]>>db
+                .collection('etiquetas_receptores')
+                .find(querys.recep)
+                .toArray())
+            : Observable.of(null))
         .map(x => {
             return {
-                cliente: x[0],
-                producto: x[1]
+                producto: x[0] ? x[0].reduce((acc, et) => {
+                    acc[et.nombre] = et.asignaciones
+                    return acc
+                }, <{ [key: string]: { [key: string]: string } }>{}) : null,
+                cliente: x[1] ? x[1].reduce((acc, et) => {
+                    acc[et.nombre] = et.asignaciones
+                    return acc
+                }, <{ [key: string]: { [key: string]: string } }>{}) : null
+
             }
         })
 
@@ -313,11 +320,11 @@ function getEtiquetasFromQuery(query: qo.QueryDetail, rut: string):
 
 /**Inicializa en cero los datos de un punto o una sub agrupación dentro del punto */
 function inicializarCampos(query: qo.QueryDetail, dta: qo.QueryResponsePointData) {
-    if (query.consulta.campos.ventasNetas) dta.montoNeto = 0;
-    if (query.consulta.campos.ventasBrutas) dta.montoBruto = 0;
-    if (query.consulta.campos.cantDocs) dta.numDocs = 0;
-    if (query.consulta.campos.cantClientes) dta.numClientes = 0;
-    if (query.consulta.campos.cantProductos) dta.numProductos = 0;
+    if (query.consulta.campos.ventasNetas) dta.__data.montoNeto = 0;
+    if (query.consulta.campos.ventasBrutas) dta.__data.montoBruto = 0;
+    if (query.consulta.campos.cantDocs) dta.__data.numDocs = 0;
+    if (query.consulta.campos.cantClientes) dta.__data.numClientes = 0;
+    if (query.consulta.campos.cantProductos) dta.__data.numProductos = 0;
 
 }
 
@@ -325,17 +332,17 @@ function inicializarCampos(query: qo.QueryDetail, dta: qo.QueryResponsePointData
 function sumarDocumento(query: qo.QueryDetail, dt: dte.DTE, dta: qo.QueryResponsePointData, clis?: { [rut: string]: number }) {
     let enc = DteService.getEncabezado(dt)
     if (query.consulta.campos.ventasNetas)
-        dta.montoNeto += DteService.getSignoDocumento(dt) * (enc.Totales['MntNeto'] || enc.Totales.MntTotal)
+        dta.__data.montoNeto += DteService.getSignoDocumento(dt) * (enc.Totales['MntNeto'] || enc.Totales.MntTotal)
     if (query.consulta.campos.ventasBrutas)
-        dta.montoBruto += DteService.getSignoDocumento(dt) * enc.Totales.MntTotal
-    if (query.consulta.campos.cantDocs) dta.numDocs++
+        dta.__data.montoBruto += DteService.getSignoDocumento(dt) * enc.Totales.MntTotal
+    if (query.consulta.campos.cantDocs) dta.__data.numDocs++
     if (query.consulta.campos.cantClientes && clis) {
 
     }
 }
 
 /**Trasforma la respuesta de los QueryResponsePoint[] en un DataTable para Google Charts */
-function getDataTable(query: qo.QueryDetail, puntos: qo.QueryResponsePoint[]): qo.DataTable {
+function getDataTable(query: qo.QueryDetail, arrs: any[][]): qo.DataTable {
     let dt = { rows: <qo.FilaDataTable[]>[], cols: <qo.ColumnaDataTable[]>[] }
 
     Object.keys(query.asignacion).forEach(j => {
@@ -354,59 +361,44 @@ function getDataTable(query: qo.QueryDetail, puntos: qo.QueryResponsePoint[]): q
     })
 
 
-    /**
-     * Es un arreglo ordenado de las agrupaciones que se pidieron
-     * [{clave: Ciudad}, {clave: Comuna}, {clave:Codigo},
-     * {clave: etiquetaReceptor, campo:vendedores},{clave: etiquetaReceptor, campo:Pais Origen},
-     * {clave: etiquetaItmVenta, campo:Carne Bobina}]
-     */
-    let camino: { clave: string, campo?: string }[] = Object.keys(query.agrupacion)
-        .filter(key => !(query.agrupacion[key] instanceof Array)) // Campos que no so etiquetas RUT, Ciudad, etc
-        .sort((k1, k2) => k1.localeCompare(k2))
-        .map(key => {
-            return { clave: key }
-        })
-        .concat(Object.keys(query.agrupacion)
-            .filter(key => query.agrupacion[key] instanceof Array) //Campos que son etiquetas Vendedores, Carnes
-            .sort((k1, k2) => k1.localeCompare(k2))
-            .map(key => (<string[]>query.agrupacion[key])
-                .map(et => {
-                    return { clave: key, campo: et }
-                })
-            )
-            .reduce((acc, k) => acc.concat(k), <{ clave: string, campo: string }[]>[])
-        )
 
-    puntos.forEach(p => {
+    arrs.forEach((arr, i) => {
 
         dt.rows.push({
-            c: Object.keys(query.asignacion).reduce((acc, j) => {
-                let data: qo.QueryResponsePointData = Object.keys(query.agrupacion)
-                    .reduce((ag, k) => ag[k], p.monedas['PESO CL'])
-
-
-                if (query.asignacion[j].campo)
-                    acc.push({ v: data[query.asignacion[j].campo] })
-                else if (query.asignacion[j].periodo)
-                    acc.push({ v: p.periodo.fechaIni, f: p.periodo.nombre })
-                else if (query.asignacion[j].etiquetaRecep)
-                    acc.push({ v: p.monedas['PESO CL'].etiquetas[query.asignacion[j].etiquetaRecep] })
-                else if (query.asignacion[j].etiquetaItmVta)
-                    acc.push({ v: p.monedas['PESO CL'].etiquetas[query.asignacion[j].etiquetaItmVta] })
-                else //Columna opcional que se deja en blanco
-                    acc.push({ v: null })
+            c: Object.keys(query.asignacion).reduce((acc, id, k) => {
+                if (query.asignacion[id].campo)
+                    acc.push({
+                        v: arr.slice(-1)[0].__data[query.asignacion[id].campo]
+                    })
+                else {
+                    let existeCampo = Object.keys(query.asignacion)
+                        .slice(0, k)
+                        .some(x => query.asignacion[x].campo !== undefined)
+                    acc.push({
+                        v: arr[k + (existeCampo ? -1 : 0)]
+                    })
+                }
                 return acc
             }, <qo.CeldaDataTable[]>[])
         })
 
     })
 
+
     return dt
 }
 
+/**convierte un QueryResponseGroup en un arreglo de arreglos para ser agregado a un dataTable */
+function QueryPointToArray(padre: any[], punto: qo.QueryResponseGroup | qo.QueryResponsePointData): any[][] {
 
-let mapGrupoCliente = {
-    ruts: 'RUTRecep',
-    ciudades: 'CiudadRecep',
-    comunas: 'CmnaRecep'
+    if ((<qo.QueryResponsePointData>punto).__data)
+        return padre.concat([[(<qo.QueryResponsePointData>punto).__data]])
+
+    return Object.keys(punto).reduce((arrs: any[][], key) =>
+        arrs.concat(QueryPointToArray(padre.concat([key]), punto[key])), [])
+
+
 }
+
+
+

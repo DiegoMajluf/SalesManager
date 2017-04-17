@@ -7,14 +7,17 @@
     <!-- 2. Configure SystemJS -->
     <script src="config.js"></script>
     <script>
-      System.import('webapp/script');
+        System.import('webapp/script');
     </script>
 
 </head>
 
 <body>
-    <input type="file" id='inpFile' /><br>
-    <textarea id='textArea' id="" cols="70" rows="15">
+    <table>
+        <tr>
+            <td style="vertical-align: top">
+                <input type="file" id='inpFile' /><br>
+                <textarea id='textArea' id="" cols="70" rows="35">
 [{
   "consulta": {
     "UltPeriodoOffset": -1,
@@ -29,12 +32,26 @@
      }
   },
   "filtros": {
-
+  },
+  "asignacion": {
+      "0": {
+          "periodo": "periodo"
+      },
+      "1": {
+          "campo": "ventasNetas"
+      }
   }
 }]    
     </textarea>
-    <input id='button' type="button"  value="Enviar">
-    <pre id='pre'></pre>
+                <input id='button' type="button" value="Enviar">
+            </td>
+            <td style="vertical-align: top">
+                <pre id='pre'></pre>
+            </td>
+        </tr>
+    </table>
+
+    
 </body>
 
 </html>

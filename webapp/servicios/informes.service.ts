@@ -92,17 +92,19 @@ export interface QueryDetail {
             moneda: string
         }
     },
-    agrupacion?: {
-        ruts?: boolean,
-        etiquetaReceptor?: string[],
-        comunas?: boolean,
-        ciudades?: boolean,
-        tipoCod?: boolean,
-        codigo?: boolean,
-        nombres?: boolean,
-        etiquetaProducto?: string[],
-    }
     asignacion: columnsAsignations
+}
+
+
+export interface columnsAsignations {
+    [id: string]: {
+        campo?: "ventasNetas" | "ventasBrutas" | "cantDocs" | "cantClientes" | "cantProductos",
+        receptor?: "ruts" | "comunas" | "ciudades",
+        etiquetaRecep?: string,
+        itemVenta?: "tipoCod" | "codigo" | "nombres",
+        etiquetaItmVta?: string,
+        periodo?: string
+    }
 }
 
 export interface QueryResponsePoint {
@@ -117,11 +119,13 @@ export interface QueryResponseGroup {
 }
 
 export interface QueryResponsePointData {
-    montoNeto?: number,
-    montoBruto?: number,
-    numDocs?: number,
-    numClientes?: number,
-    numProductos?: number
+    __data: {
+        montoNeto?: number,
+        montoBruto?: number,
+        numDocs?: number,
+        numClientes?: number,
+        numProductos?: number
+    }
 
 }
 
@@ -177,13 +181,3 @@ export interface chart {
     columnsFormat: number
 }
 
-export interface columnsAsignations {
-    [id: string]: {
-        campo?: string,
-        receptor?: "ruts" | "comunas" | "ciudades",
-        etiquetaRecep?: string,
-        itemVenta?: "tipoCod" | "codigo" | "nombres",
-        etiquetaItmVta?: string,
-        periodo?: string
-    }
-}
