@@ -202,19 +202,19 @@ function getPoints(pes: { periodo: periodos.Periodo, dtes: dte.DTE[] }[], query:
         let qp: qo.QueryResponsePoint = {
             periodo: pd.periodo,
             numDocs: pd.dtes.length,
-            monedas: <(qo.QueryResponseGroup | qo.QueryResponsePointData)>{}
+            monedas: <qo.QueryResponseGroup>{}
         }
 
         qrps.push(qp)
         let clis: { [rut: string]: number } = {}
         let clisgroup: { [key: string]: { [rut: string]: number } } = {}
-        let last: qo.QueryResponsePointData
+        let last: { grupo?: qo.QueryResponseGroup, data?: qo.QueryResponsePointData, factor: number }
 
 
         pd.dtes.forEach(dt => {
             let enc = DteService.getEncabezado(dt)
             let moneda = enc.Totales['TpoMoneda'] || 'PESO CL'
-            if (!qp.monedas[moneda]) qp.monedas[moneda] = {}
+            if (!qp.monedas[moneda]) qp.monedas[moneda] = { factor: 1 }
             let gc = qp.monedas[moneda]
 
             last = Object.keys(query.asignacion)
@@ -224,18 +224,60 @@ function getPoints(pes: { periodo: periodos.Periodo, dtes: dte.DTE[] }[], query:
                         acc.campo = query.asignacion[key][c]
                         acc.clave = c
                         return acc
-                    }, { clave: null, campo: null })
+                    }, { clave: <string>null, campo: <string>null })
                 )
                 .filter(o => o.clave !== 'campo')
                 .reduce((acc, o) => {
-                    //construimos algo del estilo gc['PESO CL']['santiago']['vitacura']['76398667-5']['vendedor 1']['Carne Lomo'] : {__data: {ventasBrutas: 47383736}}
+                    /**
+                    gc = {
+                        'PESO CL' : {
+                            factor: 1,
+                            grupo: {
+                                santiago:{
+                                    factor: 1,
+                                    grupo: {
+                                        vitacura : {
+                                            factor: 1,
+                                            grupo: {
+                                                "76398667-5": {
+                                                    factor:1,
+                                                    grupo: {
+                                                            "lomo Vetado": {
+                                                                factor: .5346,
+                                                                data: {
+                                                                    ventasNetas: 4638209
+                                                                }
+                                                            },
+                                                            "Filete": {
+                                                                factor: .4654,
+                                                                data: {
+                                                                    ventasNetas: 567654
+                                                                }
+                                                            }
+                                                        }
+                                                    }
+                                                }
+                                            }
+                                        },
+                                        "Las Condes": {
+                                            grupo:
+                                        }
+                                    }
+                                },
+                                valparaiso: {
+
+                                }
+                            }
+                        }
+                    }
+                     */
                     let vg = getNombreDeGrupo(o, dt, qp, etReceptor, etItemVenta)
-                    if (!acc[vg]) acc[vg] = {}
-                    return acc[vg]
+                    if (!acc.grupo[vg]) acc.grupo[vg] = { factor: 1 }
+                    return acc.grupo[vg]
                 }, gc);
 
-            if (!last.__data) {
-                last.__data = {}
+            if (!last.data) {
+                last.data = {}
                 inicializarCampos(query, last)
             }
 
@@ -300,13 +342,13 @@ function getEtiquetasFromQuery(query: qo.QueryDetail, rut: string):
 
     return Observable.forkJoin(
         querys.prod.$or.length > 0
-            ? Observable.fromPromise(<Promise<{ nombre: string, asignaciones: { [key: string]: string } }[]>>db
+            ? Observable.fromPromise<{ nombre: string, asignaciones: { [key: string]: string } }[]>(db
                 .collection('etiquetas_productos')
                 .find(querys.prod)
                 .toArray())
             : Observable.of(null),
         querys.recep.$or.length > 0
-            ? Observable.fromPromise(<Promise<{ nombre: string, asignaciones: { [key: string]: string } }[]>>db
+            ? Observable.fromPromise<{ nombre: string, asignaciones: { [key: string]: string } }[]>(db
                 .collection('etiquetas_receptores')
                 .find(querys.recep)
                 .toArray())
@@ -330,11 +372,11 @@ function getEtiquetasFromQuery(query: qo.QueryDetail, rut: string):
 
 /**Inicializa en cero los datos de un punto o una sub agrupación dentro del punto */
 function inicializarCampos(query: qo.QueryDetail, dta: qo.QueryResponsePointData) {
-    if (query.consulta.campos.ventasNetas) dta.__data.ventasNetas = 0;
-    if (query.consulta.campos.ventasBrutas) dta.__data.ventasBrutas = 0;
-    if (query.consulta.campos.cantDocs) dta.__data.cantDocs = 0;
-    if (query.consulta.campos.cantClientes) dta.__data.cantClientes = 0;
-    if (query.consulta.campos.cantProductos) dta.__data.cantProductos = 0;
+    if (query.consulta.campos.ventasNetas) dta.ventasNetas = 0;
+    if (query.consulta.campos.ventasBrutas) dta.ventasBrutas = 0;
+    if (query.consulta.campos.cantDocs) dta.cantDocs = 0;
+    if (query.consulta.campos.cantClientes) dta.cantClientes = 0;
+    if (query.consulta.campos.cantProductos) dta.cantProductos = 0;
 
 }
 
@@ -342,10 +384,10 @@ function inicializarCampos(query: qo.QueryDetail, dta: qo.QueryResponsePointData
 function sumarDocumento(query: qo.QueryDetail, dt: dte.DTE, dta: qo.QueryResponsePointData, clis?: { [rut: string]: number }) {
     let enc = DteService.getEncabezado(dt)
     if (query.consulta.campos.ventasNetas)
-        dta.__data.ventasNetas += DteService.getSignoDocumento(dt) * (enc.Totales['MntNeto'] || enc.Totales.MntTotal)
+        dta.ventasNetas += DteService.getSignoDocumento(dt) * (enc.Totales['MntNeto'] || enc.Totales.MntTotal)
     if (query.consulta.campos.ventasBrutas)
-        dta.__data.ventasBrutas += DteService.getSignoDocumento(dt) * enc.Totales.MntTotal
-    if (query.consulta.campos.cantDocs) dta.__data.cantDocs++
+        dta.ventasBrutas += DteService.getSignoDocumento(dt) * enc.Totales.MntTotal
+    if (query.consulta.campos.cantDocs) dta.cantDocs++
     if (query.consulta.campos.cantClientes && clis) {
 
     }
@@ -355,6 +397,7 @@ function sumarDocumento(query: qo.QueryDetail, dt: dte.DTE, dta: qo.QueryRespons
 function getDataTable(query: qo.QueryDetail, arrs: any[][]): qo.DataTable {
     let dt = { rows: <qo.FilaDataTable[]>[], cols: <qo.ColumnaDataTable[]>[] }
 
+    //Crear Columnas cols
     Object.keys(query.asignacion).forEach(j => {
         if (query.asignacion[j].campo)
             dt.cols.push({ label: query.asignacion[j].campo, type: 'number' })
@@ -371,7 +414,7 @@ function getDataTable(query: qo.QueryDetail, arrs: any[][]): qo.DataTable {
     })
 
 
-
+    //Crear Filas rows
     arrs.forEach((arr, i) => {
 
         let startIndex = 2
@@ -406,17 +449,17 @@ function getDataTable(query: qo.QueryDetail, arrs: any[][]): qo.DataTable {
 }
 
 /**convierte un QueryResponseGroup en un arreglo de arreglos para ser agregado a un dataTable */
-function QueryPointToArray(acc: any[][], padre: any[], punto: qo.QueryResponseGroup | qo.QueryResponsePointData): any {
+function QueryPointToArray(acc: any[][], padre: any[], punto: qo.QueryResponseGroup): any {
 
 
-    if ((<qo.QueryResponsePointData>punto).__data)
-        return acc.push(padre.concat([(<qo.QueryResponsePointData>punto).__data]))
+    if (punto.data)
+        return acc.push(padre.concat([punto.data]))
 
-    Object.keys(punto).forEach(key =>
-        QueryPointToArray(acc, padre.concat([key]), punto[key]))
+    Object.keys(punto.grupo).forEach(key =>
+        QueryPointToArray(acc, padre.concat([key]), punto.grupo[key]))
 
 
-    if (Object.keys(punto).length === 0) acc.push(padre)
+    if (Object.keys(punto.grupo).length === 0) acc.push(padre)
 
 }
 

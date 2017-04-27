@@ -117,23 +117,25 @@ export interface columnsAsignations {
 
 export interface QueryResponsePoint {
     periodo: periodos.Periodo
-    monedas: (QueryResponseGroup | QueryResponsePointData)
+    monedas: QueryResponseGroup 
     numDocs: number
 
 }
 
 export interface QueryResponseGroup {
-    [id: string]: (QueryResponseGroup | QueryResponsePointData)
+    [id: string]: {
+        grupo?: QueryResponseGroup,
+        data?: QueryResponsePointData,
+        factor: number
+    }
 }
 
 export interface QueryResponsePointData {
-    __data: {
-        ventasNetas?: number,
-        ventasBrutas?: number,
-        cantDocs?: number,
-        cantClientes?: number,
-        cantProductos?: number
-    }
+    ventasNetas?: number,
+    ventasBrutas?: number,
+    cantDocs?: number,
+    cantClientes?: number,
+    cantProductos?: number
 
 }
 
