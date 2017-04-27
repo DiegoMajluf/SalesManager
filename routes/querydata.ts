@@ -62,11 +62,11 @@ router.post('/getquerys', (req, res, next) => {
                 .subscribe(
                 x => {
                     let prds = asignarDTEaPeriodos(q.consulta.TipoPeriodos, getMinFechaFrom(mq), getMaxFechaFrom(mq), x[0])
-                    let arrs: any[] = []
+                    let Lineas: qo.Linea[] = []
                     getPoints(prds, q, x[1].cliente, x[1].producto)
                         .forEach(pun =>
-                            QueryPointToArray(arrs, [pun], pun.monedas))
-                    res.send(getDataTable(q, arrs))
+                            QueryPointToArray(Lineas, { campos: [], data: null }, pun.monedas))
+                    res.send(getDataTable(q, Lineas))
                 },
                 err => res.status(500).send(JSON.stringify(err, null, ' ')),
                 () => {
@@ -292,22 +292,59 @@ function getPoints(pes: { periodo: periodos.Periodo, dtes: dte.DTE[] }[], query:
 //**Obtiene el valor del grupo para una clave Ej. clave: ciudad => valor: 'santiago' */
 function getNombreDeGrupo(key: { clave: string, campo?: string }, dt: dte.DTE, punto: qo.QueryResponsePoint,
     etr: { [key: string]: { [key: string]: string } },
-    etv: { [key: string]: { [key: string]: string } }): string {
+    etv: { [key: string]: { [key: string]: string } }): { valor: string, factor: number }[] {
 
-    if (key.clave === 'periodo') return punto.periodo.nombre
+    if (key.clave === 'periodo') return [{ valor: punto.periodo.nombre, factor: 1 }]
 
 
     if (key.clave === 'receptor') {
         let enc = DteService.getEncabezado(dt)
-        if (key.campo === 'clientes') return enc.Receptor.RznSocRecep
-        if (key.campo === 'comunas') return enc.Receptor.CmnaRecep
-        if (key.campo === 'ciudades') return enc.Receptor.CiudadRecep
+        if (key.campo === 'clientes') return [{ valor: enc.Receptor.RznSocRecep, factor: 1 }]
+        if (key.campo === 'comunas') return [{ valor: enc.Receptor.CmnaRecep, factor: 1 }]
+        if (key.campo === 'ciudades') return [{ valor: enc.Receptor.CiudadRecep, factor: 1 }]
     }
     if (key.clave === 'itemVenta') {
         let dets = DteService.getDetalles(dt)
-        if (key.campo === 'tipoCod') throw 'No implementado'
-        if (key.campo === 'codigo') throw 'No implementado'
-        if (key.campo === 'nombres') throw 'No implementado'
+        let tot = dets.reduce((acc, det) => acc + (det.IndExe ? 0 : det.MontoItem), 0)
+        let sortL: { [key: string]: number }
+
+        if (key.campo === 'tipoCod') sortL = dets
+            .filter(det => !det.IndExe)
+            .reduce((acc, det) => acc.concat(det.CdgItem.map(x => {
+                return { codigo: x, monto: det.MontoItem }
+            })), <{ codigo: dte.DocumentoCdgItem, monto: number }[]>[])
+            .reduce((acc, itm) => {
+                if (!acc[itm.codigo.TpoCodigo]) acc[itm.codigo.TpoCodigo] = 0
+                acc[itm.codigo.TpoCodigo] += itm.monto
+                return acc
+            }, <{ [key: string]: number }>{})
+
+        if (key.campo === 'codigo') sortL = dets
+            .filter(det => !det.IndExe)
+            .reduce((acc, det) => acc.concat(det.CdgItem.map(x => {
+                return { codigo: x, monto: det.MontoItem }
+            })), <{ codigo: dte.DocumentoCdgItem, monto: number }[]>[])
+            .reduce((acc, itm) => {
+                if (!acc[itm.codigo.VlrCodigo]) acc[itm.codigo.VlrCodigo] = 0
+                acc[itm.codigo.VlrCodigo] += itm.monto
+                return acc
+            }, <{ [key: string]: number }>{})
+
+        if (key.campo === 'nombres') sortL = dets
+            .filter(det => !det.IndExe)
+            .reduce((acc, det) => {
+                if (!acc[det.NmbItem]) acc[det.NmbItem] = 0
+                acc[det.NmbItem] += det.MontoItem
+                return acc
+            }, <{ [key: string]: number }>{})
+
+
+        return Object.keys(sortL)
+            .map(key => {
+                return { valor: key, factor: sortL[key] / tot }
+            })
+
+
     }
 
     if (key.clave === 'etiquetaProducto') {
@@ -316,7 +353,7 @@ function getNombreDeGrupo(key: { clave: string, campo?: string }, dt: dte.DTE, p
     }
     if (key.clave === 'etiquetaReceptor') {
         let enc = DteService.getEncabezado(dt)
-        return etr[key.campo][enc.Receptor.RUTRecep]
+        return [{ valor: etr[key.campo][enc.Receptor.RUTRecep], factor: 1 }]
     }
 
 
@@ -394,7 +431,7 @@ function sumarDocumento(query: qo.QueryDetail, dt: dte.DTE, dta: qo.QueryRespons
 }
 
 /**Trasforma la respuesta de los QueryResponsePoint[] en un DataTable para Google Charts */
-function getDataTable(query: qo.QueryDetail, arrs: any[][]): qo.DataTable {
+function getDataTable(query: qo.QueryDetail, Lineas: qo.Linea[]): qo.DataTable {
     let dt = { rows: <qo.FilaDataTable[]>[], cols: <qo.ColumnaDataTable[]>[] }
 
     //Crear Columnas cols
@@ -415,29 +452,27 @@ function getDataTable(query: qo.QueryDetail, arrs: any[][]): qo.DataTable {
 
 
     //Crear Filas rows
-    arrs.forEach((arr, i) => {
+    Lineas.forEach((linea, i) => {
 
-        let startIndex = 2
+        //**Indica si en las asignaciones debemos restar al índice por la aparición de campo y perido */
+        let menosIndex = 0
         dt.rows.push({
             c: Object.keys(query.asignacion)
                 .reduce((acc, id, k) => {
-                    if (query.asignacion[id].campo)
-                        acc.push({
-                            v: arr.slice(-1)[0][query.asignacion[id].campo] || 0
-                        })
-                    else {
-                        let existeCampo = Object.keys(query.asignacion)
-                            .slice(0, k)
-                            .some(x => query.asignacion[x].campo !== undefined)
+                    let v: string | number
+                    if (query.asignacion[id].campo) {
+                        v = (
+                            linea.campos.reduce((acc, v) => acc * v.factor, 1) // multiplica los factores de la línea
+                            * linea.data[query.asignacion[id].campo]
+                        ) || 0
+                        menosIndex++
+                    } else if (query.asignacion[id].periodo) {
+                        v = linea.periodo.nombre
+                        menosIndex++
+                    } else
+                        v = linea.campos[k - menosIndex].valor || null
 
-                        if (arr.length < startIndex + k && query.asignacion[id].periodo)
-                            acc.push({
-                                v: (<qo.QueryResponsePoint>arr[0]).periodo.nombre
-                            })
-                        else acc.push({
-                            v: arr[startIndex + k + (existeCampo ? -1 : 0)] || null
-                        })
-                    }
+                    acc.push({ v: v })
                     return acc
                 }, <qo.CeldaDataTable[]>[])
         })
@@ -449,17 +484,25 @@ function getDataTable(query: qo.QueryDetail, arrs: any[][]): qo.DataTable {
 }
 
 /**convierte un QueryResponseGroup en un arreglo de arreglos para ser agregado a un dataTable */
-function QueryPointToArray(acc: any[][], padre: any[], punto: qo.QueryResponseGroup): any {
+function QueryPointToArray(acc: qo.Linea[], padre: qo.Linea, punto: qo.QueryResponseGroup): any {
 
 
-    if (punto.data)
-        return acc.push(padre.concat([punto.data]))
+    if (punto.data) {
+        padre.data = punto.data
+        acc.push(padre)
+        return
+    }
+    Object.keys(punto.grupo).forEach(key => {
+        let linea: qo.Linea = {
+            data: null,
+            campos: padre.campos.concat([{ valor: key, factor: punto[key].factor }]),
+            periodo: padre.periodo
+        }
+        QueryPointToArray(acc, linea, punto.grupo[key].grupo)
+    })
 
-    Object.keys(punto.grupo).forEach(key =>
-        QueryPointToArray(acc, padre.concat([key]), punto.grupo[key]))
-
-
-    if (Object.keys(punto.grupo).length === 0) acc.push(padre)
+    if (Object.keys(punto.grupo).length === 0)
+        acc.push(padre)
 
 }
 

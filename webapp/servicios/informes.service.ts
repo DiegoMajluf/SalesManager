@@ -139,6 +139,15 @@ export interface QueryResponsePointData {
 
 }
 
+export interface Linea {
+    periodo?: periodos.Periodo,
+    data: QueryResponsePointData,
+    campos: {
+        factor: number,
+        valor: string
+    }[]
+}
+
 export interface DataTable {
     cols: ColumnaDataTable[]
     rows: FilaDataTable[]
