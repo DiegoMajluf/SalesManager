@@ -97,7 +97,7 @@ export interface QueryDetail {
             }
         },
         documento?: {
-            moneda: string
+            moneda: (string | RegExp)[]
         }
     },
     asignacion: columnsAsignations
@@ -126,8 +126,15 @@ export interface QueryResponseGroup {
     [id: string]: {
         grupo?: QueryResponseGroup,
         data?: QueryResponsePointData,
-        factor: number
+        subTotal: QueryResponseGroupSubTotal
     }
+}
+
+export interface QueryResponseGroupSubTotal {
+    exento: number
+    afecto: number
+    impuestos: {[codigo: string]: number}
+    totalImpuesto: number
 }
 
 export interface QueryResponsePointData {

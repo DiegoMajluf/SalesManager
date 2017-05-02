@@ -208,13 +208,17 @@ function getPoints(pes: { periodo: periodos.Periodo, dtes: dte.DTE[] }[], query:
         qrps.push(qp)
         let clis: { [rut: string]: number } = {}
         let clisgroup: { [key: string]: { [rut: string]: number } } = {}
-        let last: { grupo?: qo.QueryResponseGroup, data?: qo.QueryResponsePointData, factor: number }
+        let last: { grupo?: qo.QueryResponseGroup, data?: qo.QueryResponsePointData, subTotal: qo.QueryResponseGroupSubTotal }
 
 
         pd.dtes.forEach(dt => {
             let enc = DteService.getEncabezado(dt)
             let moneda = enc.Totales['TpoMoneda'] || 'PESO CL'
-            if (!qp.monedas[moneda]) qp.monedas[moneda] = { factor: 1 }
+            if (!qp.monedas[moneda]) qp.monedas[moneda] = {
+                subTotal: {
+                    exento: 0, afecto: 0, impuestos: {}, totalImpuesto: 0
+                }
+            }
             let gc = qp.monedas[moneda]
 
             last = Object.keys(query.asignacion)
@@ -228,52 +232,25 @@ function getPoints(pes: { periodo: periodos.Periodo, dtes: dte.DTE[] }[], query:
                 )
                 .filter(o => o.clave !== 'campo')
                 .reduce((acc, o) => {
-                    /**
-                    gc = {
-                        'PESO CL' : {
-                            factor: 1,
-                            grupo: {
-                                santiago:{
-                                    factor: 1,
-                                    grupo: {
-                                        vitacura : {
-                                            factor: 1,
-                                            grupo: {
-                                                "76398667-5": {
-                                                    factor:1,
-                                                    grupo: {
-                                                            "lomo Vetado": {
-                                                                factor: .5346,
-                                                                data: {
-                                                                    ventasNetas: 4638209
-                                                                }
-                                                            },
-                                                            "Filete": {
-                                                                factor: .4654,
-                                                                data: {
-                                                                    ventasNetas: 567654
-                                                                }
-                                                            }
-                                                        }
-                                                    }
-                                                }
-                                            }
-                                        },
-                                        "Las Condes": {
-                                            grupo:
-                                        }
-                                    }
-                                },
-                                valparaiso: {
-
+                    getQueryResponseGroupSubTotal(o, dt, qp, etReceptor, etItemVenta)
+                        .forEach(val => {
+                            if (!acc.grupo[val.key])
+                                acc.grupo[val.key] = {
+                                    subTotal: { exento: 0, afecto: 0, impuestos: {}, totalImpuesto: 0 }
                                 }
-                            }
-                        }
-                    }
-                     */
-                    let vg = getNombreDeGrupo(o, dt, qp, etReceptor, etItemVenta)
-                    if (!acc.grupo[vg]) acc.grupo[vg] = { factor: 1 }
-                    return acc.grupo[vg]
+                            acc.grupo[val.key].subTotal.afecto += val.sub.afecto
+                            acc.grupo[val.key].subTotal.exento += val.sub.exento
+                            acc.grupo[val.key].subTotal.totalImpuesto += val.sub.totalImpuesto
+                            Object.keys(val.sub.impuestos)
+                                .forEach(key => {
+                                    if (!acc.grupo[val.key].subTotal.impuestos[key])
+                                        acc.grupo[val.key].subTotal.impuestos[key] = 0
+                                    acc.grupo[val.key].subTotal.impuestos[key] += val.sub.impuestos[key]
+                                })
+                        })
+                    return acc
+
+
                 }, gc);
 
             if (!last.data) {
@@ -290,61 +267,119 @@ function getPoints(pes: { periodo: periodos.Periodo, dtes: dte.DTE[] }[], query:
 }
 
 //**Obtiene el valor del grupo para una clave Ej. clave: ciudad => valor: 'santiago' */
-function getNombreDeGrupo(key: { clave: string, campo?: string }, dt: dte.DTE, punto: qo.QueryResponsePoint,
+function getQueryResponseGroupSubTotal(key: { clave: string, campo?: string }, dt: dte.DTE, punto: qo.QueryResponsePoint,
     etr: { [key: string]: { [key: string]: string } },
-    etv: { [key: string]: { [key: string]: string } }): { valor: string, factor: number }[] {
+    etv: { [key: string]: { [key: string]: string } }):
+    { key: string, sub: qo.QueryResponseGroupSubTotal }[] {
 
-    if (key.clave === 'periodo') return [{ valor: punto.periodo.nombre, factor: 1 }]
+    let enc = <dte.DocumentoEncabezado>DteService.getEncabezado(dt)
 
+    let sub: qo.QueryResponseGroupSubTotal
 
-    if (key.clave === 'receptor') {
-        let enc = DteService.getEncabezado(dt)
-        if (key.campo === 'clientes') return [{ valor: enc.Receptor.RznSocRecep, factor: 1 }]
-        if (key.campo === 'comunas') return [{ valor: enc.Receptor.CmnaRecep, factor: 1 }]
-        if (key.campo === 'ciudades') return [{ valor: enc.Receptor.CiudadRecep, factor: 1 }]
-    }
     if (key.clave === 'itemVenta') {
-        let dets = DteService.getDetalles(dt)
-        let tot = dets.reduce((acc, det) => acc + (det.IndExe ? 0 : det.MontoItem), 0)
-        let sortL: { [key: string]: number }
+        sub = { afecto: 0, exento: 0, impuestos: {}, totalImpuesto: 0 }
+        let dets = DteService.getDetalles(dt) // acá se debería filtrar por query.filter
+        let afecto = 0
+        let exento = 0
+        dets.forEach(det => {
+            if ([dte.DocumentoIndExe.ElproductoNoConstituyeVenta, dte.DocumentoIndExe.ElProductooServicioNOESFacturable,
+            dte.DocumentoIndExe.ItemaRebajar, dte.DocumentoIndExe.Nofacturablesnegativos]
+                .indexOf(<dte.DocumentoIndExe>det.IndExe) !== -1) {
+                det['afecto'] = 0
+                det['exento'] = 0
+            } else if (dte.DocumentoIndExe.ElProductooServicioNOESTAAfectoaIVA === det.IndExe ||
+                enc.IdDoc.TipoDTE === dte.DTEType.FacturaElectronicadeVentadeBienesyServiciosNoafectosoExentodeIVA) {
+                det['afecto'] = 0
+                det['exento'] = det.MontoItem
+                exento += det.MontoItem
+            } else {
+                det['afecto'] = det.MontoItem
+                det['exento'] = 0
+                afecto += det.MontoItem
+            }
+        })
+        let sortL: { [key: string]: qo.QueryResponseGroupSubTotal }
 
         if (key.campo === 'tipoCod') sortL = dets
-            .filter(det => !det.IndExe)
             .reduce((acc, det) => acc.concat(det.CdgItem.map(x => {
-                return { codigo: x, monto: det.MontoItem }
-            })), <{ codigo: dte.DocumentoCdgItem, monto: number }[]>[])
+                return { codigo: x, afecto: det['afecto'], exento: det['exento'], impuestos: det['CodImpAdic'] || [] }
+            })), <{ codigo: dte.DocumentoCdgItem, afecto: number, exento: number, impuestos: string[] }[]>[])
             .reduce((acc, itm) => {
-                if (!acc[itm.codigo.TpoCodigo]) acc[itm.codigo.TpoCodigo] = 0
-                acc[itm.codigo.TpoCodigo] += itm.monto
+                if (!acc[itm.codigo.TpoCodigo]) acc[itm.codigo.TpoCodigo] = { afecto: 0, exento: 0, totalImpuesto: 0, impuestos: {} }
+                acc[itm.codigo.TpoCodigo].afecto += itm.afecto
+                acc[itm.codigo.TpoCodigo].exento += itm.exento
+                itm.impuestos.forEach(imp => {
+                    if (!acc[itm.codigo.TpoCodigo].impuestos[imp]) acc[itm.codigo.TpoCodigo].impuestos[imp] = 0
+                    acc[itm.codigo.TpoCodigo].impuestos[imp] += itm.afecto + itm.exento
+                })
                 return acc
-            }, <{ [key: string]: number }>{})
+            }, <{ [key: string]: qo.QueryResponseGroupSubTotal }>{})
 
-        if (key.campo === 'codigo') sortL = dets
-            .filter(det => !det.IndExe)
+        else if (key.campo === 'codigo') sortL = dets
             .reduce((acc, det) => acc.concat(det.CdgItem.map(x => {
-                return { codigo: x, monto: det.MontoItem }
-            })), <{ codigo: dte.DocumentoCdgItem, monto: number }[]>[])
+                return { codigo: x, afecto: det['afecto'], exento: det['exento'], impuestos: det['CodImpAdic'] || [] }
+            })), <{ codigo: dte.DocumentoCdgItem, afecto: number, exento: number, impuestos: string[] }[]>[])
             .reduce((acc, itm) => {
-                if (!acc[itm.codigo.VlrCodigo]) acc[itm.codigo.VlrCodigo] = 0
-                acc[itm.codigo.VlrCodigo] += itm.monto
+                if (!acc[itm.codigo.VlrCodigo]) acc[itm.codigo.VlrCodigo] = { afecto: 0, exento: 0, totalImpuesto: 0, impuestos: {} }
+                acc[itm.codigo.VlrCodigo].afecto += itm.afecto
+                acc[itm.codigo.VlrCodigo].exento += itm.exento
+                itm.impuestos.forEach(imp => {
+                    if (!acc[itm.codigo.TpoCodigo].impuestos[imp]) acc[itm.codigo.TpoCodigo].impuestos[imp] = 0
+                    acc[itm.codigo.TpoCodigo].impuestos[imp] += itm.afecto + itm.exento
+                })
                 return acc
-            }, <{ [key: string]: number }>{})
+            }, <{ [key: string]: qo.QueryResponseGroupSubTotal }>{})
 
-        if (key.campo === 'nombres') sortL = dets
-            .filter(det => !det.IndExe)
+        else if (key.campo === 'nombres') sortL = dets
             .reduce((acc, det) => {
-                if (!acc[det.NmbItem]) acc[det.NmbItem] = 0
-                acc[det.NmbItem] += det.MontoItem
+                if (!acc[det.NmbItem]) acc[det.NmbItem] = { afecto: 0, exento: 0, totalImpuesto: 0, impuestos: {} }
+                acc[det.NmbItem].afecto += det['afecto']
+                acc[det.NmbItem].exento += det['exento']
+                    (det['CodImpAdic'] || []).forEach((imp: string) => {
+                        if (!acc[det.NmbItem].impuestos[imp]) acc[det.NmbItem].impuestos[imp] = 0
+                        acc[det.NmbItem].impuestos[imp] += det['afecto'] + det['exento']
+                    })
                 return acc
-            }, <{ [key: string]: number }>{})
+            }, <{ [key: string]: qo.QueryResponseGroupSubTotal }>{})
 
 
         return Object.keys(sortL)
             .map(key => {
-                return { valor: key, factor: sortL[key] / tot }
+                return {
+                    key: key,
+                    sub: sortL[key]
+                }
             })
 
 
+    }
+
+
+    sub = {
+        afecto: enc.Totales.MntNeto || 0,
+        exento: enc.Totales.MntExe || 0,
+        impuestos: (enc.Totales.ImptoReten || [])
+            .map(imp => {
+                return { TipoImp: imp.TipoImp.toString(), MontoImp: imp.MontoImp }
+            })
+            .concat([{ TipoImp: 'IVA', MontoImp: (enc.Totales.IVA || 0) }])
+            .reduce((acc, imp) => {
+                acc[imp.TipoImp] = imp.MontoImp
+                return acc
+            }, <{ [cod: string]: number }>{}),
+        totalImpuesto: (enc.Totales.ImptoReten || [])
+            .reduce((acc, imp) => imp.MontoImp, (enc.Totales.IVA || 0))
+
+    }
+
+    if (key.clave === 'periodo') return [{ key: punto.periodo.nombre, sub: sub }]
+
+
+    if (key.clave === 'receptor') {
+        let enc = DteService.getEncabezado(dt)
+        if (key.campo === 'clientes') return [{ key: enc.Receptor.RznSocRecep, sub: sub }]
+        if (key.campo === 'comunas') return [{ key: enc.Receptor.CmnaRecep, sub: sub }]
+        if (key.campo === 'ciudades') return [{ key: enc.Receptor.CiudadRecep, sub: sub }]
     }
 
     if (key.clave === 'etiquetaProducto') {
@@ -353,7 +388,7 @@ function getNombreDeGrupo(key: { clave: string, campo?: string }, dt: dte.DTE, p
     }
     if (key.clave === 'etiquetaReceptor') {
         let enc = DteService.getEncabezado(dt)
-        return [{ valor: etr[key.campo][enc.Receptor.RUTRecep], factor: 1 }]
+        return [{ key: etr[key.campo][enc.Receptor.RUTRecep], sub: sub }]
     }
 
 
@@ -470,7 +505,7 @@ function getDataTable(query: qo.QueryDetail, Lineas: qo.Linea[]): qo.DataTable {
                         v = linea.periodo.nombre
                         menosIndex++
                     } else
-                        v = linea.campos[k - menosIndex].valor || null
+                        v = linea.campos[k - menosIndex].key || null
 
                     acc.push({ v: v })
                     return acc
