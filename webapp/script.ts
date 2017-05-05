@@ -7,7 +7,7 @@ function sendText() {
 
     let xml = new XMLHttpRequest();
     xml.open('post', 'query/getquerys');
-    xml.onload = () => pre.textContent = xml.response;
+    xml.onload = () => pre.textContent = JSON.stringify(JSON.parse(xml.response), null, ' ');
     xml.send(txt.value)
 }
 
