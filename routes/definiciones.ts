@@ -1,10 +1,11 @@
 import { periodos } from 'core-sales-manager';
 
 export interface GraphDetail {
-    Graph: string;
+    Type: ChartType;
     Titulo?: string;
     Posicion?: number;
-    Querys: QueryDetail[]
+    Querys: QueryDetail[],
+    Data?: google.visualization.DataTable
 }
 
 export interface QueryDetail {
@@ -126,8 +127,8 @@ export interface CeldaDataTable {
     p?: any
 }
 
-export interface chartDefinitions {
-    charts: chart[],
+export interface ChartDefinitions {
+    charts: { [nombre: string]: ChartType }, //varios gráficos diferentes pueden tener las mismas definiciones de columnas
     columnsFormats: {
         [id: number]: {
             columna: number,
@@ -137,10 +138,10 @@ export interface chartDefinitions {
     }
 }
 
-export interface chart {
-    nombre: "string",
-    packages: "string",
-    className: "string",
-    scope: "string",
+export interface ChartType {
+    nombre: string,
+    packages: string,
+    className: string,
+    scope: string,
     columnsFormat: number
 }

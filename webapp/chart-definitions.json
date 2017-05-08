@@ -1,62 +1,62 @@
 {
-    "charts": [
-        {
+    "charts": {
+        "AreaChart": {
             "nombre": "Gráfico de Áreas",
             "packages": "corechart",
             "className": "AreaChart",
             "scope": "visualization",
             "columnsFormat": "0"
         },
-        {
+        "BarChart": {
             "nombre": "Gráfico de Barras",
             "packages": "corechart",
             "className": "BarChart",
             "scope": "visualization",
             "columnsFormat": "0"
         },
-        {
+        "Bar": {
             "nombre": "Gráfico de Barras ++",
             "packages": "bar",
             "className": "Bar",
             "scope": "charts",
             "columnsFormat": "0"
         },
-        {
+        "BubbleChart": {
             "nombre": "Gráfico de Burbujas",
             "packages": "corechart",
             "className": "BubbleChart",
             "scope": "visualization",
             "columnsFormat": "1"
         },
-        {
+        "Calendar": {
             "nombre": "Gráfico Calendario",
             "packages": "calendar",
             "className": "Calendar",
             "scope": "visualization",
             "columnsFormat": "2"
         },
-        {
+        "CandlestickChart": {
             "nombre": "Gráfico de Candeleros",
             "packages": "corechart",
             "className": "CandlestickChart",
             "scope": "visualization",
             "columnsFormat": "3"
         },
-        {
+        "ColumnChart": {
             "nombre": "Gráfico de Columnas",
             "packages": "corechart",
             "className": "ColumnChart",
             "scope": "visualization",
             "columnsFormat": "0"
         },
-        {
+        "ComboChart": {
             "nombre": "Gráfico Combinado Columnas y Líneas",
             "packages": "corechart",
             "className": "ComboChart",
             "scope": "visualization",
             "columnsFormat": "0"
         }
-    ],
+    },
     "columnsFormats": {
         "0": [
             {
@@ -76,7 +76,7 @@
                 "esRepetible": true
             }
         ],
-        "1": [ //Grafico de Burbujas
+        "1": [
             {
                 "columna": 0,
                 "dataType": [

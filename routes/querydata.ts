@@ -68,10 +68,10 @@ router.post('/getquerys', (req, res, next) => {
 
                     res.send(getDataTable(q, Lineas))
                 },
-                err => res.status(500).send(JSON.stringify(err, null, ' ')),
+                err => res.status(500).send(JSON.stringify(err)),
                 () => {
                     if (!queryResult.find(qr => !(qr.puntos || qr.err)))
-                        res.send(JSON.stringify(queryResult, null, ' '))
+                        res.send(JSON.stringify(queryResult))
                 })
 
         })
@@ -418,11 +418,11 @@ function getEtiquetasFromQuery(query: qo.QueryDetail, rut: string):
             : Observable.of(null))
         .map(x => {
             return {
-                producto: x[0] ? x[0].reduce((acc, et) => {
+                producto: x[0] ? x[0].reduce((acc: any, et: any) => {
                     acc[et.nombre] = et.asignaciones
                     return acc
                 }, <{ [key: string]: { [key: string]: string } }>{}) : null,
-                cliente: x[1] ? x[1].reduce((acc, et) => {
+                cliente: x[1] ? x[1].reduce((acc: any, et: any) => {
                     acc[et.nombre] = et.asignaciones
                     return acc
                 }, <{ [key: string]: { [key: string]: string } }>{}) : null

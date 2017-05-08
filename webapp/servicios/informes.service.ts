@@ -14,7 +14,13 @@ export class InformesService {
     getInformeById(Id: string): Observable<GraphDetail> {
 
         return Observable.of<GraphDetail>({
-            Graph: 'LineChart',
+            Type: {
+                "nombre": "Gráfico de Barras",
+                "packages": "corechart",
+                "className": "BarChart",
+                "scope": "visualization",
+                "columnsFormat": 0
+            },
             Titulo: 'Ventas Totales',
             Posicion: 1,
             Querys: [{

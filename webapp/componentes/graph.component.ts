@@ -1,8 +1,7 @@
 import { Component, OnInit, ViewChild, ElementRef, Input } from '@angular/core';
 import { Observable } from 'rxjs/Observable';
-import { chartDefinitions, chart, columnsAsignations } from '../servicios/informes.service';
-import 'google.visualization';
-var chartDef = <chartDefinitions>require('../chart-definitions.json')
+import { ChartType, columnsAsignations, ChartDefinitions, GraphDetail } from "../../routes/definiciones";
+var chartDef = <ChartDefinitions>require('../chart-definitions.json')
 
 @Component({
   selector: 'graph',
@@ -11,21 +10,20 @@ var chartDef = <chartDefinitions>require('../chart-definitions.json')
 export class GraphComponent {
   @ViewChild('div') div: ElementRef
 
-  chartType: chart
   colsAsig: columnsAsignations
   Chart: any
-  @Input() data: google.visualization.DataTable
+  @Input() graph: GraphDetail
   @Input() item: any
 
   constructor() { }
 
   dibujar() {
-    google.charts.load('current', {'packages':[this.chartType.packages]});
-    this.Chart = new google[this.chartType.scope][this.chartType.className](this.div)
+    google.charts.load('current', { 'packages': [this.graph.Type.packages] });
+    this.Chart = new google[this.graph.Type.scope][this.graph.Type.className](this.div.nativeElement)
 
     // Set chart options
     var options: {}
-    this.Chart.draw(this.data, options);
+    this.Chart.draw(new google.visualization.DataTable(this.graph.Data), options);
   }
 
 
