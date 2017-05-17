@@ -1,11 +1,13 @@
-import { Component, OnInit, Input } from '@angular/core';
+import { Component, OnInit, Input, ViewChild, ElementRef } from '@angular/core';
 import { InformesService } from '../servicios/informes.service'
 import { QueryDataService } from '../servicios/query-data.service'
 import { Observable } from 'rxjs'
 import { GraphDetail, DataTable } from "../../routes/definiciones";
+import { GraphComponent } from "./graph.component";
+import { appData } from 'core-sales-manager'
 
 @Component({
-    selector: 'selector',
+    selector: 'informe',
     templateUrl: './informe.component.html'
 })
 export class InformeComponent implements OnInit {
@@ -13,6 +15,7 @@ export class InformeComponent implements OnInit {
     @Input('default') Id: string;
     Informe: any;
     Graph: GraphDetail
+    @ViewChild(GraphComponent) GraphComp: GraphComponent
     dibujar() {
 
 
@@ -20,24 +23,28 @@ export class InformeComponent implements OnInit {
 
     ngOnInit() {
         if (!google.visualization) {
-            google.charts.load('current', { 'packages': ['corechart'] });
             Observable.forkJoin(
                 this.infser.getInformeById(this.Id)
-                    .do<GraphDetail>(x => this.Graph = x)
-                    .flatMap(x => Observable.from(x.Querys))
-                    .flatMap(qd => this.qds.getQuery(qd))
-                    .do(x => this.Graph.Data = x),
+                    .do<GraphDetail[]>(x => this.GraphComp.graph = x[0])
+                    .do(x => google.charts.load('current', { 
+                        packages: [this.GraphComp.graph.Type.packages] , 
+                        mapsApiKey: appData.MAP_KEY}))
+                    .flatMap(x => Observable.from(x[0].Querys))
+                    .flatMap(qd => this.qds.getQuery([qd])),
                 Observable.bindCallback(google.charts.setOnLoadCallback)())
+                .map(x => x[0])
                 .subscribe({
+                    next: x => this.GraphComp.graph.Data = new google.visualization.DataTable(x[0]),
                     error: e => console.log(e),
-                    complete: () => this.dibujar()
+                    complete: () => this.GraphComp.dibujar()
+
                 })
 
         } else
             this.infser.getInformeById(this.Id)
-                .do<GraphDetail>(x => this.Graph = x)
-                .flatMap(x => Observable.from(x.Querys))
-                .flatMap(qd => this.qds.getQuery(qd))
+                .do<GraphDetail[]>(x => this.Graph = x[0])
+                .flatMap(x => Observable.from(x[0].Querys))
+                .flatMap(qd => this.qds.getQuery([qd]))
                 .subscribe({
                     next: x => this.Informe = x,
                     error: e => console.log(e),

@@ -143,5 +143,6 @@ export interface ChartType {
     packages: string,
     className: string,
     scope: string,
-    columnsFormat: number
+    columnsFormat: number,
+    options?: any
 }

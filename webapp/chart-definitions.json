@@ -55,6 +55,124 @@
             "className": "ComboChart",
             "scope": "visualization",
             "columnsFormat": "0"
+        },
+        "GanttChart": {
+            "nombre": "Gráfico de Carta Gantt",
+            "packages": "gantt",
+            "className": "Gantt",
+            "scope": "visualization",
+            "columnsFormat": null
+        },
+        "GaugeChart": {
+            "nombre": "Gráfico de Medidor",
+            "packages": "gauge",
+            "className": "Gauge",
+            "scope": "visualization",
+            "columnsFormat": "4"
+        },
+        "GeoChart-regiones": {
+            "nombre": "Gráfico de Geográfico de Regiones",
+            "packages": "geochart",
+            "className": "GeoChart",
+            "scope": "visualization",
+            "columnsFormat": "4"
+        },
+        "GeoChart-marcadores": {
+            "nombre": "Gráfico de Geográfico de Marcadores",
+            "packages": "geochart",
+            "className": "GeoChart",
+            "scope": "visualization",
+            "columnsFormat": "5",
+            "options": {
+                "displayMode": "markers"
+            }
+        },
+        "GeoChart-texto": {
+            "nombre": "Gráfico de Geográfico de Texto",
+            "packages": "geochart",
+            "className": "GeoChart",
+            "scope": "visualization",
+            "columnsFormat": "4",
+            "options": {
+                "displayMode": "text"
+            }
+        },
+        "Histogram": {
+            "nombre": "Histograma",
+            "packages": "corechart",
+            "className": "Histogram",
+            "scope": "visualization",
+            "columnsFormat": "4"
+        },
+        "LineGraph": {
+            "nombre": "Gráfico de Líneas",
+            "packages": "corechart",
+            "className": "LineChart",
+            "scope": "visualization",
+            "columnsFormat": "0"
+        },
+        "LineGraph-Mat": {
+            "nombre": "Gráfico de Líneas",
+            "packages": "line",
+            "className": "Line",
+            "scope": "visualization",
+            "columnsFormat": "0"
+        },
+        "Map": {
+            "nombre": "Mapa con Marcadores",
+            "packages": "map",
+            "className": "Map",
+            "scope": "visualization",
+            "columnsFormat": "6"
+        },
+        "Map-Lat": {
+            "nombre": "Mapa con Marcadores",
+            "packages": "map",
+            "className": "Map",
+            "scope": "visualization",
+            "columnsFormat": "7"
+        },
+        "PieChart": {
+            "nombre": "Gráfico de Pie",
+            "packages": "corechart",
+            "className": "PieChart",
+            "scope": "visualization",
+            "columnsFormat": "0"
+        },
+        "ScatterChart": {
+            "nombre": "Gráfico de Dispersión",
+            "packages": "corechart",
+            "className": "ScatterChart",
+            "scope": "visualization",
+            "columnsFormat": "8"
+        },
+        "ScatterChart-Mat": {
+            "nombre": "Gráfico de Dispersión",
+            "packages": "corechart",
+            "className": "Scatter",
+            "scope": "visualization",
+            "columnsFormat": "8"
+        },
+        "SteppedAreaChart": {
+            "nombre": "Gráfico de Área Escalonada",
+            "packages": "corechart",
+            "className": "SteppedAreaChart",
+            "scope": "visualization",
+            "columnsFormat": "9"
+        },
+        "TableChart": {
+            "nombre": "Tabla de Datos",
+            "packages": "table",
+            "className": "Table",
+            "scope": "visualization",
+            "columnsFormat": "10"
+        },
+        "TableLineChart": {
+            "nombre": "Cronograma",
+            "packages": "timeline",
+            "className": "Timeline",
+            "scope": "visualization",
+            "columnsFormat": "11"
         }
     },
     "columnsFormats": {
@@ -169,6 +287,183 @@
                 "esRepetible": true
             }
         ],
-        "4": []
+        "4": [
+            {
+                "columna": 0,
+                "dataType": [
+                    "string"
+                ],
+                "esRepetible": false
+            },
+            {
+                "columna": 1,
+                "dataType": [
+                    "number"
+                ],
+                "esRepetible": false
+            }
+        ],
+        "5": [
+            {
+                "columna": 0,
+                "dataType": [
+                    "string"
+                ],
+                "esRepetible": false
+            },
+            {
+                "columna": 1,
+                "dataType": [
+                    "number"
+                ],
+                "esRepetible": false
+            },
+            {
+                "columna": 2,
+                "dataType": [
+                    "number"
+                ],
+                "esRepetible": false
+            }
+        ],
+        "6": [
+            {
+                "columna": 0,
+                "dataType": [
+                    "string"
+                ],
+                "esRepetible": false
+            },
+            {
+                "columna": 1,
+                "dataType": [
+                    "number",
+                    "string"
+                ],
+                "esRepetible": false
+            }
+        ],
+        "7": [
+            {
+                "columna": 0,
+                "dataType": [
+                    "number"
+                ],
+                "esRepetible": false
+            },
+            {
+                "columna": 1,
+                "dataType": [
+                    "number"
+                ],
+                "esRepetible": false
+            },
+            {
+                "columna": 2,
+                "dataType": [
+                    "number",
+                    "string"
+                ],
+                "esRepetible": false
+            }
+        ],
+        "8": [
+            {
+                "columna": 0,
+                "dataType": [
+                    "date",
+                    "number",
+                    "string"
+                ],
+                "esRepetible": false
+            },
+            {
+                "columna": 1,
+                "dataType": [
+                    "date",
+                    "number",
+                    "string"
+                ],
+                "esRepetible": false
+            },
+            {
+                "columna": 3,
+                "dataType": [
+                    "date",
+                    "number",
+                    "string"
+                ],
+                "esRepetible": true
+            }
+        ],
+        "9": [
+            {
+                "columna": 0,
+                "dataType": [
+                    "string"
+                ],
+                "esRepetible": false
+            },
+            {
+                "columna": 1,
+                "dataType": [
+                    "number"
+                ],
+                "esRepetible": true
+            }
+        ],
+        "10": [
+            {
+                "columna": 0,
+                "dataType": [
+                    "date",
+                    "number",
+                    "string",
+                    "boolean"
+                ],
+                "esRepetible": true
+            }
+        ],
+        "11": [
+            {
+                "columna": 0,
+                "dataType": [
+                    "string"
+                ],
+                "esRepetible": false
+            },
+            {
+                "columna": 1,
+                "dataType": [
+                    "string"
+                ],
+                "esRepetible": false,
+                "optional": true
+            },
+            {
+                "columna": 2,
+                "dataType": [
+                    "string"
+                ],
+                "esRepetible": false,
+                "optional": true
+            },
+            {
+                "columna": 3,
+                "dataType": [
+                    "number", "date"
+                ],
+                "esRepetible": false
+            },
+            {
+                "columna": 4,
+                "dataType": [
+                    "number", "date"
+                ],
+                "esRepetible": false
+            }
+                        
+        ]
+        
     }
 }

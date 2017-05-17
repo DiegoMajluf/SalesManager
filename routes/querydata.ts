@@ -1,7 +1,7 @@
 import * as express from 'express';
 import { dte, periodos, DteService, responses } from 'core-sales-manager'
 import * as queryService from '../commons/query-service'
-import { db, etiquetas } from '../commons/mongo';
+import * as mongo from '../commons/mongo';
 import { Observable, Subscriber } from 'rxjs/Rx';
 import { FindAndModifyWriteOpResultObject } from 'mongodb'
 
@@ -21,63 +21,83 @@ router.get('/getfoliosyaingresadosde/:tipo/enrango/:ini-:fin', (req, res, next) 
     query.$and[2][`${NombreDoc}.Encabezado.IdDoc.Folio`] = { $gte: parseInt(req.params.ini) };
     query.$and[3][`${NombreDoc}.Encabezado.IdDoc.Folio`] = { $lte: parseInt(req.params.fin) };
 
-    Observable.fromPromise(<Promise<dte.DTE[]>>db.collection('dtes').find(query, { Signature: 0 }).toArray())
-        .subscribe(
-        dtes => {
-            let resp = {}
-            resp[req.params.tipo] = []
-            res.send(dtes.reduce((acc, va) => {
-                let doc = va.Documento || va.Exportaciones || va.Liquidacion
-                if (!acc[doc.Encabezado.IdDoc.TipoDTE]) acc[doc.Encabezado.IdDoc.TipoDTE] = [];
-                acc[doc.Encabezado.IdDoc.TipoDTE].push(doc.Encabezado.IdDoc.Folio)
-                return acc
-            }, resp))
-        },
-        err => res.status(500).send(err))
+    Observable.fromPromise(<Promise<dte.DTE[]>>mongo.db.collection('dtes').find(query, { Signature: 0 }).toArray())
+        .subscribe({
+            next: dtes => {
+                let resp = {}
+                resp[req.params.tipo] = []
+                res.send(dtes.reduce((acc, va) => {
+                    let doc = va.Documento || va.Exportaciones || va.Liquidacion
+                    if (!acc[doc.Encabezado.IdDoc.TipoDTE]) acc[doc.Encabezado.IdDoc.TipoDTE] = [];
+                    acc[doc.Encabezado.IdDoc.TipoDTE].push(doc.Encabezado.IdDoc.Folio)
+                    return acc
+                }, resp))
+            },
+            error: err => res.status(500).send(err)
+        })
+
+})
+
+router.options('/getquerys', (req, res, next) => {
+    res.setHeader('Access-Control-Allow-Origin', '*')
+    res.setHeader('Access-Control-Allow-Methods', 'POST, GET, OPTIONS, DELETE, PUT')
+    res.setHeader('Access-Control-Allow-Headers', 'Authorization, Content-type')
+    res.send()
 
 })
 
 router.post('/getquerys', (req, res, next) => {
-    let str = '';
-    req.setEncoding('utf8')
-    req.on('data', chnk => str += chnk);
-    req.on('end', () => {
-        let querys: qo.QueryDetail[]
-        try {
-            querys = JSON.parse(str);
-        } catch (err) {
-            return res.status(500).send(err)
+    res.setHeader('Access-Control-Allow-Origin', '*')
+    res.setHeader('Access-Control-Allow-Methods', 'POST, GET, OPTIONS, DELETE, PUT')
+    res.setHeader('Access-Control-Allow-Headers', 'Authorization, Content-type')
+    if (Object.keys(req.body).length == 0) return res.status(400)
 
-        }
+    let querys: qo.QueryDetail[] = req.body
+
+    let paises: { [cod: string]: mongo.pais }
+    let ets: {
+        cliente: { [key: string]: { [key: string]: string } },
+        producto: { [key: string]: { [key: string]: string } }
+    }
+
+    let dtaTables: qo.DataTable[] = [];
 
 
-        let queryResult: { query: qo.QueryDetail, puntos: qo.QueryResponsePoint[], err: any }[] = []
-        querys.forEach(q => {
-            let o: { query: qo.QueryDetail, puntos: qo.QueryResponsePoint[], err: any } = { query: q, puntos: null, err: null }
-            queryResult.push(o)
-            let mq = queryDetailToMongoQuery(q, req['rutEmpresa']);
-            Observable.forkJoin(
-                Observable.from(<Promise<dte.DTE[]>>db.collection('dtes').find(mq).toArray()),
-                getEtiquetasFromQuery(q, req['rutEmpresa']))
-                .subscribe(
-                x => {
-                    let prds = asignarDTEaPeriodos(q.consulta.TipoPeriodos, getMinFechaFrom(mq), getMaxFechaFrom(mq), x[0])
+    (querys.some(query => Object.keys(query.asignacion)
+        .map(id => query.asignacion[id])
+        .some(a => a.receptor && (a.receptor == 'comunas' || a.receptor == 'ciudades')))
+
+        ? mongo.GetCodigosPaises() : Observable.of({}))
+            .do(x => paises = x)
+            .flatMap(x => getEtiquetasFromQuery(querys, req['rutEmpresa']))
+            .do(x => ets = x)
+            .flatMap(ets => querys)
+            .flatMap((q, i) => {
+                let mq = queryDetailToMongoQuery(q, req['rutEmpresa'])
+                return Observable.fromPromise(<Promise<dte.DTE[]>>mongo.db.collection('dtes').find(mq).toArray())
+                    .map(dtes => asignarDTEaPeriodos(q.consulta.TipoPeriodos, getMinFechaFrom(mq), getMaxFechaFrom(mq), dtes))
+                    .map(x => {
+                        return {
+                            query: q,
+                            periodos: x,
+                            indice: i
+                        }
+                    })
+
+            })
+            .subscribe({
+                next: x => {
                     let Lineas: qo.Linea[] = []
-                    let pun = getPoints(prds, q, x[1].cliente, x[1].producto)
+                    let pun = getPoints(x.periodos, x.query, ets.cliente, ets.producto, paises)
                     QueryPointToArray(Lineas, { campos: [], data: null }, pun.monedas)
-
-                    res.send(getDataTable(q, Lineas))
+                    dtaTables[x.indice] = getDataTable(x.query, Lineas)
                 },
-                err => res.status(500).send(JSON.stringify(err)),
-                () => {
-                    if (!queryResult.find(qr => !(qr.puntos || qr.err)))
-                        res.send(JSON.stringify(queryResult))
-                })
+                error: err => res.status(500).send(err),
+                complete: () => res.send(dtaTables)
+            })
 
-        })
-
-    });
 })
+
 
 /**Transforma la consulta web en una consulta para mongo dtes */
 function queryDetailToMongoQuery(qd: qo.QueryDetail, rutEmpresa: string): any {
@@ -192,12 +212,15 @@ function asignarDTEaPeriodos(tipo: periodos.TipoPeriodos, desde: Date, hasta: Da
 /**Genera los puntos agrupados para la consulta */
 function getPoints(pes: { periodo: periodos.Periodo, dtes: dte.DTE[] }[], query: qo.QueryDetail,
     etReceptor: { [key: string]: { [key: string]: string } },
-    etItemVenta: { [key: string]: { [key: string]: string } }): qo.QueryResponsePoint {
+    etItemVenta: { [key: string]: { [key: string]: string } },
+    paises: { [cod: string]: mongo.pais }): qo.QueryResponsePoint {
 
 
     let qp: qo.QueryResponsePoint = {
         monedas: <qo.QueryResponseGroup>{}
     }
+
+
 
     /**Corresponde a los requerimientos de columnas de las consultas */
     let datosColumnas = <{ clave: string, campo: string }[]>[{ clave: 'moneda' }]//concatenamos el campo monedas. Debe ir al comienzo para que los subtotales sean consistentes
@@ -226,7 +249,7 @@ function getPoints(pes: { periodo: periodos.Periodo, dtes: dte.DTE[] }[], query:
 
         pd.dtes.forEach(dt => {
             let join = datosColumnas.reduce((acc, o) => {
-                acc.push(getQueryResponseGroupSubTotal(o, dt, pd.periodo, etReceptor, etItemVenta))
+                acc.push(getQueryResponseGroupSubTotal(o, dt, pd.periodo, etReceptor, etItemVenta, paises))
                 return acc
             }, <{ key: string, sub: qo.QueryResponseGroupSubTotal }[][]>[])
 
@@ -241,7 +264,8 @@ function getPoints(pes: { periodo: periodos.Periodo, dtes: dte.DTE[] }[], query:
 //**Obtiene el valor del grupo para una clave Ej. clave: ciudad => valor: 'santiago' */
 function getQueryResponseGroupSubTotal(key: { clave: string, campo?: string }, dt: dte.DTE, periodo: periodos.Periodo,
     etr?: { [key: string]: { [key: string]: string } },
-    etv?: { [key: string]: { [key: string]: string } }):
+    etv?: { [key: string]: { [key: string]: string } },
+    paises?: { [cod: string]: mongo.pais }):
     { key: string, sub: qo.QueryResponseGroupSubTotal }[] {
 
     let enc = <dte.DocumentoEncabezado>DteService.getEncabezado(dt)
@@ -259,13 +283,13 @@ function getQueryResponseGroupSubTotal(key: { clave: string, campo?: string }, d
         let dets = DteService.getDetalles(dt) // acá se debería filtrar por query.filter
         let afecto = 0
         let exento = 0
-        let totimpuestos = enc.Totales.IVA || 0
+        let totimpuestos = signo * (enc.Totales.IVA || 0)
         let impuestos: { [cod: string]: { MontoImp: number, TipoImp: string, TasaImp: number } } =
             (enc.Totales.ImptoReten || []).reduce((acc, imp) => {
                 totimpuestos += imp.MontoImp
                 acc[dte.ImpAdicDTEType[imp.TipoImp]] = imp
                 return acc
-            }, { IVA: { MontoImp: enc.Totales.IVA || 0, TipoImp: 'IVA', TasaImp: enc.Totales.TasaIVA || 0 } })
+            }, { IVA: { MontoImp: signo * (enc.Totales.IVA || 0), TipoImp: 'IVA', TasaImp: enc.Totales.TasaIVA || 0 } })
         dets.forEach(det => {
             if ([dte.DocumentoIndExe.ElproductoNoConstituyeVenta, dte.DocumentoIndExe.ElProductooServicioNOESFacturable,
             dte.DocumentoIndExe.ItemaRebajar, dte.DocumentoIndExe.Nofacturablesnegativos]
@@ -345,33 +369,37 @@ function getQueryResponseGroupSubTotal(key: { clave: string, campo?: string }, d
     }
 
     let sub: qo.QueryResponseGroupSubTotal = {
-        afecto: enc.Totales.MntNeto || 0,
-        exento: enc.Totales.MntExe || 0,
-        neto: (enc.Totales.MntNeto || 0) + (enc.Totales.MntExe || 0),
-        bruto: enc.Totales.MntTotal,
+        afecto: signo * (enc.Totales.MntNeto || 0),
+        exento: signo * (enc.Totales.MntExe || 0),
+        neto: signo * ((enc.Totales.MntNeto || 0) + (enc.Totales.MntExe || 0)),
+        bruto: signo * enc.Totales.MntTotal,
         impuestos: (enc.Totales.ImptoReten || [])
             .map(imp => {
                 return { TipoImp: dte.ImpAdicDTEType[imp.TipoImp], MontoImp: imp.MontoImp }
             })
-            .concat([{ TipoImp: 'IVA', MontoImp: (enc.Totales.IVA || 0) }])
+            .concat([{ TipoImp: 'IVA', MontoImp: signo * (enc.Totales.IVA || 0) }])
             .reduce((acc, imp) => {
-                acc[imp.TipoImp] = imp.MontoImp
+                acc[imp.TipoImp] = signo * imp.MontoImp
                 return acc
             }, <{ [cod: string]: number }>{}),
-        totalImpuesto: (enc.Totales.ImptoReten || []).reduce((acc, imp) => acc + imp.MontoImp, enc.Totales.IVA),
+        totalImpuesto: signo * (enc.Totales.ImptoReten || []).reduce((acc, imp) => acc + imp.MontoImp, enc.Totales.IVA),
         clave: null
     }
-
-    sub.bruto += sub.totalImpuesto
 
     let tmp: { key: string, sub: qo.QueryResponseGroupSubTotal }[]
     if (key.clave === 'periodo') tmp = [{ key: periodo.nombre, sub: sub }]
 
 
     else if (key.clave === 'receptor') {
+        let pais = 'Chile'
+        if (enc.Receptor.Extranjero) pais = paises[enc.Receptor.Extranjero.Nacionalidad].pais
+
         if (key.campo === 'clientes') tmp = [{ key: enc.Receptor.RznSocRecep, sub: sub }]
-        if (key.campo === 'comunas') tmp = [{ key: enc.Receptor.CmnaRecep, sub: sub }]
-        if (key.campo === 'ciudades') tmp = [{ key: enc.Receptor.CiudadRecep, sub: sub }]
+        if (key.campo === 'comunas') tmp = [{
+            key: `${enc.Receptor.CmnaRecep}, ${enc.Receptor.CiudadRecep}, ${pais}`,
+            sub: sub
+        }]
+        if (key.campo === 'ciudades') tmp = [{ key: `${enc.Receptor.CiudadRecep}, ${pais}`, sub: sub }]
     }
 
     else if (key.clave === 'etiquetaReceptor')
@@ -386,7 +414,7 @@ function getQueryResponseGroupSubTotal(key: { clave: string, campo?: string }, d
 }
 
 /**Obtiene las asignaciones de etiquetas de la consulta, si las hubiera */
-function getEtiquetasFromQuery(query: qo.QueryDetail, rut: string):
+function getEtiquetasFromQuery(querys: qo.QueryDetail[], rut: string):
     Observable<{
         cliente: { [key: string]: { [key: string]: string } },
         producto: { [key: string]: { [key: string]: string } }
@@ -394,28 +422,28 @@ function getEtiquetasFromQuery(query: qo.QueryDetail, rut: string):
 
 
 
-    let querys = Object.keys(query.asignacion).reduce((acc, key) => {
-        if (query.asignacion[key].etiquetaItmVta)
-            acc.prod.$or.push({ nombre: query.asignacion[key].etiquetaItmVta })
-        else if (query.asignacion[key].etiquetaRecep)
-            acc.recep.$or.push({ nombre: query.asignacion[key].etiquetaRecep })
-
-        return acc
-    }, { prod: { $or: [] }, recep: { $or: [] } })
-
-    return Observable.forkJoin(
-        querys.prod.$or.length > 0
-            ? Observable.fromPromise<{ nombre: string, asignaciones: { [key: string]: string } }[]>(db
-                .collection('etiquetas_productos')
-                .find(querys.prod)
-                .toArray())
-            : Observable.of(null),
-        querys.recep.$or.length > 0
-            ? Observable.fromPromise<{ nombre: string, asignaciones: { [key: string]: string } }[]>(db
-                .collection('etiquetas_receptores')
-                .find(querys.recep)
-                .toArray())
-            : Observable.of(null))
+    return Observable.from(querys)
+        .flatMap(q => Object.keys(q.asignacion).map(key => q.asignacion[key]))
+        .filter(a => !!(a.etiquetaItmVta || a.etiquetaRecep))
+        .distinct(a => (a.etiquetaItmVta ? 'vta:' + a.etiquetaItmVta : '') + (a.etiquetaRecep ? 'rcp:' + a.etiquetaRecep : ''))
+        .reduce((acc, a) => {
+            if (a.etiquetaItmVta) acc.prod.$or.push({ nombre: a.etiquetaItmVta })
+            else acc.recep.$or.push({ nombre: a.etiquetaRecep })
+            return acc
+        }, { prod: { $or: [] }, recep: { $or: [] } })
+        .flatMap(querys => Observable.forkJoin(
+            querys.prod.$or.length > 0
+                ? Observable.fromPromise<{ nombre: string, asignaciones: { [key: string]: string } }[]>(mongo.db
+                    .collection('etiquetas_productos')
+                    .find(querys.prod)
+                    .toArray())
+                : Observable.of(null),
+            querys.recep.$or.length > 0
+                ? Observable.fromPromise<{ nombre: string, asignaciones: { [key: string]: string } }[]>(mongo.db
+                    .collection('etiquetas_receptores')
+                    .find(querys.recep)
+                    .toArray())
+                : Observable.of(null)))
         .map(x => {
             return {
                 producto: x[0] ? x[0].reduce((acc: any, et: any) => {
@@ -454,7 +482,7 @@ function getDataTable(query: qo.QueryDetail, Lineas: qo.Linea[]): qo.DataTable {
         if (query.asignacion[j].campo)
             dt.cols.push({ label: qo.TipoDato[query.asignacion[j].campo], type: 'number' })
         else if (query.asignacion[j].periodo)
-            dt.cols.push({ label: periodos.TipoPeriodos[query.consulta.TipoPeriodos], type: 'date' })
+            dt.cols.push({ label: periodos.TipoPeriodos[query.consulta.TipoPeriodos], type: 'string' })
         else if (query.asignacion[j].receptor)
             dt.cols.push({ label: query.asignacion[j].receptor, type: 'string' })
         else if (query.asignacion[j].etiquetaItmVta)
@@ -522,17 +550,8 @@ function JoinTables(tab: { key: string, sub: qo.QueryResponseGroupSubTotal }[][]
     for (let i = 0; i < tab[0].length; ++i) {
         let key = tab[0][i].key
         let sub = tab[0][i].sub
-        if (raiz[key]) {
-            raiz[key].subTotal.afecto += sub.afecto || 0
-            raiz[key].subTotal.exento += sub.exento || 0
-            raiz[key].subTotal.totalImpuesto += sub.totalImpuesto || 0
-            Object.keys(sub.impuestos)
-                .forEach(k => {
-                    if (!raiz[key].subTotal.impuestos[k]) raiz[key].subTotal.impuestos[k] = 0
 
-                    raiz[key].subTotal.impuestos[k] += sub.impuestos[k] || 0
-                })
-        } else raiz[key] = { subTotal: sub }
+        if (!raiz[key]) raiz[key] = { subTotal: <any>{ impuestos: {}, clave: sub.clave } }
 
         if (tab.length > 1) {
             if (!raiz[key].grupo) raiz[key].grupo = {}

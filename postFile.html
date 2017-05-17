@@ -2,12 +2,8 @@
 
 <head>
     <meta charset="UTF-8">
-    <title>Document</title>
-    <script src="jspm_packages/system.js"></script>
-    <!-- 2. Configure SystemJS -->
-    <script src="config.js"></script>
-    <script>
-        System.import('webapp/script');
+    <title>Pruebas</title>
+    <script src='webapp/script.js'>
     </script>
 
 </head>
@@ -39,7 +35,7 @@
   }
 }]    
     </textarea>
-                <input id='button' type="button" value="Enviar">
+                <input id='button' type="button" value="Enviar" onclick="sendText()">
             </td>
             <td style="vertical-align: top">
                 <pre id='pre'></pre>
