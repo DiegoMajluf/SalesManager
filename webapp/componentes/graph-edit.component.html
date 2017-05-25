@@ -1,0 +1,11 @@
+<tabset>
+    <tab heading='Gráficos'>
+        <div class="list-group">
+            <div class="list-group-item" *ngFor="let grp of Grupos">
+                <img [src]="grp.icono">{{grp.nombre}}
+            </div>
+        </div>
+    </tab>
+    <tab heading='Datos'>Datos</tab>
+    <tab heading='Personalización'>Personalización</tab>
+</tabset>

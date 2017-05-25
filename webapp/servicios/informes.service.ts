@@ -15,13 +15,13 @@ export class InformesService {
     getInformeById(Id: string): Observable<GraphDetail[]> {
 
         return Observable.of<GraphDetail[]>([{
-            Type: chartDef.charts['GeoChart-marcadores'],
+            Type: chartDef.charts['BubbleChart'],
             Titulo: 'Ventas Totales',
             Posicion: 1,
             Querys: [{
                 "consulta": {
-                    "UltPeriodoOffset": -1,
-                    "NumPeriodos": 12,
+                    "UltPeriodoOffset": 0,
+                    "NumPeriodos": 5,
                     "TipoPeriodos": 3
                 },
                 "filtros": {
@@ -29,11 +29,15 @@ export class InformesService {
                 },
                 "asignacion": {
                     "0": {
-                        "receptor": "comunas"
+                        "periodo": "mensuales"
                     },
                     "1": {
                         "campo": TipoDato.ventasNetas
-                    }
+                    },
+                    "2": {
+                        "campo": TipoDato.ventasNetas
+                    },
+
                 }
             }]
 
