@@ -15,7 +15,7 @@ export class InformesService {
     getInformeById(Id: string): Observable<GraphDetail[]> {
 
         return Observable.of<GraphDetail[]>([{
-            Type: chartDef.charts['BubbleChart'],
+            Type: chartDef.charts['TableChart'],
             Titulo: 'Ventas Totales',
             Posicion: 1,
             Querys: [{

@@ -1,11 +1,67 @@
 <tabset>
     <tab heading='Gráficos'>
-        <div class="list-group">
-            <div class="list-group-item" *ngFor="let grp of Grupos">
-                <img [src]="grp.icono">{{grp.nombre}}
+        <accordion [closeOthers]="true">
+            <accordion-group *ngFor="let grp of Grupos">
+                <div accordion-heading (click)="grp.isOpen = !grp.isOpen">
+                    <img [src]="'./webapp/images/' + grp.icono" height="50" class="img-rounded">
+                    <span>{{grp.nombre}}</span>
+                    <i class="pull-right float-xs-right glyphicon" [ngClass]="{'glyphicon-chevron-down': grp.isOpen, 'glyphicon-chevron-right': !grp.isOpen}"></i>
+                </div>
+                <div>
+                    <div *ngFor="let gr of grp.charts" (click)="GraphSelect = gr" class="list-group-item pointer{{(GraphSelect == gr) ? ' select' : ''}}">
+                        <img [src]="'./webapp/images/' + gr.className + '.png'" height="50" class="img-rounded">
+                        <span>{{gr.nombre}}</span>
+                    </div>
+                </div>
+
+            </accordion-group>
+        </accordion>
+
+    </tab>
+    <tab heading='Datos'>
+        <div class="container-fluid">
+            <div class="row form-group" *ngIf="GraphSelect">
+                <div *ngFor="let col of ColumnasDef[GraphSelect.columns.columnsFormat]; let i = index" class="col-xs-12 col-sm-6 col-md-4">
+                    <div class="panel panel-default">
+                        <div class="panel-heading">
+                            {{GraphSelect.columns.colsDet[i].descripcion}}
+                            {{GraphSelect.columns.colsDet[i].opcional ? '(opcional)' : ''}}
+                            <span *ngIf="col.esRepetible" class="glyphicon glyphicon-plus pull-right" aria-hidden="true" data-toggle="tooltip" title="Agrega un Serie"></span>
+                        </div>
+                        <div class="panel-body">
+                            <select class="form-control">
+                                <option value="">Pais</option>
+                                <option value="">Ciudad</option>
+                                <option value="">Comuna</option>
+                                <option value="">Ventas Brutas</option>
+                                <option value="">Ventas Netas</option>
+                                <option value="">N° de Documentos</option>
+                                <option value="">N° de Clientes</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+                <div *ngFor="let col of Series; let i = index" class="col-xs-12 col-sm-6 col-md-4">
+                    <div class="panel panel-default">
+                        <div class="panel-heading">Columna {{i + 1}}</div>
+                        <div class="panel-body">
+                            <select class="form-control">
+                                <option value="">Pais</option>
+                                <option value="">Ciudad</option>
+                                <option value="">Comuna</option>
+                                <option value="">Ventas Brutas</option>
+                                <option value="">Ventas Netas</option>
+                                <option value="">N° de Documentos</option>
+                                <option value="">N° de Clientes</option>
+                            </select>
+                        </div>
+                    </div>
+
+                </div>
+
             </div>
         </div>
     </tab>
-    <tab heading='Datos'>Datos</tab>
     <tab heading='Personalización'>Personalización</tab>
+    <tab heading='Ver'>Ver</tab>
 </tabset>
