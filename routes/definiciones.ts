@@ -127,16 +127,6 @@ export interface CeldaDataTable {
     p?: any
 }
 
-export interface ChartDefinitions {
-    charts: { [nombre: string]: ChartType }, //varios gráficos diferentes pueden tener las mismas definiciones de columnas
-    columnsFormats: { [id: number]: ColumnsDefinition[] }
-}
-
-export interface ColumnsDefinition {
-    columna: number,
-    dataType: string[],
-    esRepetible: boolean
-}
 
 export interface GruposDeGraficos {
     nombre: string,
@@ -150,14 +140,16 @@ export interface ChartType {
     packages: string,
     className: string,
     scope: string,
-    columns: {
-        columnsFormat: number,
-        colsDet: {
-            descripcion: string
-            opcional: boolean
-        }[]
-    },
+    columns: ColumnsDefinition[],
     options?: any,
     icon?: string,
     grupo: string
+}
+
+export interface ColumnsDefinition {
+    descripcion: string
+    opcional: boolean,
+    dataType: string[],
+    esRepetible: boolean
+
 }

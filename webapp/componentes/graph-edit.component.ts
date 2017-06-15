@@ -1,6 +1,6 @@
 import { Component, OnInit, ElementRef, ViewChild } from '@angular/core';
-import { ChartDefinitions, ChartType, ColumnsDefinition, GruposDeGraficos } from "../../routes/definiciones";
-var chartDef = <ChartDefinitions>require('../chart-definitions.json')
+import { ChartType, GruposDeGraficos, ColumnsDefinition } from "../../routes/definiciones";
+var chartDef = <{[name: string]: ChartType}>require('../chart-definitions.json')
 @Component({
     selector: 'graph-edit',
     templateUrl: './graph-edit.component.html',

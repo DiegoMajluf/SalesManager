@@ -3,8 +3,8 @@ import { Http, Response } from '@angular/http';
 import { Observable } from 'rxjs/Observable'
 import { periodos } from 'core-sales-manager';
 import { QueryDataService } from './query-data.service'
-import { GraphDetail, TipoDato, ChartDefinitions } from "../../routes/definiciones";
-var chartDef = <ChartDefinitions>require('../chart-definitions.json')
+import { GraphDetail, TipoDato, ChartType } from "../../routes/definiciones";
+var chartDef = <{[name: string]: ChartType}>require('../chart-definitions.json')
 
 
 @Injectable()

@@ -1,724 +1,611 @@
 {
-    "charts": {
-        "AreaChart": {
-            "nombre": "Gráfico de Áreas",
-            "packages": "corechart",
-            "className": "AreaChart",
-            "scope": "visualization",
-            "columns": {
-                "columnsFormat": "0",
-                "colsDet": [
-                    {
-                        "descripcion": "Eje horizontal"
-                    },
-                    {
-                        "descripcion": "Series de Valores en Eje Vertical"
-                    }
-                ]
-            },
-            "grupo": "Lineas"
-        },
-        "BarChart": {
-            "nombre": "Gráfico de Barras",
-            "packages": "corechart",
-            "className": "BarChart",
-            "scope": "visualization",
-            "columns": {
-                "columnsFormat": "0",
-                "colsDet": [
-                    {
-                        "descripcion": "Eje Vertical"
-                    },
-                    {
-                        "descripcion": "Series de Valores en Eje Horizontal"
-                    }
-                ]
-            },
-            "grupo": "Barras"
-        },
-        "Bar": {
-            "nombre": "Gráfico de Barras ++",
-            "packages": "bar",
-            "className": "Bar",
-            "scope": "charts",
-            "columns": {
-                "columnsFormat": "0",
-                "colsDet": [
-                    {
-                        "descripcion": "Eje Vertical"
-                    },
-                    {
-                        "descripcion": "Series de Valores en Eje Horizontal"
-                    }
-                ]
-            },
-            "grupo": "Barras"
-        },
-        "BubbleChart": {
-            "nombre": "Gráfico de Burbujas",
-            "packages": "corechart",
-            "className": "BubbleChart",
-            "scope": "visualization",
-            "columns": {
-                "columnsFormat": "1",
-                "colsDet": [
-                    {
-                        "descripcion": "Nombre de la Burbuja"
-                    },
-                    {
-                        "descripcion": "Valor eje horizontal"
-                    },
-                    {
-                        "descripcion": "Valor eje vertical"
-                    },
-                    {
-                        "descripcion": "Color de la burbuja",
-                        "opcional": true
-                    },
-                    {
-                        "descripcion": "Tamaño de la burbuja",
-                        "opcional": true
-                    }
-                ]
-            },
-            "grupo": "Dispersión"
-        },
-        "Calendar": {
-            "nombre": "Gráfico Calendario",
-            "packages": "calendar",
-            "className": "Calendar",
-            "scope": "visualization",
-            "columns": {
-                "columnsFormat": "0",
-                "colsDet": [
-                    {
-                        "descripcion": "Fechas"
-                    },
-                    {
-                        "descripcion": "Gradiente de Color"
-                    }
-                ]
-            }
-        },
-        "CandlestickChart": {
-            "nombre": "Gráfico de Candeleros",
-            "packages": "corechart",
-            "className": "CandlestickChart",
-            "scope": "visualization",
-            "columns": {
-                "columnsFormat": "3",
-                "colsDet": [
-                    {
-                        "descripcion": "Eje Horizontal"
-                    },
-                    {
-                        "descripcion": "Inicio de linea"
-                    },
-                    {
-                        "descripcion": "Inicio del cajón"
-                    },
-                    {
-                        "descripcion": "Fin de cajón"
-                    },
-                    {
-                        "descripcion": "Fin de línea"
-                    }
-                ]
-            },
-            "grupo": "Otros"
-        },
-        "ColumnChart": {
-            "nombre": "Gráfico de Columnas",
-            "packages": "corechart",
-            "className": "ColumnChart",
-            "scope": "visualization",
-            "columns": {
-                "columnsFormat": "0",
-                "colsDet": [
-                    {
-                        "descripcion": "Eje horizontal"
-                    },
-                    {
-                        "descripcion": "Series de Valores en Eje Vertical"
-                    }
-                ]
-            },
-            "grupo": "Barras"
-        },
-        "ComboChart": {
-            "nombre": "Gráfico Combinado Columnas y Líneas",
-            "packages": "corechart",
-            "className": "ComboChart",
-            "scope": "visualization",
-            "columns": {
-                "columnsFormat": "0",
-                "colsDet": [
-                    {
-                        "descripcion": "Eje horizontal"
-                    },
-                    {
-                        "descripcion": "Series de Valores en Eje Vertical"
-                    }
-                ]
-            },
-            "grupo": "Barras"
-        },
-        "GanttChart": {
-            "nombre": "Gráfico de Carta Gantt",
-            "packages": "gantt",
-            "className": "Gantt",
-            "scope": "visualization",
-            "columnsFormat": null
-        },
-        "GaugeChart": {
-            "nombre": "Gráfico de Medidor",
-            "packages": "gauge",
-            "className": "Gauge",
-            "scope": "visualization",
-            "columns": {
-                "columnsFormat": "4",
-                "colsDet": [
-                    {
-                        "descripcion": "Nombre del Medidor"
-                    },
-                    {
-                        "descripcion": "Valor del Marcador"
-                    }
-                ]
-            },
-            "grupo": "Otros"
-        },
-        "GeoChart-regiones": {
-            "nombre": "Gráfico de Geográfico de Regiones",
-            "packages": "geochart",
-            "className": "GeoChart",
-            "scope": "visualization",
-            "columns": {
-                "columnsFormat": "4",
-                "colsDet": [
-                    {
-                        "descripcion": "Ubicación Geográfica"
-                    },
-                    {
-                        "descripcion": "Gradiente de Color"
-                    }
-                ]
-            },
-            "grupo": "Mapas"
-        },
-        "GeoChart-marcadores": {
-            "nombre": "Gráfico de Geográfico de Marcadores",
-            "packages": "geochart",
-            "className": "GeoChart",
-            "scope": "visualization",
-            "columns": {
-                "columnsFormat": "4",
-                "colsDet": [
-                    {
-                        "descripcion": "Ubicación Geográfica"
-                    },
-                    {
-                        "descripcion": "Color del Marcador",
-                        "opcional": true
-                    },
-                    {
-                        "descripcion": "Tamaño del marcador",
-                        "opcional": true
-                    }
-                ]
-            },
-            "grupo": "Mapas",
-            "options": {
-                "displayMode": "markers"
-            }
-        },
-        "GeoChart-texto": {
-            "nombre": "Gráfico de Geográfico de Texto",
-            "packages": "geochart",
-            "className": "GeoChart",
-            "scope": "visualization",
-            "columns": {
-                "columnsFormat": "4",
-                "colsDet": [
-                    {
-                        "descripcion": "Ubicación Geográfica"
-                    },
-                    {
-                        "descripcion": "Tamaño del Texto"
-                    }
-                ]
-            },
-            "grupo": "Mapas",
-            "options": {
-                "displayMode": "text"
-            }
-        },
-        "Histogram": {
-            "nombre": "Histograma",
-            "packages": "corechart",
-            "className": "Histogram",
-            "scope": "visualization",
-            "columns": {
-                "columnsFormat": "4",
-                "colsDet": [
-                    {
-                        "descripcion": "Nombre del segmento"
-                    },
-                    {
-                        "descripcion": "Valor del segmento"
-                    }
-                ]
-            },
-            "grupo": "Barras"
-        },
-        "LineGraph": {
-            "nombre": "Gráfico de Líneas",
-            "packages": "corechart",
-            "className": "LineChart",
-            "scope": "visualization",
-            "columns": {
-                "columnsFormat": "0",
-                "colsDet": [
-                    {
-                        "descripcion": "Eje horizontal"
-                    },
-                    {
-                        "descripcion": "Series de Valores en Eje Vertical"
-                    }
-                ]
-            },
-            "grupo": "Lineas"
-        },
-        "LineGraph-Mat": {
-            "nombre": "Gráfico de Líneas",
-            "packages": "line",
-            "className": "Line",
-            "scope": "visualization",
-            "columns": {
-                "columnsFormat": "0",
-                "colsDet": [
-                    {
-                        "descripcion": "Eje horizontal"
-                    },
-                    {
-                        "descripcion": "Series de Valores en Eje Vertical"
-                    }
-                ]
-            },
-            "grupo": "Lineas"
-        },
-        "Map": {
-            "nombre": "Mapa con Marcadores",
-            "packages": "map",
-            "className": "Map",
-            "scope": "visualization",
-            "columnsFormat": "6",
-            "grupo": "Mapas"
-        },
-        "Map-Lat": {
-            "nombre": "Mapa con Marcadores",
-            "packages": "map",
-            "className": "Map",
-            "scope": "visualization",
-            "columnsFormat": "7",
-            "grupo": "Mapas"
-        },
-        "PieChart": {
-            "nombre": "Gráfico de Pie",
-            "packages": "corechart",
-            "className": "PieChart",
-            "scope": "visualization",
-            "columns": {
-                "columnsFormat": "0",
-                "colsDet": [
-                    {
-                        "descripcion": "Nombres de Porciónes"
-                    },
-                    {
-                        "descripcion": "Tamaño de las Porciones"
-                    }
-                ]
-            },
-            "grupo": "Pie"
-        },
-        "ScatterChart": {
-            "nombre": "Gráfico de Dispersión",
-            "packages": "corechart",
-            "className": "ScatterChart",
-            "scope": "visualization",
-            "columns": {
-                "columnsFormat": "8",
-                "colsDet": [
-                    {
-                        "descripcion": "Eje Horizontal"
-                    },
-                    {
-                        "descripcion": "Series de Valores en Eje Vertical"
-                    }
-                ]
-            },
-            "grupo": "Dispersión"
-        },
-        "ScatterChart-Mat": {
-            "nombre": "Gráfico de Dispersión",
-            "packages": "corechart",
-            "className": "Scatter",
-            "scope": "visualization",
-            "columns": {
-                "columnsFormat": "8",
-                "colsDet": [
-                    {
-                        "descripcion": "Eje Horizontal"
-                    },
-                    {
-                        "descripcion": "Series de Valores en Eje Vertical"
-                    }
-                ]
-            },
-            "grupo": "Dispersión"
-        },
-        "SteppedAreaChart": {
-            "nombre": "Gráfico de Área Escalonada",
-            "packages": "corechart",
-            "className": "SteppedAreaChart",
-            "scope": "visualization",
-            "columns": {
-                "columnsFormat": "9",
-                "colsDet": [
-                    {
-                        "descripcion": "Eje horizontal"
-                    },
-                    {
-                        "descripcion": "Series de Valores en Eje Vertical"
-                    }
-                ]
-            },
-            "grupo": "Lineas"
-        },
-        "TableChart": {
-            "nombre": "Tabla de Datos",
-            "packages": "table",
-            "className": "Table",
-            "scope": "visualization",
-            "columns": {
-                "columnsFormat": "10",
-                "colsDet": [
-                    {
-                        "descripcion": "Columna de Tabla"
-                    }
-                ]
-            },
-            "grupo": "Tablas"
-        },
-        "TableLineChart": {
-            "nombre": "Cronograma",
-            "packages": "timeline",
-            "className": "Timeline",
-            "scope": "visualization",
-            "columns": {
-                "columnsFormat": "11",
-                "colsDet": [
-                    {
-                        "descripcion": "Nombre de la línea"
-                    },
-                    {
-                        "descripcion": "Etiqueta de la barra",
-                        "opcional": true
-                    },
-                    {
-                        "descripcion": "Información de referencia",
-                        "opcional": true
-                    },
-                    {
-                        "descripcion": "Fecha de Inicio"
-                    },
-                    {
-                        "descripcion": "Fecha Término"
-                    }
-                ]
-            }
-        }
-    },
-    "columnsFormats": {
-        "0": [
-            {
-                "columna": 0,
-                "dataType": [
-                    "string",
-                    "number",
-                    "date"
-                ],
-                "esRepetible": false
-            },
-            {
-                "columna": 1,
-                "dataType": [
-                    "number"
-                ],
-                "esRepetible": true
-            }
-        ],
-        "1": [
-            {
-                "columna": 0,
-                "dataType": [
-                    "string"
-                ],
-                "esRepetible": false
-            },
-            {
-                "columna": 1,
-                "dataType": [
-                    "number"
-                ],
-                "esRepetible": false
-            },
-            {
-                "columna": 2,
-                "dataType": [
-                    "number"
-                ],
-                "esRepetible": false
-            },
-            {
-                "columna": 3,
-                "dataType": [
-                    "number",
-                    "string"
-                ],
-                "esRepetible": false
-            },
-            {
-                "columna": 4,
-                "dataType": [
-                    "number"
-                ],
-                "esRepetible": false
-            }
-        ],
-        "2": [
-            {
-                "columna": 0,
-                "dataType": [
-                    "date"
-                ],
-                "esRepetible": false
-            },
-            {
-                "columna": 1,
-                "dataType": [
-                    "number"
-                ],
-                "esRepetible": false
-            }
-        ],
-        "3": [
-            {
-                "columna": 0,
-                "dataType": [
-                    "string",
-                    "number",
-                    "date"
-                ],
-                "esRepetible": false
-            },
-            {
-                "columna": 2,
-                "dataType": [
-                    "number"
-                ],
-                "esRepetible": true
-            },
-            {
-                "columna": 3,
-                "dataType": [
-                    "number"
-                ],
-                "esRepetible": true
-            },
-            {
-                "columna": 4,
-                "dataType": [
-                    "number"
-                ],
-                "esRepetible": true
-            },
-            {
-                "columna": 5,
-                "dataType": [
-                    "string"
-                ],
-                "esRepetible": true
-            }
-        ],
-        "4": [
-            {
-                "columna": 0,
-                "dataType": [
-                    "string"
-                ],
-                "esRepetible": false
-            },
-            {
-                "columna": 1,
-                "dataType": [
-                    "number"
-                ],
-                "esRepetible": false
-            }
-        ],
-        "5": [
-            {
-                "columna": 0,
-                "dataType": [
-                    "string"
-                ],
-                "esRepetible": false
-            },
-            {
-                "columna": 1,
-                "dataType": [
-                    "number"
-                ],
-                "esRepetible": false
-            },
-            {
-                "columna": 2,
-                "dataType": [
-                    "number"
-                ],
-                "esRepetible": false
-            }
-        ],
-        "6": [
-            {
-                "columna": 0,
-                "dataType": [
-                    "string"
-                ],
-                "esRepetible": false
-            },
-            {
-                "columna": 1,
-                "dataType": [
-                    "number",
-                    "string"
-                ],
-                "esRepetible": false
-            }
-        ],
-        "7": [
-            {
-                "columna": 0,
-                "dataType": [
-                    "number"
-                ],
-                "esRepetible": false
-            },
-            {
-                "columna": 1,
-                "dataType": [
-                    "number"
-                ],
-                "esRepetible": false
-            },
-            {
-                "columna": 2,
-                "dataType": [
-                    "number",
-                    "string"
-                ],
-                "esRepetible": false
-            }
-        ],
-        "8": [
-            {
-                "columna": 0,
-                "dataType": [
-                    "date",
-                    "number",
-                    "string"
-                ],
-                "esRepetible": false
-            },
-            {
-                "columna": 1,
-                "dataType": [
-                    "date",
-                    "number",
-                    "string"
-                ],
-                "esRepetible": true
-            }
-        ],
-        "9": [
-            {
-                "columna": 0,
-                "dataType": [
-                    "string"
-                ],
-                "esRepetible": false
-            },
-            {
-                "columna": 1,
-                "dataType": [
-                    "number"
-                ],
-                "esRepetible": true
-            }
-        ],
-        "10": [
-            {
-                "columna": 0,
-                "dataType": [
-                    "date",
-                    "number",
-                    "string",
-                    "boolean"
-                ],
-                "esRepetible": true
-            }
-        ],
-        "11": [
-            {
-                "columna": 0,
-                "dataType": [
-                    "string"
-                ],
-                "esRepetible": false
-            },
-            {
-                "columna": 1,
-                "dataType": [
-                    "string"
-                ],
-                "esRepetible": false,
-                "opcional": true
-            },
-            {
-                "columna": 2,
-                "dataType": [
-                    "string"
-                ],
-                "esRepetible": false,
-                "opcional": true
-            },
-            {
-                "columna": 3,
-                "dataType": [
-                    "number",
-                    "date"
-                ],
-                "esRepetible": false
-            },
-            {
-                "columna": 4,
-                "dataType": [
-                    "number",
-                    "date"
-                ],
-                "esRepetible": false
-            }
-        ]
-    }
+ "AreaChart": {
+  "nombre": "Gráfico de Áreas",
+  "packages": "corechart",
+  "className": "AreaChart",
+  "scope": "visualization",
+  "columns": [
+   {
+    "descripcion": "Eje horizontal",
+    "dataType": [
+     "string",
+     "number",
+     "date"
+    ],
+    "esRepetible": false
+   },
+   {
+    "descripcion": "Series de Valores en Eje Vertical",
+    "dataType": [
+     "number"
+    ],
+    "esRepetible": true
+   }
+  ],
+  "grupo": "Lineas"
+ },
+ "BarChart": {
+  "nombre": "Gráfico de Barras",
+  "packages": "corechart",
+  "className": "BarChart",
+  "scope": "visualization",
+  "columns": [
+   {
+    "descripcion": "Eje Vertical",
+    "dataType": [
+     "string",
+     "number",
+     "date"
+    ],
+    "esRepetible": false
+   },
+   {
+    "descripcion": "Series de Valores en Eje Horizontal",
+    "dataType": [
+     "number"
+    ],
+    "esRepetible": true
+   }
+  ],
+  "grupo": "Barras"
+ },
+ "Bar": {
+  "nombre": "Gráfico de Barras ++",
+  "packages": "bar",
+  "className": "Bar",
+  "scope": "charts",
+  "columns": [
+   {
+    "descripcion": "Eje Vertical",
+    "dataType": [
+     "string",
+     "number",
+     "date"
+    ],
+    "esRepetible": false
+   },
+   {
+    "descripcion": "Series de Valores en Eje Horizontal",
+    "dataType": [
+     "number"
+    ],
+    "esRepetible": true
+   }
+  ],
+  "grupo": "Barras"
+ },
+ "BubbleChart": {
+  "nombre": "Gráfico de Burbujas",
+  "packages": "corechart",
+  "className": "BubbleChart",
+  "scope": "visualization",
+  "columns": [
+   {
+    "descripcion": "Nombre de la Burbuja",
+    "dataType": [
+     "string"
+    ],
+    "esRepetible": false
+   },
+   {
+    "descripcion": "Valor eje horizontal",
+    "dataType": [
+     "number"
+    ],
+    "esRepetible": false
+   },
+   {
+    "descripcion": "Valor eje vertical",
+    "dataType": [
+     "number"
+    ],
+    "esRepetible": false
+   },
+   {
+    "descripcion": "Color de la burbuja",
+    "opcional": true,
+    "dataType": [
+     "number",
+     "string"
+    ],
+    "esRepetible": false
+   },
+   {
+    "descripcion": "Tamaño de la burbuja",
+    "opcional": true,
+    "dataType": [
+     "number"
+    ],
+    "esRepetible": false
+   }
+  ],
+  "grupo": "Dispersión"
+ },
+ "Calendar": {
+  "nombre": "Gráfico Calendario",
+  "packages": "calendar",
+  "className": "Calendar",
+  "scope": "visualization",
+  "columns": [
+   {
+    "descripcion": "Fechas",
+    "dataType": [
+     "string",
+     "number",
+     "date"
+    ],
+    "esRepetible": false
+   },
+   {
+    "descripcion": "Gradiente de Color",
+    "dataType": [
+     "number"
+    ],
+    "esRepetible": true
+   }
+  ]
+ },
+ "CandlestickChart": {
+  "nombre": "Gráfico de Candeleros",
+  "packages": "corechart",
+  "className": "CandlestickChart",
+  "scope": "visualization",
+  "columns": [
+   {
+    "descripcion": "Eje Horizontal",
+    "dataType": [
+     "string",
+     "number",
+     "date"
+    ],
+    "esRepetible": false
+   },
+   {
+    "descripcion": "Inicio de linea",
+    "dataType": [
+     "number"
+    ],
+    "esRepetible": true
+   },
+   {
+    "descripcion": "Inicio del cajón",
+    "dataType": [
+     "number"
+    ],
+    "esRepetible": true
+   },
+   {
+    "descripcion": "Fin de cajón",
+    "dataType": [
+     "number"
+    ],
+    "esRepetible": true
+   },
+   {
+    "descripcion": "Fin de línea",
+    "dataType": [
+     "string"
+    ],
+    "esRepetible": true
+   }
+  ],
+  "grupo": "Otros"
+ },
+ "ColumnChart": {
+  "nombre": "Gráfico de Columnas",
+  "packages": "corechart",
+  "className": "ColumnChart",
+  "scope": "visualization",
+  "columns": [
+   {
+    "descripcion": "Eje horizontal",
+    "dataType": [
+     "string",
+     "number",
+     "date"
+    ],
+    "esRepetible": false
+   },
+   {
+    "descripcion": "Series de Valores en Eje Vertical",
+    "dataType": [
+     "number"
+    ],
+    "esRepetible": true
+   }
+  ],
+  "grupo": "Barras"
+ },
+ "ComboChart": {
+  "nombre": "Gráfico Combinado Columnas y Líneas",
+  "packages": "corechart",
+  "className": "ComboChart",
+  "scope": "visualization",
+  "columns": [
+   {
+    "descripcion": "Eje horizontal",
+    "dataType": [
+     "string",
+     "number",
+     "date"
+    ],
+    "esRepetible": false
+   },
+   {
+    "descripcion": "Series de Valores en Eje Vertical",
+    "dataType": [
+     "number"
+    ],
+    "esRepetible": true
+   }
+  ],
+  "grupo": "Barras"
+ },
+ "GanttChart": {
+  "nombre": "Gráfico de Carta Gantt",
+  "packages": "gantt",
+  "className": "Gantt",
+  "scope": "visualization",
+  "columnsFormat": null
+ },
+ "GaugeChart": {
+  "nombre": "Gráfico de Medidor",
+  "packages": "gauge",
+  "className": "Gauge",
+  "scope": "visualization",
+  "columns": [
+   {
+    "descripcion": "Nombre del Medidor",
+    "dataType": [
+     "string"
+    ],
+    "esRepetible": false
+   },
+   {
+    "descripcion": "Valor del Marcador",
+    "dataType": [
+     "number"
+    ],
+    "esRepetible": false
+   }
+  ],
+  "grupo": "Otros"
+ },
+ "GeoChart-regiones": {
+  "nombre": "Gráfico de Geográfico de Regiones",
+  "packages": "geochart",
+  "className": "GeoChart",
+  "scope": "visualization",
+  "columns": [
+   {
+    "descripcion": "Ubicación Geográfica",
+    "dataType": [
+     "string"
+    ],
+    "esRepetible": false
+   },
+   {
+    "descripcion": "Gradiente de Color",
+    "dataType": [
+     "number"
+    ],
+    "esRepetible": false
+   }
+  ],
+  "grupo": "Mapas"
+ },
+ "GeoChart-marcadores": {
+  "nombre": "Gráfico de Geográfico de Marcadores",
+  "packages": "geochart",
+  "className": "GeoChart",
+  "scope": "visualization",
+  "columns": [
+   {
+    "descripcion": "Ubicación Geográfica",
+    "dataType": [
+     "string"
+    ],
+    "esRepetible": false
+   },
+   {
+    "descripcion": "Color del Marcador",
+    "opcional": true,
+    "dataType": [
+     "number"
+    ],
+    "esRepetible": false
+   },
+   {
+    "descripcion": "Tamaño del marcador",
+    "opcional": true
+   }
+  ],
+  "grupo": "Mapas",
+  "options": {
+   "displayMode": "markers"
+  }
+ },
+ "GeoChart-texto": {
+  "nombre": "Gráfico de Geográfico de Texto",
+  "packages": "geochart",
+  "className": "GeoChart",
+  "scope": "visualization",
+  "columns": [
+   {
+    "descripcion": "Ubicación Geográfica",
+    "dataType": [
+     "string"
+    ],
+    "esRepetible": false
+   },
+   {
+    "descripcion": "Tamaño del Texto",
+    "dataType": [
+     "number"
+    ],
+    "esRepetible": false
+   }
+  ],
+  "grupo": "Mapas",
+  "options": {
+   "displayMode": "text"
+  }
+ },
+ "Histogram": {
+  "nombre": "Histograma",
+  "packages": "corechart",
+  "className": "Histogram",
+  "scope": "visualization",
+  "columns": [
+   {
+    "descripcion": "Nombre del segmento",
+    "dataType": [
+     "string"
+    ],
+    "esRepetible": false
+   },
+   {
+    "descripcion": "Valor del segmento",
+    "dataType": [
+     "number"
+    ],
+    "esRepetible": false
+   }
+  ],
+  "grupo": "Barras"
+ },
+ "LineGraph": {
+  "nombre": "Gráfico de Líneas",
+  "packages": "corechart",
+  "className": "LineChart",
+  "scope": "visualization",
+  "columns": [
+   {
+    "descripcion": "Eje horizontal",
+    "dataType": [
+     "string",
+     "number",
+     "date"
+    ],
+    "esRepetible": false
+   },
+   {
+    "descripcion": "Series de Valores en Eje Vertical",
+    "dataType": [
+     "number"
+    ],
+    "esRepetible": true
+   }
+  ],
+  "grupo": "Lineas"
+ },
+ "LineGraph-Mat": {
+  "nombre": "Gráfico de Líneas",
+  "packages": "line",
+  "className": "Line",
+  "scope": "visualization",
+  "columns": [
+   {
+    "descripcion": "Eje horizontal",
+    "dataType": [
+     "string",
+     "number",
+     "date"
+    ],
+    "esRepetible": false
+   },
+   {
+    "descripcion": "Series de Valores en Eje Vertical",
+    "dataType": [
+     "number"
+    ],
+    "esRepetible": true
+   }
+  ],
+  "grupo": "Lineas"
+ },
+ "Map": {
+  "nombre": "Mapa con Marcadores",
+  "packages": "map",
+  "className": "Map",
+  "scope": "visualization",
+  "columnsFormat": "6",
+  "grupo": "Mapas"
+ },
+ "Map-Lat": {
+  "nombre": "Mapa con Marcadores",
+  "packages": "map",
+  "className": "Map",
+  "scope": "visualization",
+  "columnsFormat": "7",
+  "grupo": "Mapas"
+ },
+ "PieChart": {
+  "nombre": "Gráfico de Pie",
+  "packages": "corechart",
+  "className": "PieChart",
+  "scope": "visualization",
+  "columns": [
+   {
+    "descripcion": "Nombres de Porciónes",
+    "dataType": [
+     "string",
+     "number",
+     "date"
+    ],
+    "esRepetible": false
+   },
+   {
+    "descripcion": "Tamaño de las Porciones",
+    "dataType": [
+     "number"
+    ],
+    "esRepetible": true
+   }
+  ],
+  "grupo": "Pie"
+ },
+ "ScatterChart": {
+  "nombre": "Gráfico de Dispersión",
+  "packages": "corechart",
+  "className": "ScatterChart",
+  "scope": "visualization",
+  "columns": [
+   {
+    "descripcion": "Eje Horizontal",
+    "dataType": [
+     "date",
+     "number",
+     "string"
+    ],
+    "esRepetible": false
+   },
+   {
+    "descripcion": "Series de Valores en Eje Vertical",
+    "dataType": [
+     "date",
+     "number",
+     "string"
+    ],
+    "esRepetible": true
+   }
+  ],
+  "grupo": "Dispersión"
+ },
+ "ScatterChart-Mat": {
+  "nombre": "Gráfico de Dispersión",
+  "packages": "corechart",
+  "className": "Scatter",
+  "scope": "visualization",
+  "columns": [
+   {
+    "descripcion": "Eje Horizontal",
+    "dataType": [
+     "date",
+     "number",
+     "string"
+    ],
+    "esRepetible": false
+   },
+   {
+    "descripcion": "Series de Valores en Eje Vertical",
+    "dataType": [
+     "date",
+     "number",
+     "string"
+    ],
+    "esRepetible": true
+   }
+  ],
+  "grupo": "Dispersión"
+ },
+ "SteppedAreaChart": {
+  "nombre": "Gráfico de Área Escalonada",
+  "packages": "corechart",
+  "className": "SteppedAreaChart",
+  "scope": "visualization",
+  "columns": [
+   {
+    "descripcion": "Eje horizontal",
+    "dataType": [
+     "string"
+    ],
+    "esRepetible": false
+   },
+   {
+    "descripcion": "Series de Valores en Eje Vertical",
+    "dataType": [
+     "number"
+    ],
+    "esRepetible": true
+   }
+  ],
+  "grupo": "Lineas"
+ },
+ "TableChart": {
+  "nombre": "Tabla de Datos",
+  "packages": "table",
+  "className": "Table",
+  "scope": "visualization",
+  "columns": [
+   {
+    "descripcion": "Columna de Tabla",
+    "dataType": [
+     "date",
+     "number",
+     "string",
+     "boolean"
+    ],
+    "esRepetible": true
+   }
+  ],
+  "grupo": "Tablas"
+ },
+ "TableLineChart": {
+  "nombre": "Cronograma",
+  "packages": "timeline",
+  "className": "Timeline",
+  "scope": "visualization",
+  "columns": [
+   {
+    "descripcion": "Nombre de la línea",
+    "dataType": [
+     "string"
+    ],
+    "esRepetible": false
+   },
+   {
+    "descripcion": "Etiqueta de la barra",
+    "opcional": true,
+    "dataType": [
+     "string"
+    ],
+    "esRepetible": false
+   },
+   {
+    "descripcion": "Información de referencia",
+    "opcional": true,
+    "dataType": [
+     "string"
+    ],
+    "esRepetible": false
+   },
+   {
+    "descripcion": "Fecha de Inicio",
+    "dataType": [
+     "number",
+     "date"
+    ],
+    "esRepetible": false
+   },
+   {
+    "descripcion": "Fecha Término",
+    "dataType": [
+     "number",
+     "date"
+    ],
+    "esRepetible": false
+   }
+  ]
+ }
 }
