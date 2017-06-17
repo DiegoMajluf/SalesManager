@@ -1,5 +1,5 @@
 import { Component, OnInit, ElementRef, ViewChild } from '@angular/core';
-import { ChartType, GruposDeGraficos, ColumnsDefinition } from "../../routes/definiciones";
+import { ChartType, GruposDeGraficos, ColumnsDefinition } from "../../commons/definiciones";
 var chartDef = <{[name: string]: ChartType}>require('../chart-definitions.json')
 @Component({
     selector: 'graph-edit',
@@ -11,7 +11,6 @@ var chartDef = <{[name: string]: ChartType}>require('../chart-definitions.json')
 })
 export class GraphEditComponent implements OnInit {
     Graficos: ChartType[]
-    ColumnasDef = chartDef.columnsFormats
     Grupos: GruposDeGraficos[]
     GraphSelect: ChartType
     Series: ColumnsDefinition[] = []
@@ -19,8 +18,8 @@ export class GraphEditComponent implements OnInit {
 
 
     ngOnInit() {
-        let obg = Object.keys(chartDef.charts)
-            .map(k => chartDef.charts[k])
+        let obg = Object.keys(chartDef)
+            .map(k => chartDef[k])
             .filter(g => g.grupo)
             .reduce((acc, g) => {
                 if (!acc[g.grupo]) acc[g.grupo] = <GruposDeGraficos>{

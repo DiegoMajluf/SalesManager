@@ -1,7 +1,3 @@
-///<reference path="./typings/index.d.ts"/>
-
-'use strict';
-
 import * as express  from 'express';
 import * as path from 'path';
 import * as favicon from 'serve-favicon';
@@ -11,7 +7,12 @@ import * as bodyParser from 'body-parser';
 import { router as getFile } from './routes/sendmefile'
 import { router as query } from './routes/querydata'
 import { db  } from './commons/mongo';
+import * as webpack from 'webpack'
+import * as webpackDevMid from 'webpack-dev-middleware'
+import * as webpackHotMid from 'webpack-hot-middleware'
 
+let config;
+let compiler = webpack(config)
 
 
 
@@ -24,6 +25,7 @@ app.use(logger('dev'));
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(cookieParser());
+app.use('/public', express.static(path.join(__dirname, 'public')));
 app.use('/webapp', express.static(path.join(__dirname, 'webapp')));
 app.use('/index.html', express.static(path.join(__dirname, 'index.html')));
 app.use('/postFile.html', express.static(path.join(__dirname, 'postFile.html')));
@@ -34,6 +36,15 @@ app.use((req, res, next) => {
 })
 app.use('/sendmefile', getFile)
 app.use('/query', query)
+
+app.use(webpackDevMid(compiler, {
+    publicPath: config.output.publicPath,
+    stats: {colors: true}
+}))
+
+app.use(webpackHotMid(compiler, {
+    log: console.log
+}))
 
 app.get('/', (req, res) => {
   res.send({ app: 'hola' })

@@ -2,7 +2,7 @@ import { Injectable } from '@angular/core';
 import { Http, Response } from '@angular/http';
 import { Observable } from 'rxjs/Observable'
 import { periodos, appData, responses } from 'core-sales-manager'
-import { QueryDetail, DataTable } from "../../routes/definiciones";
+import { QueryDetail, DataTable } from "../../commons/definiciones";
 
 
 type columna = {

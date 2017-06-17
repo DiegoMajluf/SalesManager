@@ -21,11 +21,11 @@
     <tab heading='Datos'>
         <div class="container-fluid">
             <div class="row form-group" *ngIf="GraphSelect">
-                <div *ngFor="let col of ColumnasDef[GraphSelect.columns.columnsFormat]; let i = index" class="col-xs-12 col-sm-6 col-md-4">
+                <div *ngFor="let col of GraphSelect.columns" class="col-xs-12 col-sm-6 col-md-4">
                     <div class="panel panel-default">
                         <div class="panel-heading">
-                            {{GraphSelect.columns.colsDet[i].descripcion}}
-                            {{GraphSelect.columns.colsDet[i].opcional ? '(opcional)' : ''}}
+                            {{col.descripcion}}
+                            {{col.opcional ? '(opcional)' : ''}}
                             <span *ngIf="col.esRepetible" class="glyphicon glyphicon-plus pull-right" aria-hidden="true" data-toggle="tooltip" title="Agrega un Serie"></span>
                         </div>
                         <div class="panel-body">

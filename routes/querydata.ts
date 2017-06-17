@@ -1,11 +1,10 @@
 import * as express from 'express';
 import { dte, periodos, DteService, responses } from 'core-sales-manager'
-import * as queryService from '../commons/query-service'
 import * as mongo from '../commons/mongo';
 import { Observable, Subscriber } from 'rxjs/Rx';
 import { FindAndModifyWriteOpResultObject } from 'mongodb'
 
-import * as qo from './definiciones'
+import * as qo from '../commons/definiciones'
 
 export let router = express.Router();
 let docsName = ['Documento', 'Exportaciones', 'Liquidaciones']

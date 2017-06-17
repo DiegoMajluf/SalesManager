@@ -3,7 +3,7 @@ import { Http, Response } from '@angular/http';
 import { Observable } from 'rxjs/Observable'
 import { periodos } from 'core-sales-manager';
 import { QueryDataService } from './query-data.service'
-import { GraphDetail, TipoDato, ChartType } from "../../routes/definiciones";
+import { GraphDetail, TipoDato, ChartType } from "../../commons/definiciones";
 var chartDef = <{[name: string]: ChartType}>require('../chart-definitions.json')
 
 
@@ -15,7 +15,7 @@ export class InformesService {
     getInformeById(Id: string): Observable<GraphDetail[]> {
 
         return Observable.of<GraphDetail[]>([{
-            Type: chartDef.charts['TableChart'],
+            Type: chartDef['TableChart'],
             Titulo: 'Ventas Totales',
             Posicion: 1,
             Querys: [{
