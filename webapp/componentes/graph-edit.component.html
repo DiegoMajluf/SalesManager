@@ -3,13 +3,13 @@
         <accordion [closeOthers]="true">
             <accordion-group *ngFor="let grp of Grupos">
                 <div accordion-heading (click)="grp.isOpen = !grp.isOpen">
-                    <img [src]="'./webapp/images/' + grp.icono" height="50" class="img-rounded">
+                    <img [src]="'./public/images/' + grp.icono" height="50" class="img-rounded">
                     <span>{{grp.nombre}}</span>
                     <i class="pull-right float-xs-right glyphicon" [ngClass]="{'glyphicon-chevron-down': grp.isOpen, 'glyphicon-chevron-right': !grp.isOpen}"></i>
                 </div>
                 <div>
                     <div *ngFor="let gr of grp.charts" (click)="GraphSelect = gr" class="list-group-item pointer{{(GraphSelect == gr) ? ' select' : ''}}">
-                        <img [src]="'./webapp/images/' + gr.className + '.png'" height="50" class="img-rounded">
+                        <img [src]="'./public/images/' + gr.className + '.png'" height="50" class="img-rounded">
                         <span>{{gr.nombre}}</span>
                     </div>
                 </div>

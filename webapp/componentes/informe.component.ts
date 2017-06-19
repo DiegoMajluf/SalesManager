@@ -2,7 +2,7 @@ import { Component, OnInit, Input, ViewChild, ElementRef } from '@angular/core';
 import { InformesService } from '../servicios/informes.service'
 import { QueryDataService } from '../servicios/query-data.service'
 import { Observable } from 'rxjs'
-import { GraphDetail, DataTable } from "../../routes/definiciones";
+import { GraphDetail, DataTable } from "../../commons/definiciones";
 import { GraphComponent } from "./graph.component";
 import { appData } from 'core-sales-manager'
 

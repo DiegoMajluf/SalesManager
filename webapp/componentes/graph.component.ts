@@ -1,7 +1,7 @@
 import { Component, OnInit, ViewChild, ElementRef, Input } from '@angular/core';
 import { Observable } from 'rxjs/Observable';
-import { ChartType, columnsAsignations, ChartDefinitions, GraphDetail } from "../../routes/definiciones";
-var chartDef = <ChartDefinitions>require('../chart-definitions.json')
+import { ChartType, columnsAsignations, GraphDetail } from "../../commons/definiciones";
+var chartDef = <{ [name: string]: ChartType }>require('../chart-definitions.json')
 
 declare var canvg: any
 
@@ -60,17 +60,17 @@ export class GraphComponent {
         "rows": [
           { "c": [{ "v": "1" }, { "v": 3 }, { "v": 1 }] },
           { "c": [{ "v": "2" }, { "v": 4 }, { "v": 5 }] },
-          { "c": [{ "v": "3" },  { "v": 6 }, { "v": 4 }] },
-          { "c": [{ "v": "4" },  { "v": 2 }, { "v": 7 }] },
-          { "c": [{ "v": "5" },  { "v": 8 }, { "v": 2 }] },
-          { "c": [{ "v": "6" },  { "v": 2 }, { "v": 4 }] },
-          { "c": [{ "v": "7" },  { "v": 7 }, { "v": 8 }] },
-          { "c": [{ "v": "8" },  { "v": 8 }, { "v": 5 }] },
-          { "c": [{ "v": "9" },  { "v": 1 }, { "v": 3 }] },
-          { "c": [{ "v": "10" },  { "v": 6 }, { "v": 6 }] },
-          { "c": [{ "v": "11" },  { "v": 5 }, { "v": 7 }] },
-          { "c": [{ "v": "13" },  { "v": 4 }, { "v": 5 }] },
-          { "c": [{ "v": "14" },  { "v": 3 }, { "v": 2 }] },
+          { "c": [{ "v": "3" }, { "v": 6 }, { "v": 4 }] },
+          { "c": [{ "v": "4" }, { "v": 2 }, { "v": 7 }] },
+          { "c": [{ "v": "5" }, { "v": 8 }, { "v": 2 }] },
+          { "c": [{ "v": "6" }, { "v": 2 }, { "v": 4 }] },
+          { "c": [{ "v": "7" }, { "v": 7 }, { "v": 8 }] },
+          { "c": [{ "v": "8" }, { "v": 8 }, { "v": 5 }] },
+          { "c": [{ "v": "9" }, { "v": 1 }, { "v": 3 }] },
+          { "c": [{ "v": "10" }, { "v": 6 }, { "v": 6 }] },
+          { "c": [{ "v": "11" }, { "v": 5 }, { "v": 7 }] },
+          { "c": [{ "v": "13" }, { "v": 4 }, { "v": 5 }] },
+          { "c": [{ "v": "14" }, { "v": 3 }, { "v": 2 }] },
           { "c": [{ "v": "16" }, { "v": 6 }, { "v": 3 }] }
         ],
         "cols": [

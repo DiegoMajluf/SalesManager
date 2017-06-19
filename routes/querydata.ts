@@ -37,18 +37,8 @@ router.get('/getfoliosyaingresadosde/:tipo/enrango/:ini-:fin', (req, res, next) 
 
 })
 
-router.options('/getquerys', (req, res, next) => {
-    res.setHeader('Access-Control-Allow-Origin', '*')
-    res.setHeader('Access-Control-Allow-Methods', 'POST, GET, OPTIONS, DELETE, PUT')
-    res.setHeader('Access-Control-Allow-Headers', 'Authorization, Content-type')
-    res.send()
-
-})
 
 router.post('/getquerys', (req, res, next) => {
-    res.setHeader('Access-Control-Allow-Origin', '*')
-    res.setHeader('Access-Control-Allow-Methods', 'POST, GET, OPTIONS, DELETE, PUT')
-    res.setHeader('Access-Control-Allow-Headers', 'Authorization, Content-type')
     if (Object.keys(req.body).length == 0) return res.status(400)
 
     let querys: qo.QueryDetail[] = req.body

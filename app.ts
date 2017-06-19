@@ -1,4 +1,4 @@
-import * as express  from 'express';
+import * as express  from 'express'
 import * as path from 'path';
 import * as favicon from 'serve-favicon';
 import * as logger from 'morgan';
@@ -11,7 +11,7 @@ import * as webpack from 'webpack'
 import * as webpackDevMid from 'webpack-dev-middleware'
 import * as webpackHotMid from 'webpack-hot-middleware'
 
-let config;
+let config = require('./webpack.config')
 let compiler = webpack(config)
 
 
@@ -26,8 +26,7 @@ app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(cookieParser());
 app.use('/public', express.static(path.join(__dirname, 'public')));
-app.use('/webapp', express.static(path.join(__dirname, 'webapp')));
-app.use('/index.html', express.static(path.join(__dirname, 'index.html')));
+//app.use('/webapp', express.static(path.join(__dirname, 'webapp')));
 app.use('/postFile.html', express.static(path.join(__dirname, 'postFile.html')));
 
 app.use((req, res, next) => {
@@ -37,6 +36,7 @@ app.use((req, res, next) => {
 app.use('/sendmefile', getFile)
 app.use('/query', query)
 
+//app.use('/index.html', express.static(path.join(__dirname, 'index.html')));
 app.use(webpackDevMid(compiler, {
     publicPath: config.output.publicPath,
     stats: {colors: true}

@@ -17,12 +17,12 @@ router.post('/setdte', (req, res, next) => {
         try {
             set = JSON.parse(str, DteService.dateReviver);
         } catch (err) {
-            res.send(500, err)
+            res.status(500).send(err)
         }
 
         addDTEsToBase(set.DTE).subscribe(
             x => res.send(x),
-            err => res.send(500, err)
+            err => res.status(500).send(err)
         )
     });
 });
