@@ -3,7 +3,7 @@ import { Http, Response } from '@angular/http';
 import { Observable } from 'rxjs/Observable'
 import { periodos } from 'core-sales-manager';
 import { QueryDataService } from './query-data.service'
-import { GraphDetail, TipoDato, ChartType } from "../../commons/definiciones";
+import { GraphDetail, CamposNumericosEnum, ChartType } from "../../commons/definiciones";
 var chartDef = <{[name: string]: ChartType}>require('../chart-definitions.json')
 
 
@@ -32,10 +32,10 @@ export class InformesService {
                         "periodo": "mensuales"
                     },
                     "1": {
-                        "campo": TipoDato.ventasNetas
+                        "campo": CamposNumericosEnum.ventasNetas
                     },
                     "2": {
-                        "campo": TipoDato.ventasNetas
+                        "campo": CamposNumericosEnum.ventasNetas
                     },
 
                 }

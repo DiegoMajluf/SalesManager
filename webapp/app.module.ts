@@ -12,10 +12,11 @@ import { GraphEditComponent } from "./componentes/graph-edit.component"
 import { ModalModule } from 'ngx-bootstrap/modal'
 import { TabsModule } from 'ngx-bootstrap/tabs'
 import { AccordionModule } from 'ngx-bootstrap/accordion'
+import { CamposSelectComponent } from "./componentes/campos-select.component";
 
 @NgModule({
   imports: [BrowserModule, FormsModule, HttpModule, ModalModule.forRoot(), TabsModule.forRoot(), AccordionModule.forRoot()],
-  declarations: [AppComponent, GraphComponent, InformeComponent, GraphEditComponent ],
+  declarations: [AppComponent, GraphComponent, InformeComponent, GraphEditComponent, CamposSelectComponent ],
   bootstrap: [AppComponent],
   providers: [QueryDataService, InformesService]
 })

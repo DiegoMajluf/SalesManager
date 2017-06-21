@@ -54,36 +54,36 @@ router.post('/getquerys', (req, res, next) => {
 
     (querys.some(query => Object.keys(query.asignacion)
         .map(id => query.asignacion[id])
-        .some(a => a.receptor && (a.receptor == 'comunas' || a.receptor == 'ciudades')))
-
+        .some(a => a.receptor &&
+            (a.receptor == qo.GrupoReceptorEnum.comunas || a.receptor == qo.GrupoReceptorEnum.ciudades)))
         ? mongo.GetCodigosPaises() : Observable.of({}))
-            .do(x => paises = x)
-            .flatMap(x => getEtiquetasFromQuery(querys, req['rutEmpresa']))
-            .do(x => ets = x)
-            .flatMap(ets => querys)
-            .flatMap((q, i) => {
-                let mq = queryDetailToMongoQuery(q, req['rutEmpresa'])
-                return Observable.fromPromise(<Promise<dte.DTE[]>>mongo.db.collection('dtes').find(mq).toArray())
-                    .map(dtes => asignarDTEaPeriodos(q.consulta.TipoPeriodos, getMinFechaFrom(mq), getMaxFechaFrom(mq), dtes))
-                    .map(x => {
-                        return {
-                            query: q,
-                            periodos: x,
-                            indice: i
-                        }
-                    })
+        .do(x => paises = x)
+        .flatMap(x => getEtiquetasFromQuery(querys, req['rutEmpresa']))
+        .do(x => ets = x)
+        .flatMap(ets => querys)
+        .flatMap((q, i) => {
+            let mq = queryDetailToMongoQuery(q, req['rutEmpresa'])
+            return Observable.fromPromise(<Promise<dte.DTE[]>>mongo.db.collection('dtes').find(mq).toArray())
+                .map(dtes => asignarDTEaPeriodos(q.consulta.TipoPeriodos, getMinFechaFrom(mq), getMaxFechaFrom(mq), dtes))
+                .map(x => {
+                    return {
+                        query: q,
+                        periodos: x,
+                        indice: i
+                    }
+                })
 
-            })
-            .subscribe({
-                next: x => {
-                    let Lineas: qo.Linea[] = []
-                    let pun = getPoints(x.periodos, x.query, ets.cliente, ets.producto, paises)
-                    QueryPointToArray(Lineas, { campos: [], data: null }, pun.monedas)
-                    dtaTables[x.indice] = getDataTable(x.query, Lineas)
-                },
-                error: err => res.status(500).send(err),
-                complete: () => res.send(dtaTables)
-            })
+        })
+        .subscribe({
+            next: x => {
+                let Lineas: qo.Linea[] = []
+                let pun = getPoints(x.periodos, x.query, ets.cliente, ets.producto, paises)
+                QueryPointToArray(Lineas, { campos: [], data: null }, pun.monedas)
+                dtaTables[x.indice] = getDataTable(x.query, Lineas)
+            },
+            error: err => res.status(500).send(err),
+            complete: () => res.send(dtaTables)
+        })
 
 })
 
@@ -251,7 +251,7 @@ function getPoints(pes: { periodo: periodos.Periodo, dtes: dte.DTE[] }[], query:
 }
 
 //**Obtiene el valor del grupo para una clave Ej. clave: ciudad => valor: 'santiago' */
-function getQueryResponseGroupSubTotal(key: { clave: string, campo?: string }, dt: dte.DTE, periodo: periodos.Periodo,
+function getQueryResponseGroupSubTotal(key: { clave: string, campo?: any }, dt: dte.DTE, periodo: periodos.Periodo,
     etr?: { [key: string]: { [key: string]: string } },
     etv?: { [key: string]: { [key: string]: string } },
     paises?: { [cod: string]: mongo.pais }):
@@ -384,11 +384,18 @@ function getQueryResponseGroupSubTotal(key: { clave: string, campo?: string }, d
         if (enc.Receptor.Extranjero) pais = paises[enc.Receptor.Extranjero.Nacionalidad].pais
 
         if (key.campo === 'clientes') tmp = [{ key: enc.Receptor.RznSocRecep, sub: sub }]
-        if (key.campo === 'comunas') tmp = [{
+        if (key.campo === qo.GrupoReceptorEnum.comunas) tmp = [{
             key: `${enc.Receptor.CmnaRecep}, ${enc.Receptor.CiudadRecep}, ${pais}`,
             sub: sub
         }]
-        if (key.campo === 'ciudades') tmp = [{ key: `${enc.Receptor.CiudadRecep}, ${pais}`, sub: sub }]
+        if (key.campo === qo.GrupoReceptorEnum.ciudades) tmp = [{
+            key: `${enc.Receptor.CiudadRecep}, ${pais}`,
+            sub: sub
+        }]
+        if (key.campo === qo.GrupoReceptorEnum.paises) tmp = [{
+            key: pais,
+            sub: sub
+        }]
     }
 
     else if (key.clave === 'etiquetaReceptor')
@@ -451,12 +458,12 @@ function getEtiquetasFromQuery(querys: qo.QueryDetail[], rut: string):
 }
 
 /***/
-function getValorCampo(campo: qo.TipoDato, sub: qo.QueryResponseGroupSubTotal): number {
-    if (campo == qo.TipoDato.ventasExentas) return sub.exento
-    if (campo == qo.TipoDato.ventasAfectas) return sub.afecto
-    if (campo == qo.TipoDato.ventasNetas) return sub.neto
-    if (campo == qo.TipoDato.ventasBrutas) return sub.bruto
-    if (campo == qo.TipoDato.impuestosRetenidos) return sub.totalImpuesto
+function getValorCampo(campo: qo.CamposNumericosEnum, sub: qo.QueryResponseGroupSubTotal): number {
+    if (campo == qo.CamposNumericosEnum.ventasExentas) return sub.exento
+    if (campo == qo.CamposNumericosEnum.ventasAfectas) return sub.afecto
+    if (campo == qo.CamposNumericosEnum.ventasNetas) return sub.neto
+    if (campo == qo.CamposNumericosEnum.ventasBrutas) return sub.bruto
+    if (campo == qo.CamposNumericosEnum.impuestosRetenidos) return sub.totalImpuesto
 
     return 0
 
@@ -469,11 +476,11 @@ function getDataTable(query: qo.QueryDetail, Lineas: qo.Linea[]): qo.DataTable {
     //Crear Columnas cols
     Object.keys(query.asignacion).forEach(j => {
         if (query.asignacion[j].campo)
-            dt.cols.push({ label: qo.TipoDato[query.asignacion[j].campo], type: 'number' })
+            dt.cols.push({ label: qo.CamposNumericosEnum[query.asignacion[j].campo], type: 'number' })
         else if (query.asignacion[j].periodo)
             dt.cols.push({ label: periodos.TipoPeriodos[query.consulta.TipoPeriodos], type: 'string' })
         else if (query.asignacion[j].receptor)
-            dt.cols.push({ label: query.asignacion[j].receptor, type: 'string' })
+            dt.cols.push({ label: qo.GrupoReceptorEnum[query.asignacion[j].receptor], type: 'string' })
         else if (query.asignacion[j].etiquetaItmVta)
             dt.cols.push({ label: query.asignacion[j].etiquetaItmVta, type: 'string' })
         else if (query.asignacion[j].etiquetaRecep)

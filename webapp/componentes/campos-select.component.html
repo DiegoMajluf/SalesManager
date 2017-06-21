@@ -1,0 +1,40 @@
+<div>
+    <select [(ngModel)]="keyValue">
+        <optgroup label="Datos de Ventas">
+            <option value="campo-{{CamposNumericos.ventasNetas}}">Ventas Netas</option>
+            <option value="campo-{{CamposNumericos.ventasBrutas}}">Ventas Brutas</option>
+            <option value="campo-{{CamposNumericos.ventasAfectas}}">Ventas Afectas</option>
+            <option value="campo-{{CamposNumericos.ventasExentas}}">Ventas Exentas</option>
+            <option value="campo-{{CamposNumericos.cantDocs}}">N° de Documentos</option>
+            <option value="campo-{{CamposNumericos.cantClientes}}">N° de Clientes</option>
+        </optgroup>
+        <optgroup label="Agrupar por datos de Receptor">
+            <option value="receptor-{{GrupoReceptor.clientes}}">Nombre - Rut</option>
+            <option value="receptor-{{GrupoReceptor.paises}}">País</option>
+            <option value="receptor-{{GrupoReceptor.ciudades}}">Ciudad</option>
+            <option value="receptor-{{GrupoReceptor.comunas}}">Comuna</option>
+            <option value="receptor-etiqueta">Etiqueta de Receptor</option>
+        </optgroup>
+        <optgroup label="Agrupar por datos de item facturados">
+            <option value="ItemVentas-{{GrupoItemVentas.codigo}}">Codigo - Nombre</option>
+            <option value="ItemVentas-{{GrupoItemVentas.nombres}}">Nombre</option>
+            <option value="ItemVentas-etiqueta">Etiqueta de Ventas</option>
+        </optgroup>
+        <optgroup label="Agrupar por Períodos">
+            <option value="periodo-{{Periodos.diarias}}">Diario</option>
+            <option value="periodo-{{Periodos.semanales}}">Semanal</option>
+            <option value="periodo-{{Periodos.quincenales}}">Quincenal</option>
+            <option value="periodo-{{Periodos.mensuales}}">Mensual</option>
+            <option value="periodo-{{Periodos.bimensuales}}">Bimestral</option>
+            <option value="periodo-{{Periodos.trimestrales}}">Trimestral</option>
+            <option value="periodo-{{Periodos.cuatrimestrales}}">Cuatrimestral</option>
+            <option value="periodo-{{Periodos.semestrales}}">Semestral</option>
+            <option value="periodo-{{Periodos.anuales}}">Anual</option>
+        </optgroup>
+        <option value="moneda">Moneda del documento</option>
+    </select>
+
+    <div *ngIf="keyValue.indexOf('periodo') === 0">
+        Seleccionemos la clase de periodos
+    </div>
+</div>

@@ -46,17 +46,17 @@ export interface QueryDetail {
 
 export interface columnsAsignations {
     [id: string]: {
-        campo?: TipoDato,
-        receptor?: "clientes" | "comunas" | "ciudades",
+        campo?: CamposNumericosEnum,
+        receptor?: GrupoReceptorEnum,
         etiquetaRecep?: string,
-        itemVenta?: "tipoCod" | "codigo" | "nombres",
+        itemVenta?: GrupoItemVentaEnum,
         etiquetaItmVta?: string,
-        periodo?: string,
+        periodo?: periodos.TipoPeriodos,
         moneda?: string
     }
 }
 
-export enum TipoDato {
+export enum CamposNumericosEnum {
     ventasExentas,
     ventasAfectas,
     ventasNetas,
@@ -64,7 +64,20 @@ export enum TipoDato {
     cantDocs,
     cantClientes,
     cantProductos,
-    impuestosRetenidos
+    impuestosRetenidos 
+}
+
+export enum GrupoItemVentaEnum {
+    tipoCod,
+    codigo,
+    nombres
+}
+
+export enum GrupoReceptorEnum {
+    clientes,
+    comunas,
+    ciudades,
+    paises
 }
 
 export interface QueryResponsePoint {

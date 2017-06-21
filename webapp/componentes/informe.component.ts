@@ -12,7 +12,7 @@ import { appData } from 'core-sales-manager'
 })
 export class InformeComponent implements OnInit {
     constructor(private infser: InformesService, private qds: QueryDataService) { }
-    @Input('default') Id: string;
+    @Input() Id: string;
     Informe: any;
     Graph: GraphDetail
     @ViewChild(GraphComponent) GraphComp: GraphComponent
@@ -22,6 +22,7 @@ export class InformeComponent implements OnInit {
     }
 
     ngOnInit() {
+        if (!this.Id) return
         if (!google.visualization) {
             Observable.forkJoin(
                 this.infser.getInformeById(this.Id)
