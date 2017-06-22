@@ -1,6 +1,6 @@
 import { Component, OnInit, ElementRef, ViewChild } from '@angular/core';
-import { ChartType, GruposDeGraficos, ColumnsDefinition } from "../../commons/definiciones";
-var chartDef = <{[name: string]: ChartType}>require('../chart-definitions.json')
+import { ChartType, GruposDeGraficos, ColumnsDefinition, QueryDetail } from "../../commons/definiciones";
+var chartDef = <{ [name: string]: ChartType }>require('../chart-definitions.json')
 @Component({
     selector: 'graph-edit',
     templateUrl: './graph-edit.component.html',
@@ -14,8 +14,13 @@ export class GraphEditComponent implements OnInit {
     Grupos: GruposDeGraficos[]
     GraphSelect: ChartType
     Series: ColumnsDefinition[] = []
+    queryDetail: QueryDetail = {consulta: {}, asignacion: {}}
     constructor() { }
 
+
+    AgregarSerie(col: ColumnsDefinition) {
+        this.Series.unshift(JSON.parse(JSON.stringify(col)))
+    }
 
     ngOnInit() {
         let obg = Object.keys(chartDef)

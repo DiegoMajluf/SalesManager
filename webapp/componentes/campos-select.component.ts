@@ -1,5 +1,5 @@
-import { Component, OnInit } from '@angular/core';
-import { CamposNumericosEnum, GrupoReceptorEnum, GrupoItemVentaEnum} from '../../commons/definiciones'
+import { Component, OnInit, Input } from '@angular/core';
+import { CamposNumericosEnum, GrupoReceptorEnum, GrupoItemVentaEnum, ColumnsDefinition } from '../../commons/definiciones'
 import { periodos } from "core-sales-manager";
 
 @Component({
@@ -11,8 +11,10 @@ export class CamposSelectComponent implements OnInit {
     GrupoReceptor = GrupoReceptorEnum
     GrupoItemVentas = GrupoItemVentaEnum
     Periodos = periodos.TipoPeriodos
+    @Input() columna: ColumnsDefinition
 
     keyValue: string
+    keyValueSerie: string
     constructor() { }
 
     ngOnInit() { }

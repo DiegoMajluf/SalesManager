@@ -12,7 +12,7 @@ export interface QueryDetail {
     consulta: {
         UltPeriodoOffset?: number,
         NumPeriodos?: number,
-        TipoPeriodos: periodos.TipoPeriodos,
+        TipoPeriodos?: periodos.TipoPeriodos,
         ComparaMismaFraccionDePeriodo?: boolean,
         PrimerosNdias?: number
     }

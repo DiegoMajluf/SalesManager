@@ -22,14 +22,14 @@ export class InformesService {
                 "consulta": {
                     "UltPeriodoOffset": 0,
                     "NumPeriodos": 5,
-                    "TipoPeriodos": 3
+                    "TipoPeriodos": periodos.TipoPeriodos.mensuales
                 },
                 "filtros": {
 
                 },
                 "asignacion": {
                     "0": {
-                        "periodo": "mensuales"
+                        "periodo": periodos.TipoPeriodos.mensuales
                     },
                     "1": {
                         "campo": CamposNumericosEnum.ventasNetas

@@ -1,6 +1,6 @@
 <div>
     <select [(ngModel)]="keyValue">
-        <optgroup label="Datos de Ventas">
+        <optgroup label="Datos de Ventas" *ngIf="columna.dataType.indexOf('number') !== -1">
             <option value="campo-{{CamposNumericos.ventasNetas}}">Ventas Netas</option>
             <option value="campo-{{CamposNumericos.ventasBrutas}}">Ventas Brutas</option>
             <option value="campo-{{CamposNumericos.ventasAfectas}}">Ventas Afectas</option>
@@ -8,19 +8,19 @@
             <option value="campo-{{CamposNumericos.cantDocs}}">N° de Documentos</option>
             <option value="campo-{{CamposNumericos.cantClientes}}">N° de Clientes</option>
         </optgroup>
-        <optgroup label="Agrupar por datos de Receptor">
-            <option value="receptor-{{GrupoReceptor.clientes}}">Nombre - Rut</option>
+        <optgroup label="Datos de Clientes" *ngIf="columna.dataType.indexOf('string') !== -1">
+            <option value="receptor-{{GrupoReceptor.clientes}}">Razon Social - RUT</option>
             <option value="receptor-{{GrupoReceptor.paises}}">País</option>
             <option value="receptor-{{GrupoReceptor.ciudades}}">Ciudad</option>
             <option value="receptor-{{GrupoReceptor.comunas}}">Comuna</option>
             <option value="receptor-etiqueta">Etiqueta de Receptor</option>
         </optgroup>
-        <optgroup label="Agrupar por datos de item facturados">
+        <optgroup label="Datos de Productos o Servicios" *ngIf="columna.dataType.indexOf('string') !== -1">
             <option value="ItemVentas-{{GrupoItemVentas.codigo}}">Codigo - Nombre</option>
             <option value="ItemVentas-{{GrupoItemVentas.nombres}}">Nombre</option>
             <option value="ItemVentas-etiqueta">Etiqueta de Ventas</option>
         </optgroup>
-        <optgroup label="Agrupar por Períodos">
+        <optgroup label="Períodos" *ngIf="columna.dataType.indexOf('string') !== -1 || columna.dataType.indexOf('date') !== -1">
             <option value="periodo-{{Periodos.diarias}}">Diario</option>
             <option value="periodo-{{Periodos.semanales}}">Semanal</option>
             <option value="periodo-{{Periodos.quincenales}}">Quincenal</option>
@@ -34,7 +34,29 @@
         <option value="moneda">Moneda del documento</option>
     </select>
 
-    <div *ngIf="keyValue.indexOf('periodo') === 0">
+    <select [(ngModel)]="keyValueSerie" *ngIf="columna.esRepetible && keyValue && keyValue.indexOf('campo') === 0">
+        <optgroup label="Crear series por datos de Cliente">
+            <option value="receptor-{{GrupoReceptor.clientes}}">Razon Social - RUT</option>
+            <option value="receptor-{{GrupoReceptor.paises}}">País</option>
+            <option value="receptor-{{GrupoReceptor.ciudades}}">Ciudad</option>
+            <option value="receptor-{{GrupoReceptor.comunas}}">Comuna</option>
+            <option value="receptor-etiqueta">Etiqueta de Receptor</option>
+        </optgroup>
+        <optgroup label="Crear series por productos o servicios facturados">
+            <option value="ItemVentas-{{GrupoItemVentas.codigo}}">Codigo - Nombre</option>
+            <option value="ItemVentas-{{GrupoItemVentas.nombres}}">Nombre</option>
+            <option value="ItemVentas-etiqueta">Etiqueta de Ventas</option>
+        </optgroup>
+
+        <optgroup label="Crear series por características de documentos">
+            <option value="moneda">Moneda del documento</option>
+        </optgroup>
+    </select>
+
+    <div *ngIf="keyValue && keyValue.indexOf('periodo') === 0">
         Seleccionemos la clase de periodos
+    </div>
+    <div *ngIf="keyValue === 'moneda'">
+        Seleccionemos las monedas
     </div>
 </div>

@@ -1,5 +1,5 @@
 <tabset>
-    <tab heading='Gráficos'>
+    <tab heading='Gráfico'>
         <accordion [closeOthers]="true">
             <accordion-group *ngFor="let grp of Grupos">
                 <div accordion-heading (click)="grp.isOpen = !grp.isOpen">
@@ -18,6 +18,9 @@
         </accordion>
 
     </tab>
+    <tab heading='Período'>
+
+    </tab>
     <tab heading='Datos'>
         <div class="container-fluid">
             <div class="row form-group" *ngIf="GraphSelect">
@@ -26,18 +29,19 @@
                         <div class="panel-heading">
                             {{col.descripcion}}
                             {{col.opcional ? '(opcional)' : ''}}
-                            <span *ngIf="col.esRepetible" class="glyphicon glyphicon-plus pull-right" aria-hidden="true" data-toggle="tooltip" title="Agrega un Serie"></span>
+                            <span *ngIf="col.esRepetible" class="glyphicon glyphicon-plus pull-right pointer" (click)="AgregarSerie(col)"
+                            aria-hidden="true" data-toggle="tooltip" title="Agrega un Serie"></span>
                         </div>
                         <div class="panel-body">
-                            <campos-select></campos-select>
+                            <campos-select [columna]="col"></campos-select>
                         </div>
                     </div>
                 </div>
-                <div *ngFor="let col of Series; let i = index" class="col-xs-12 col-sm-6 col-md-4">
+                <div *ngFor="let col of Series" class="col-xs-12 col-sm-6 col-md-4">
                     <div class="panel panel-default">
-                        <div class="panel-heading">Columna {{i + 1}}</div>
+                        <div class="panel-heading">{{col.descripcion}}</div>
                         <div class="panel-body">
-                            <campos-select></campos-select>
+                            <campos-select [columna]="col"></campos-select>
                         </div>
                     </div>
 
@@ -46,6 +50,6 @@
             </div>
         </div>
     </tab>
-    <tab heading='Personalización'>Personalización</tab>
+    <tab heading='Diseño'>Diseño</tab>
     <tab heading='Ver'>Ver</tab>
 </tabset>
