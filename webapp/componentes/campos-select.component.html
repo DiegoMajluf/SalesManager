@@ -1,5 +1,5 @@
 <div>
-    <select [(ngModel)]="keyValue">
+    <select [(ngModel)]="keyValue" (change)="KeyValueChange()">
         <optgroup label="Datos de Ventas" *ngIf="columna.dataType.indexOf('number') !== -1">
             <option value="campo-{{CamposNumericos.ventasNetas}}">Ventas Netas</option>
             <option value="campo-{{CamposNumericos.ventasBrutas}}">Ventas Brutas</option>

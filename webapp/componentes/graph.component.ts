@@ -1,6 +1,6 @@
 import { Component, OnInit, ViewChild, ElementRef, Input } from '@angular/core';
 import { Observable } from 'rxjs/Observable';
-import { ChartType, columnsAsignations, GraphDetail } from "../../commons/definiciones";
+import { ChartType, columnAsignation, GraphDetail } from "../../commons/definiciones";
 var chartDef = <{ [name: string]: ChartType }>require('../chart-definitions.json')
 
 declare var canvg: any
@@ -20,7 +20,7 @@ declare var canvg: any
 })
 export class GraphComponent {
   @ViewChild('div') div: ElementRef
-  colsAsig: columnsAsignations
+  colsAsig: columnAsignation[]
   Chart: any
   @Input() graph: GraphDetail
 

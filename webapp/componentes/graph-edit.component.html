@@ -24,16 +24,15 @@
     <tab heading='Datos'>
         <div class="container-fluid">
             <div class="row form-group" *ngIf="GraphSelect">
-                <div *ngFor="let col of GraphSelect.columns" class="col-xs-12 col-sm-6 col-md-4">
+                <div *ngFor="let col of GraphSelect.columns; let i= index" class="col-xs-12 col-sm-6 col-md-4">
                     <div class="panel panel-default">
                         <div class="panel-heading">
-                            {{col.descripcion}}
-                            {{col.opcional ? '(opcional)' : ''}}
-                            <span *ngIf="col.esRepetible" class="glyphicon glyphicon-plus pull-right pointer" (click)="AgregarSerie(col)"
-                            aria-hidden="true" data-toggle="tooltip" title="Agrega un Serie"></span>
+                            {{col.descripcion}} {{col.opcional ? '(opcional)' : ''}}
+                            <span *ngIf="col.esRepetible" class="glyphicon glyphicon-plus pull-right pointer"
+                            (click)="AgregarSerie(col)" aria-hidden="true" data-toggle="tooltip" title="Agrega un Serie"></span>
                         </div>
                         <div class="panel-body">
-                            <campos-select [columna]="col"></campos-select>
+                            <campos-select [(ngModel)]="queryDetail.asignacion[i]" (change)="AsignarAColumna()" [columna]="col" ngDefaultControl></campos-select>
                         </div>
                     </div>
                 </div>
@@ -41,7 +40,7 @@
                     <div class="panel panel-default">
                         <div class="panel-heading">{{col.descripcion}}</div>
                         <div class="panel-body">
-                            <campos-select [columna]="col"></campos-select>
+                            <!--<campos-select [columna]="col"></campos-select>-->
                         </div>
                     </div>
 

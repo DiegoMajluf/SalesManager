@@ -40,20 +40,18 @@ export interface QueryDetail {
             moneda: (string | RegExp)[]
         }
     },
-    asignacion: columnsAsignations
+    asignacion: columnAsignation[]
 }
 
 
-export interface columnsAsignations {
-    [id: string]: {
-        campo?: CamposNumericosEnum,
-        receptor?: GrupoReceptorEnum,
-        etiquetaRecep?: string,
-        itemVenta?: GrupoItemVentaEnum,
-        etiquetaItmVta?: string,
-        periodo?: periodos.TipoPeriodos,
-        moneda?: string
-    }
+export interface columnAsignation {
+    campo?: CamposNumericosEnum,
+    receptor?: GrupoReceptorEnum,
+    etiquetaRecep?: string,
+    itemVenta?: GrupoItemVentaEnum,
+    etiquetaItmVta?: string,
+    periodo?: periodos.TipoPeriodos,
+    moneda?: string
 }
 
 export enum CamposNumericosEnum {
@@ -64,7 +62,7 @@ export enum CamposNumericosEnum {
     cantDocs,
     cantClientes,
     cantProductos,
-    impuestosRetenidos 
+    impuestosRetenidos
 }
 
 export enum GrupoItemVentaEnum {

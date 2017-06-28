@@ -52,8 +52,7 @@ router.post('/getquerys', (req, res, next) => {
     let dtaTables: qo.DataTable[] = [];
 
 
-    (querys.some(query => Object.keys(query.asignacion)
-        .map(id => query.asignacion[id])
+    (querys.some(query => query.asignacion
         .some(a => a.receptor &&
             (a.receptor == qo.GrupoReceptorEnum.comunas || a.receptor == qo.GrupoReceptorEnum.ciudades)))
         ? mongo.GetCodigosPaises() : Observable.of({}))
@@ -213,11 +212,10 @@ function getPoints(pes: { periodo: periodos.Periodo, dtes: dte.DTE[] }[], query:
 
     /**Corresponde a los requerimientos de columnas de las consultas */
     let datosColumnas = <{ clave: string, campo: string }[]>[{ clave: 'moneda' }]//concatenamos el campo monedas. Debe ir al comienzo para que los subtotales sean consistentes
-        .concat(Object.keys(query.asignacion)
-            .sort((k1, k2) => k1.localeCompare(k2)) // las claves son indicadores de posición
-            .map(key => Object.keys(query.asignacion[key])
+        .concat(query.asignacion
+            .map(q => Object.keys(q)
                 .reduce((acc, c) => {
-                    acc.campo = query.asignacion[key][c]
+                    acc.campo = q[c]
                     acc.clave = c
                     return acc
                 }, { clave: <string>null, campo: <string>null })
@@ -225,9 +223,7 @@ function getPoints(pes: { periodo: periodos.Periodo, dtes: dte.DTE[] }[], query:
             .filter(o => o.clave !== 'moneda')) //Se elimina 'moneda' de las asignaciones si ha sido incluído (ya se agregó al comienzo)
         .filter(o => o.clave !== 'campo')
 
-    let campos = Object.keys(query.asignacion)
-        .filter(q => query.asignacion[q].campo)
-        .map(q => query.asignacion[q])
+    let campos = query.asignacion.filter(q => q.campo)
 
 
     pes.forEach(pd => {
@@ -474,18 +470,18 @@ function getDataTable(query: qo.QueryDetail, Lineas: qo.Linea[]): qo.DataTable {
     let dt = { rows: <qo.FilaDataTable[]>[], cols: <qo.ColumnaDataTable[]>[] }
 
     //Crear Columnas cols
-    Object.keys(query.asignacion).forEach(j => {
-        if (query.asignacion[j].campo)
-            dt.cols.push({ label: qo.CamposNumericosEnum[query.asignacion[j].campo], type: 'number' })
-        else if (query.asignacion[j].periodo)
+    query.asignacion.forEach(q => {
+        if (q.campo)
+            dt.cols.push({ label: qo.CamposNumericosEnum[q.campo], type: 'number' })
+        else if (q.periodo)
             dt.cols.push({ label: periodos.TipoPeriodos[query.consulta.TipoPeriodos], type: 'string' })
-        else if (query.asignacion[j].receptor)
-            dt.cols.push({ label: qo.GrupoReceptorEnum[query.asignacion[j].receptor], type: 'string' })
-        else if (query.asignacion[j].etiquetaItmVta)
-            dt.cols.push({ label: query.asignacion[j].etiquetaItmVta, type: 'string' })
-        else if (query.asignacion[j].etiquetaRecep)
-            dt.cols.push({ label: query.asignacion[j].etiquetaRecep, type: 'string' })
-        else if (query.asignacion[j].moneda)
+        else if (q.receptor)
+            dt.cols.push({ label: qo.GrupoReceptorEnum[q.receptor], type: 'string' })
+        else if (q.etiquetaItmVta)
+            dt.cols.push({ label: q.etiquetaItmVta, type: 'string' })
+        else if (q.etiquetaRecep)
+            dt.cols.push({ label: q.etiquetaRecep, type: 'string' })
+        else if (q.moneda)
             dt.cols.push({ label: 'Moneda', type: 'string' })
         else //Opcionales que se deja en blanco
             dt.cols.push({ type: 'string' })
@@ -497,17 +493,17 @@ function getDataTable(query: qo.QueryDetail, Lineas: qo.Linea[]): qo.DataTable {
 
         //**Indica si en las asignaciones debemos restar al índice por la aparición de campo y periodo */
 
-        let startMoneda = Object.keys(query.asignacion).some(q => !query.asignacion[q].moneda) ? 1 : 0
+        let startMoneda = query.asignacion.some(q => !q.moneda) ? 1 : 0
         let menosIndex = 0
 
         dt.rows.push({
-            c: Object.keys(query.asignacion)
-                .reduce((acc, id, k) => {
+            c: query.asignacion
+                .reduce((acc, q, k) => {
                     let v: string | number
-                    if (query.asignacion[id].campo) {
-                        v = getValorCampo(query.asignacion[id].campo, linea.data) || 0
+                    if (q.campo) {
+                        v = getValorCampo(q.campo, linea.data) || 0
                         menosIndex++
-                    } else if (query.asignacion[id].moneda) {
+                    } else if (q.moneda) {
                         v = linea.campos[0].clave
                     } else
                         v = linea.campos[startMoneda + k - menosIndex].clave || null

@@ -4,7 +4,7 @@ import { Observable } from 'rxjs/Observable'
 import { periodos } from 'core-sales-manager';
 import { QueryDataService } from './query-data.service'
 import { GraphDetail, CamposNumericosEnum, ChartType } from "../../commons/definiciones";
-var chartDef = <{[name: string]: ChartType}>require('../chart-definitions.json')
+var chartDef = <{ [name: string]: ChartType }>require('../chart-definitions.json')
 
 
 @Injectable()
@@ -27,18 +27,13 @@ export class InformesService {
                 "filtros": {
 
                 },
-                "asignacion": {
-                    "0": {
-                        "periodo": periodos.TipoPeriodos.mensuales
-                    },
-                    "1": {
-                        "campo": CamposNumericosEnum.ventasNetas
-                    },
-                    "2": {
-                        "campo": CamposNumericosEnum.ventasNetas
-                    },
-
-                }
+                "asignacion": [{
+                    "periodo": periodos.TipoPeriodos.mensuales
+                }, {
+                    "campo": CamposNumericosEnum.ventasNetas
+                }, {
+                    "campo": CamposNumericosEnum.ventasNetas
+                }]
             }]
 
         }])

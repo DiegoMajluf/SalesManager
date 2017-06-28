@@ -1,5 +1,5 @@
 import { Component, OnInit, ElementRef, ViewChild } from '@angular/core';
-import { ChartType, GruposDeGraficos, ColumnsDefinition, QueryDetail } from "../../commons/definiciones";
+import { ChartType, GruposDeGraficos, ColumnsDefinition, QueryDetail, columnAsignation } from "../../commons/definiciones";
 var chartDef = <{ [name: string]: ChartType }>require('../chart-definitions.json')
 @Component({
     selector: 'graph-edit',
@@ -9,17 +9,23 @@ var chartDef = <{ [name: string]: ChartType }>require('../chart-definitions.json
         'tab {padding-top: 1em}'
     ]
 })
+
 export class GraphEditComponent implements OnInit {
     Graficos: ChartType[]
     Grupos: GruposDeGraficos[]
     GraphSelect: ChartType
     Series: ColumnsDefinition[] = []
-    queryDetail: QueryDetail = {consulta: {}, asignacion: {}}
+    queryDetail: QueryDetail = {consulta: {}, asignacion: []}
     constructor() { }
 
 
     AgregarSerie(col: ColumnsDefinition) {
         this.Series.unshift(JSON.parse(JSON.stringify(col)))
+    }
+
+    AsignarAColumna() {
+        console.log(this.queryDetail)
+    
     }
 
     ngOnInit() {
