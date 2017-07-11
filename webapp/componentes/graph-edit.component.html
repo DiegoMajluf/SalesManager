@@ -8,7 +8,7 @@
                     <i class="pull-right float-xs-right glyphicon" [ngClass]="{'glyphicon-chevron-down': grp.isOpen, 'glyphicon-chevron-right': !grp.isOpen}"></i>
                 </div>
                 <div>
-                    <div *ngFor="let gr of grp.charts" (click)="GraphSelect = gr" class="list-group-item pointer{{(GraphSelect == gr) ? ' select' : ''}}">
+                    <div *ngFor="let gr of grp.charts" (click)="SeleccionarGrafico(gr)" class="list-group-item pointer{{(GraphSelect == gr) ? ' select' : ''}}">
                         <img [src]="'./public/images/' + gr.className + '.png'" height="50" class="img-rounded">
                         <span>{{gr.nombre}}</span>
                     </div>
@@ -19,7 +19,27 @@
 
     </tab>
     <tab heading='Período'>
+        <div class="container-fluid form-horizontal">
+            <div class="row form-group">
+                <div class="col-sm-2">
+                    <label class="control-label">
+                        Períodos
+                    </label>
+                </div>
+                <div class="col-sm-10">
+                    <select [(ngModel)]="queryDetail.consulta.TipoPeriodos" class="form-control">
+                        <option [value]="p.Valor" *ngFor="let p of Periodos">{{p.Nombre}}</option>
+                    </select>
+                </div>
 
+            </div>
+            <div class="form-group">
+                <label class="control-label">
+                    Número de Períodos
+                    <input type="number" [(ngModel)]="queryDetail.consulta.NumPeriodos" class="form-control">                   
+                </label>
+            </div>
+        </div>
     </tab>
     <tab heading='Datos'>
         <div class="container-fluid">
@@ -28,8 +48,8 @@
                     <div class="panel panel-default">
                         <div class="panel-heading">
                             {{col.descripcion}} {{col.opcional ? '(opcional)' : ''}}
-                            <span *ngIf="col.esRepetible" class="glyphicon glyphicon-plus pull-right pointer"
-                            (click)="AgregarSerie(col)" aria-hidden="true" data-toggle="tooltip" title="Agrega un Serie"></span>
+                            <span *ngIf="col.esRepetible" class="glyphicon glyphicon-plus pull-right pointer" (click)="AgregarSerie(col)" aria-hidden="true"
+                                data-toggle="tooltip" title="Agrega un Serie"></span>
                         </div>
                         <div class="panel-body">
                             <campos-select [(ngModel)]="queryDetail.asignacion[i]" (change)="AsignarAColumna()" [columna]="col" ngDefaultControl></campos-select>

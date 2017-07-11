@@ -22,16 +22,15 @@ export class CamposSelectComponent implements OnInit, ControlValueAccessor {
     @Input() columna: ColumnsDefinition
 
     colAsig: columnAsignation
-    keyValue: string
     keyValueSerie: string
 
     private onTouchedCallback: () => void = () => { }
     private onChangeCallback: (col: columnAsignation) => void = () => { }
     constructor() { }
 
-    KeyValueChange() {
-        this.colAsig = {}
-        let sel = this.keyValue.split('-')
+    KeyValueChange(keyValue: string) {
+        if (Object.keys(this.colAsig).length > 0) Object.keys(this.colAsig).forEach(k => delete this.colAsig[k])
+        let sel = keyValue.split('-')
         switch (sel[0]) {
             case 'campo':
                 this.colAsig.campo = +sel[1]
@@ -51,25 +50,19 @@ export class CamposSelectComponent implements OnInit, ControlValueAccessor {
         }
     }
 
-    get ColumnAsignation(): columnAsignation {
-        console.log('get', this.colAsig)
-        return this.colAsig;
+    get ColumnAsignation(): string {
+        if (this.colAsig && Object.keys(this.colAsig).length > 0){
+            return Object.keys(this.colAsig).reduce((acc, key) => acc + `${key}-${this.colAsig[key]}`, '')
+        }return null
     }
 
-    set ColumnAsignation(col: columnAsignation) {
-        console.log('set', col)
-        if (col !== this.colAsig) {
-            this.colAsig = col;
-            this.onChangeCallback(col);
-        }
+    set ColumnAsignation(col: string) {
+        this.KeyValueChange(col)
+        this.onChangeCallback(this.colAsig);
     }
 
     writeValue(col: columnAsignation) {
-        console.log('write', col)
-        if (col !== this.colAsig) {
-            this.colAsig = col;
-            if (col) this.keyValue = Object.keys(col).reduce((acc, key) => key + '-' + col[key])
-        }
+        this.colAsig = col;
     }
 
     registerOnChange(fn: (col: columnAsignation) => void) { this.onChangeCallback = fn }
